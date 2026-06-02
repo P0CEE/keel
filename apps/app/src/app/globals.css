@@ -1,0 +1,9 @@
+@import "@keel/ui/styles.css";
+
+/* The product app uses Inter (loaded via next/font in layout.tsx). Override
+   the shared `--font-sans` token so every `font-sans` utility picks it up. */
+@theme {
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+}

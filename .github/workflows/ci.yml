@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Format check
+        run: bun run format:check
+      - name: Lint
+        run: bun run lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Same placeholders as the build job, so any future non-nullable env
+      # access fails in typecheck instead of leaking to build.
+      NEXT_PUBLIC_APP_URL: http://localhost:3173
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Typecheck
+        run: bun run typecheck
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Test
+        run: bun run test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Placeholder values so Next.js compiles without baking real production
+      # URLs into the CI artifact. Override per-environment at deploy time.
+      NEXT_PUBLIC_APP_URL: http://localhost:3173
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Build
+        run: bun run build

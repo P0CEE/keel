@@ -1,0 +1,17 @@
+* text=auto eol=lf
+
+bun.lock linguist-generated=true
+**/routeTree.gen.ts linguist-generated=true
+**/_generated/** linguist-generated=true
+
+# Binary assets — git treats them as opaque, no diff/merge attempts.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.avif binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

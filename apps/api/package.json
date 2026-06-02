@@ -1,0 +1,34 @@
+{
+  "name": "@keel/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/trpc/router.ts"
+  },
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint ."
+  },
+  "dependencies": {
+    "@hono/trpc-server": "catalog:",
+    "@hono/zod-openapi": "catalog:",
+    "@keel/ai": "workspace:*",
+    "@keel/cache": "workspace:*",
+    "@keel/db": "workspace:*",
+    "@keel/jobs": "workspace:*",
+    "@scalar/hono-api-reference": "catalog:",
+    "@trpc/server": "catalog:",
+    "better-auth": "catalog:",
+    "hono": "catalog:",
+    "superjson": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@keel/tsconfig": "workspace:*",
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

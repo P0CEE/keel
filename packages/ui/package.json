@@ -1,0 +1,67 @@
+{
+  "name": "@keel/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./styles.css": "./src/styles/index.css",
+    "./theme.css": "./src/styles/theme.css",
+    "./cn": "./src/lib/cn.ts",
+    "./button": "./src/components/button.tsx",
+    "./button-group": "./src/components/button-group.tsx",
+    "./card": "./src/components/card.tsx",
+    "./status-pill": "./src/components/status-pill.tsx",
+    "./input": "./src/components/input.tsx",
+    "./input-group": "./src/components/input-group.tsx",
+    "./field": "./src/components/field.tsx",
+    "./label": "./src/components/label.tsx",
+    "./separator": "./src/components/separator.tsx",
+    "./switch": "./src/components/switch.tsx",
+    "./toggle": "./src/components/toggle.tsx",
+    "./toggle-group": "./src/components/toggle-group.tsx",
+    "./dropdown-menu": "./src/components/dropdown-menu.tsx",
+    "./select": "./src/components/select.tsx",
+    "./dialog": "./src/components/dialog.tsx",
+    "./popover": "./src/components/popover.tsx",
+    "./tooltip": "./src/components/tooltip.tsx",
+    "./command": "./src/components/command.tsx",
+    "./avatar": "./src/components/avatar.tsx",
+    "./notice": "./src/components/notice.tsx",
+    "./keel-mark": "./src/components/keel-mark.tsx"
+  },
+  "scripts": {
+    "lint": "oxlint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@radix-ui/react-avatar": "catalog:",
+    "@radix-ui/react-dialog": "catalog:",
+    "@radix-ui/react-dropdown-menu": "catalog:",
+    "@radix-ui/react-label": "catalog:",
+    "@radix-ui/react-popover": "catalog:",
+    "@radix-ui/react-select": "catalog:",
+    "@radix-ui/react-separator": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "@radix-ui/react-switch": "catalog:",
+    "@radix-ui/react-toggle": "catalog:",
+    "@radix-ui/react-toggle-group": "catalog:",
+    "@radix-ui/react-tooltip": "catalog:",
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "cmdk": "catalog:",
+    "lucide-react": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tw-animate-css": "catalog:"
+  },
+  "devDependencies": {
+    "@keel/tsconfig": "workspace:*",
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  }
+}

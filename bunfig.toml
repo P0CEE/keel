@@ -1,0 +1,7 @@
+[install]
+linker = "hoisted"
+exact = false
+# Wait 7 days after a release before letting it land in the lockfile.
+# Mitigates supply-chain attacks that depend on a brand-new malicious version
+# being adopted quickly. Set `minimumReleaseAgeExcludes` for first-party deps.
+minimumReleaseAge = 604800

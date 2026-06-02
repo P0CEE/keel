@@ -1,0 +1,164 @@
+/*
+ * Design tokens.
+ *
+ * Raw values live in `:root` / `.dark` so they can be swapped per theme.
+ * `@theme` only maps them to Tailwind utilities (`bg-card`, `text-muted-foreground`, ...).
+ *
+ * `--canvas` is the page background — the surface behind cards.
+ */
+
+@custom-variant light (&:is(.light *, .light));
+@custom-variant dark (&:is(.dark *, .dark));
+
+:root,
+.light {
+  --radius: 0.625rem;
+
+  /* Motion tokens. Durations sit below the 200ms threshold the article cites
+     as the cause-and-effect ceiling. Exit transitions are intentionally a bit
+     longer than enter to feel polished without slowing perceived response. */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 150ms;
+  --duration-slow: 250ms;
+  --duration-slower: 350ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  --canvas: #f7f7f7;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --border-opaque: var(--border);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* Diff colors (red / green). */
+  --diff-added: #18a46c;
+  --diff-added-surface: color-mix(in oklch, #07c480 15%, transparent);
+  --diff-removed: #ff2e3f;
+  --diff-removed-surface: color-mix(in oklch, #ff6762 15%, transparent);
+
+  color-scheme: light;
+}
+
+.dark {
+  --canvas: #101010;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --border-opaque: color-mix(in oklch, var(--canvas) 90%, oklch(1 0 0));
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+
+  --diff-added: #07c480;
+  --diff-added-surface: color-mix(in oklch, #07c480 10%, transparent);
+  --diff-removed: #ff6762;
+  --diff-removed-surface: color-mix(in oklch, #ff6762 10%, transparent);
+
+  color-scheme: dark;
+}
+
+/* System preference fallback when no explicit `.light` / `.dark` class is set. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --canvas: #101010;
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --border-opaque: color-mix(in oklch, var(--canvas) 90%, oklch(1 0 0));
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --diff-added: #07c480;
+    --diff-added-surface: color-mix(in oklch, #07c480 10%, transparent);
+    --diff-removed: #ff6762;
+    --diff-removed-surface: color-mix(in oklch, #ff6762 10%, transparent);
+    color-scheme: dark;
+  }
+}
+
+@theme {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-canvas: var(--canvas);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-border-opaque: var(--border-opaque);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-diff-added: var(--diff-added);
+  --color-diff-added-surface: var(--diff-added-surface);
+  --color-diff-removed: var(--diff-removed);
+  --color-diff-removed-surface: var(--diff-removed-surface);
+
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", monospace;
+
+  /* Duration utilities (`duration-fast`, ...) alias the raw `:root` vars so
+     theme-scoped overrides flow through to Tailwind classes.
+     The easings stay as plain CSS vars on `:root` only — using the same name
+     in `@theme` would create a circular `var()` reference. */
+  --transition-duration-fast: var(--duration-fast);
+  --transition-duration-normal: var(--duration-normal);
+  --transition-duration-slow: var(--duration-slow);
+  --transition-duration-slower: var(--duration-slower);
+}

@@ -1,0 +1,40 @@
+{
+  "semi": true,
+  "trailingComma": "all",
+  "singleQuote": false,
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "proseWrap": "preserve",
+  "experimentalSortImports": {
+    "groups": [
+      ["value-builtin", "value-external", "type-builtin", "type-external"],
+      [
+        "value-internal",
+        "type-internal",
+        "value-parent",
+        "type-parent",
+        "value-sibling",
+        "type-sibling",
+        "value-index",
+        "type-index"
+      ],
+      "unknown"
+    ],
+    "ignoreCase": true,
+    "internalPattern": ["~/", "@/", "@keel/"],
+    "newlinesBetween": true,
+    "order": "asc"
+  },
+  "experimentalTailwindcss": {},
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    "build",
+    "bun.lock",
+    ".next",
+    ".output",
+    "**/_generated/**",
+    "**/next-env.d.ts"
+  ]
+}

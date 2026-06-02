@@ -1,0 +1,4 @@
+{
+  "extends": "@keel/tsconfig/bun-app.json",
+  "include": ["src"]
+}

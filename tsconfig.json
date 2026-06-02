@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./packages/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": ["bun"]
+  },
+  "include": ["apps/**/*", "packages/**/*", "scripts/**/*"],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.next/**",
+    "**/.output/**",
+    "**/_generated/**"
+  ]
+}

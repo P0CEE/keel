@@ -1,0 +1,46 @@
+name: keel
+
+services:
+  # Local development only. This Postgres has trivial credentials and no TLS —
+  # it stores auth (Better Auth) and application data. In production use a
+  # managed Postgres with strong credentials and a TLS connection string.
+  # The port binds to 127.0.0.1, so only host processes can connect. To reach
+  # it from another container, use `host.docker.internal` (macOS/Windows) or
+  # `--network=host` (Linux).
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      - POSTGRES_USER=keel
+      - POSTGRES_PASSWORD=keel
+      - POSTGRES_DB=keel
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keel -d keel"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Local development only. This Redis has no password and no TLS — it stores
+  # rate-limit keys, cache data and BullMQ job payloads. In production use a
+  # managed Redis with auth and a `rediss://` (TLS) connection string.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres-data:
+  redis-data:

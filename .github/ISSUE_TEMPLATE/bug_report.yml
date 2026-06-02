@@ -1,0 +1,31 @@
+name: Bug report
+description: Report a problem so it can be fixed
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Run ...
+        3. See error
+    validations:
+      required: true
+  - type: input
+    id: package
+    attributes:
+      label: Affected app or package
+      placeholder: "@keel/website, @keel/api, @keel/worker ..."
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "OS, Bun version, browser ..."

@@ -1,0 +1,49 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+build
+.next
+.output
+.turbo
+out
+
+# Next.js
+next-env.d.ts
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+bun-debug.log*
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Test coverage
+coverage
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea
+*.suo
+*.sw?
+
+# OS
+.DS_Store
+*.pem
+
+# Misc
+.vercel
+*.local
+
+# Claude Code session artifacts (transient agent worktrees, local settings)
+.claude/

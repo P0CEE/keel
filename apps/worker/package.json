@@ -1,0 +1,23 @@
+{
+  "name": "@keel/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint ."
+  },
+  "dependencies": {
+    "@keel/jobs": "workspace:*",
+    "bullmq": "catalog:",
+    "hono": "catalog:",
+    "ioredis": "catalog:"
+  },
+  "devDependencies": {
+    "@keel/tsconfig": "workspace:*",
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

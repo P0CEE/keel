@@ -1,0 +1,55 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "globalEnv": ["NODE_ENV"],
+  "ui": "stream",
+  "tasks": {
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "env": [
+        "NEXT_PUBLIC_APP_URL",
+        "NEXT_PUBLIC_API_URL",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_ORG",
+        "SENTRY_PROJECT",
+        "SENTRY_AUTH_TOKEN",
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "OPENAI_API_KEY"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**",
+        ".output/**",
+        "build/**"
+      ]
+    },
+    "dev": {
+      "dependsOn": ["^build"],
+      "persistent": true,
+      "cache": false
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["^topo"],
+      "inputs": ["$TURBO_DEFAULT$", ".env"]
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

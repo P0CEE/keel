@@ -1,0 +1,41 @@
+{
+  "name": "@keel/app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3173",
+    "build": "next build",
+    "start": "next start -p 3173",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint .",
+    "clean": "git clean -xdf .next .turbo node_modules"
+  },
+  "dependencies": {
+    "@keel/api": "workspace:*",
+    "@keel/jobs": "workspace:*",
+    "@keel/ui": "workspace:*",
+    "@sentry/nextjs": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@trpc/client": "catalog:",
+    "@trpc/tanstack-react-query": "catalog:",
+    "better-auth": "catalog:",
+    "clsx": "catalog:",
+    "next": "catalog:",
+    "next-international": "catalog:",
+    "next-themes": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "superjson": "catalog:"
+  },
+  "devDependencies": {
+    "@keel/tsconfig": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  }
+}

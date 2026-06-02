@@ -1,0 +1,92 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "plugins": [
+    "import",
+    "react",
+    "react-perf",
+    "nextjs",
+    "promise",
+    "node",
+    "typescript"
+  ],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "nextjs/no-html-link-for-pages": "off",
+    "nextjs/no-img-element": "off",
+    "nextjs/no-head-element": "off",
+    "prefer-const": ["error", { "destructuring": "all" }],
+    "no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+    ],
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "sort-imports": [
+      "error",
+      {
+        "allowSeparatedGroups": true,
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": false,
+        "ignoreCase": true
+      }
+    ],
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/await-thenable": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-unsafe-return": "warn",
+    "typescript/require-await": "warn",
+    "typescript/consistent-type-imports": "off",
+    "typescript/strict-boolean-expressions": [
+      "error",
+      {
+        "allowString": false,
+        "allowNumber": false,
+        "allowNullableObject": true,
+        "allowNullableBoolean": true,
+        "allowNullableString": true,
+        "allowNullableNumber": false
+      }
+    ],
+    "typescript/prefer-nullish-coalescing": "warn",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["apps/worker/**", "packages/jobs/**", "scripts/**"],
+      "rules": {
+        "no-console": "off",
+        "react-perf/jsx-no-new-object-as-prop": "off"
+      }
+    },
+    {
+      "files": ["**/next.config.ts"],
+      "rules": {
+        "typescript/require-await": "off"
+      }
+    },
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "typescript/no-floating-promises": "off"
+      }
+    }
+  ],
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.next/**",
+    "**/.output/**",
+    "**/_generated/**",
+    "**/build/**",
+    "**/next-env.d.ts",
+    "**/.claude/**"
+  ]
+}

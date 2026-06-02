@@ -1,0 +1,26 @@
+{
+  "name": "@keel/jobs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./registry": "./src/registry.ts",
+    "./connection": "./src/connection.ts"
+  },
+  "scripts": {
+    "lint": "oxlint .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "bullmq": "catalog:",
+    "ioredis": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@keel/tsconfig": "workspace:*",
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

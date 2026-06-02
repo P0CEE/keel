@@ -1,0 +1,152 @@
+@import "@keel/ui/styles.css";
+
+/* The landing uses Geist + Geist Mono (loaded via next/font in layout.tsx).
+   Override the shared font tokens so every `font-sans` / `font-mono` utility
+   picks them up. */
+@theme {
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-mono:
+    var(--font-geist-mono), ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+}
+
+/* Rainbow shimmer: a band sweeps across the headline, then the text rests as
+   the plain foreground colour for the rest of the cycle. The sweep happens in
+   the first ~18% of the loop, so a longer duration means a longer pause
+   between sweeps. */
+@keyframes keel-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  18% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.shimmer-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--foreground) 0%,
+    var(--foreground) 40%,
+    #a855f7 47%,
+    #06b6d4 50%,
+    #f97316 53%,
+    var(--foreground) 60%,
+    var(--foreground) 100%
+  );
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  background-repeat: no-repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: keel-shimmer 8s linear infinite;
+}
+
+/* Entrance: the hero fades and rises into place. */
+@keyframes keel-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-enter {
+  animation: keel-fade-up 0.6s var(--ease-out-expo) both;
+}
+
+/* Floating accents. Compositor-friendly (transform / opacity only). */
+@keyframes keel-doodle-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4) rotate(-12deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+@keyframes keel-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(8deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(8deg);
+  }
+}
+@keyframes keel-wobble {
+  0%,
+  100% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+.doodle-float {
+  animation:
+    keel-doodle-in 0.5s var(--ease-out-expo) 0.35s both,
+    keel-float 5s ease-in-out 0.9s infinite;
+}
+.doodle-wobble {
+  transform-origin: center;
+  animation:
+    keel-doodle-in 0.5s var(--ease-out-expo) 0.5s both,
+    keel-wobble 6s ease-in-out 1s infinite;
+}
+
+/* The keel logo. The logo silhouette masks a box whose foreground-coloured
+   fill carries a rainbow band; the band sweeps across roughly every 4s (the
+   same idea Giti-Flex uses on its logo, done with a CSS mask instead of an
+   inline SVG gradient). At rest the logo is the plain foreground colour. */
+.logo-rainbow {
+  background-color: var(--foreground);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 38%,
+    #a855f7 45%,
+    #06b6d4 50%,
+    #f97316 55%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  -webkit-mask: url("/images/logo.svg") center / contain no-repeat;
+  mask: url("/images/logo.svg") center / contain no-repeat;
+  animation: keel-logo-shimmer 4s linear infinite;
+}
+@keyframes keel-logo-shimmer {
+  from {
+    background-position: 140% 50%;
+  }
+  to {
+    background-position: -40% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-text {
+    animation: none;
+    color: var(--foreground);
+    -webkit-text-fill-color: var(--foreground);
+  }
+  .hero-enter,
+  .doodle-float,
+  .doodle-wobble {
+    animation: none;
+  }
+  .logo-rainbow {
+    animation: none;
+    background-image: none;
+  }
+}
