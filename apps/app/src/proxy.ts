@@ -43,7 +43,10 @@ export function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Better Auth stores the session under the "better-auth" cookie prefix.
+  // Cookie-presence pre-filter, NOT an auth check — a forged non-empty cookie
+  // passes by design. Real enforcement is the API's `protectedProcedure` and
+  // the dashboard layout's redirect; this just avoids a flash for cookie-less
+  // visitors.
   const sessionToken = request.cookies.get("better-auth.session_token")?.value;
 
   // Public paths: the login page and any Better Auth callback route.

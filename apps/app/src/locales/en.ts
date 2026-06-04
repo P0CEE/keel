@@ -55,6 +55,9 @@ export default {
     enqueue_hint:
       "The full operations panel lives at the worker's /admin/queues.",
     loading: "Loading queue...",
+    live: "Live",
+    connecting: "Connecting...",
+    offline: "Offline",
   },
   common: {
     retry: "Retry",

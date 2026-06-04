@@ -12,7 +12,7 @@ import { createContext } from "./trpc/trpc";
 import { AUTH_RATE_LIMIT, GLOBAL_RATE_LIMIT } from "@keel/cache/rate-limit";
 import { closeRedis } from "@keel/cache/redis";
 import { closePool } from "@keel/db";
-import { closeQueue } from "@keel/jobs";
+import { closeQueue, closeQueueEvents } from "@keel/jobs";
 
 // OpenAPIHono extends Hono, so all standard Hono APIs still work — it only
 // adds `.openapi()` and `.doc()` for the typed REST surface.
@@ -79,6 +79,7 @@ console.info(`@keel/api listening on http://${server.hostname}:${server.port}`);
 /** Drain the queue, close Redis + Postgres, and stop the server cleanly. */
 async function shutdown(signal: string): Promise<void> {
   console.info(`Received ${signal}, shutting down`);
+  await closeQueueEvents();
   await closeQueue();
   await closeRedis();
   await closePool();

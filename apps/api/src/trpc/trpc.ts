@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import type { Context as HonoContext } from "hono";
 import superjson from "superjson";
 
-import { auth } from "../lib/auth";
+import { getCachedSession } from "../lib/session";
 
 /**
  * Per-request context shared by every tRPC procedure.
@@ -26,13 +26,17 @@ const t = initTRPC.context<Context>().create({ transformer: superjson });
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
+/** Build a server-side caller for a router — used by tests to invoke procedures directly. */
+export const createCallerFactory = t.createCallerFactory;
 
 /**
  * Requires a valid Better Auth session. The session cookie is forwarded by the
  * client (`credentials: "include"`); an authenticated `user` is added to ctx.
+ * The session lookup is Redis-cached (see `getCachedSession`) so a batch of
+ * procedures shares one Postgres round-trip instead of one per call.
  */
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  const result = await auth.api.getSession({ headers: ctx.headers });
+  const result = await getCachedSession(ctx.headers);
 
   if (!result) {
     throw new TRPCError({

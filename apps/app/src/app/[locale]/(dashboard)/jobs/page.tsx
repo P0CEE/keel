@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSubscription } from "@trpc/tanstack-react-query";
 import { useState } from "react";
 
 import { useScopedI18n } from "@/locales/client";
@@ -48,6 +49,32 @@ export default function JobsPage() {
   const stats = useQuery(trpc.jobs.stats.queryOptions());
   const recent = useQuery(trpc.jobs.recent.queryOptions({ limit: 20 }));
 
+  // SSE push: write fresh counts into the stats cache and revalidate the list.
+  const live = useSubscription(
+    trpc.jobs.onActivity.subscriptionOptions(undefined, {
+      onData: (next) => {
+        queryClient.setQueryData(trpc.jobs.stats.queryKey(), next);
+        void queryClient.invalidateQueries({
+          queryKey: trpc.jobs.recent.queryKey(),
+        });
+      },
+    }),
+  );
+  // Map the subscription status to a display state: live / offline / connecting.
+  const liveState =
+    live.status === "pending"
+      ? "live"
+      : live.status === "error"
+        ? "offline"
+        : "connecting";
+  const dotClass = `size-2 rounded-full ${
+    liveState === "live"
+      ? "bg-emerald-500 motion-safe:animate-pulse"
+      : liveState === "offline"
+        ? "bg-red-500"
+        : "bg-amber-500"
+  }`;
+
   const [selected, setSelected] = useState<string>(JOB_OPTIONS[0].name);
 
   const enqueue = useMutation(
@@ -85,7 +112,18 @@ export default function JobsPage() {
   return (
     <section>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("title")}
+          </h1>
+          <span
+            className="text-muted-foreground inline-flex items-center gap-1.5 text-xs font-medium"
+            aria-live="polite"
+          >
+            <span className={dotClass} aria-hidden="true" />
+            {t(liveState)}
+          </span>
+        </div>
         <p className="text-muted-foreground mt-1 text-sm">{t("subtitle")}</p>
       </header>
 

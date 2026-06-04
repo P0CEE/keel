@@ -55,6 +55,9 @@ export default {
     enqueue_hint:
       "Le panneau d'opérations complet se trouve sur /admin/queues du worker.",
     loading: "Chargement de la file...",
+    live: "En direct",
+    connecting: "Connexion...",
+    offline: "Hors ligne",
   },
   common: {
     retry: "Réessayer",

@@ -17,6 +17,12 @@ export {
   type JobPayload,
 } from "./registry";
 export { getRedisConnection } from "./connection";
+export { inferJobState, type JobState, type JobStateFields } from "./state";
+export {
+  closeQueueEvents,
+  getQueueEvents,
+  subscribeToQueueActivity,
+} from "./events";
 
 /** Default retry/backoff policy applied to every enqueued job. */
 const defaultJobOptions: JobsOptions = {

@@ -17,9 +17,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { data: session, isPending } = useSession();
 
-  // The proxy gates unauthenticated requests at the edge. This effect catches
-  // the post-signOut state, where the cookie is cleared client-side and the
-  // middleware has not run yet for the current navigation.
+  // Client-side guard: redirect once the session resolves to null (forged
+  // cookie, or post-signOut). The proxy only checks cookie presence; the API
+  // is the authoritative boundary.
   useEffect(() => {
     if (!isPending && !session) {
       router.replace("/login");

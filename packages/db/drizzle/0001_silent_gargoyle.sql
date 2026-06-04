@@ -1,0 +1,2 @@
+ALTER TABLE "tasks" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE POLICY "tasks_owner_policy" ON "tasks" AS PERMISSIVE FOR ALL TO public USING ("tasks"."user_id" = current_setting('app.user_id', true)) WITH CHECK ("tasks"."user_id" = current_setting('app.user_id', true));

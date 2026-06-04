@@ -7,6 +7,7 @@
     "dev": "next dev -p 3173",
     "build": "next build",
     "start": "next start -p 3173",
+    "test": "bun test",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint .",
     "clean": "git clean -xdf .next .turbo node_modules"

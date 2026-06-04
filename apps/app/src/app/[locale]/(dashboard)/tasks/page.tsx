@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/client";
+import { optimisticListMutation } from "@/trpc/optimistic";
 import { Button } from "@keel/ui/button";
 import { Input } from "@keel/ui/input";
 import { StatusPill } from "@keel/ui/status-pill";
@@ -38,80 +39,48 @@ export default function TasksPage() {
   const listKey = trpc.tasks.list.queryKey();
   const tasksQuery = useQuery(trpc.tasks.list.queryOptions());
 
-  // Optimistic updates: snapshot the cache, apply the change in the same frame
-  // as the user's action, then roll back on error. A final `invalidate`
-  // reconciles the optimistic state with the server's authoritative rows.
+  // Optimistic updates: the snapshot/patch/rollback/invalidate cycle lives in
+  // `optimisticListMutation`; each mutation just supplies how the list changes.
   const createTask = useMutation(
-    trpc.tasks.create.mutationOptions({
-      onMutate: async ({ title: newTitle }) => {
-        await queryClient.cancelQueries({ queryKey: listKey });
-        const previous = queryClient.getQueryData<Task[]>(listKey);
-        const optimistic: Task = {
-          id: `${OPTIMISTIC_ID_PREFIX}${crypto.randomUUID()}`,
-          userId: "optimistic",
-          title: newTitle,
-          done: false,
-          createdAt: new Date(),
-        };
-        queryClient.setQueryData<Task[]>(listKey, (current) => [
-          optimistic,
-          ...(current ?? []),
-        ]);
-        return { previous };
-      },
-      onError: (_error, _vars, context) => {
-        if (context?.previous) {
-          queryClient.setQueryData(listKey, context.previous);
-        }
-      },
-      onSettled: () => {
-        void queryClient.invalidateQueries({ queryKey: listKey });
-      },
-    }),
+    trpc.tasks.create.mutationOptions(
+      optimisticListMutation<Task, { title: string }>(
+        queryClient,
+        listKey,
+        (current, { title: newTitle }) => [
+          {
+            id: `${OPTIMISTIC_ID_PREFIX}${crypto.randomUUID()}`,
+            userId: "optimistic",
+            title: newTitle,
+            done: false,
+            createdAt: new Date(),
+          },
+          ...current,
+        ],
+      ),
+    ),
   );
 
   const toggleTask = useMutation(
-    trpc.tasks.toggle.mutationOptions({
-      onMutate: async ({ id }) => {
-        await queryClient.cancelQueries({ queryKey: listKey });
-        const previous = queryClient.getQueryData<Task[]>(listKey);
-        queryClient.setQueryData<Task[]>(listKey, (current) =>
-          (current ?? []).map((task) =>
+    trpc.tasks.toggle.mutationOptions(
+      optimisticListMutation<Task, { id: string }>(
+        queryClient,
+        listKey,
+        (current, { id }) =>
+          current.map((task) =>
             task.id === id ? { ...task, done: !task.done } : task,
           ),
-        );
-        return { previous };
-      },
-      onError: (_error, _vars, context) => {
-        if (context?.previous) {
-          queryClient.setQueryData(listKey, context.previous);
-        }
-      },
-      onSettled: () => {
-        void queryClient.invalidateQueries({ queryKey: listKey });
-      },
-    }),
+      ),
+    ),
   );
 
   const removeTask = useMutation(
-    trpc.tasks.remove.mutationOptions({
-      onMutate: async ({ id }) => {
-        await queryClient.cancelQueries({ queryKey: listKey });
-        const previous = queryClient.getQueryData<Task[]>(listKey);
-        queryClient.setQueryData<Task[]>(listKey, (current) =>
-          (current ?? []).filter((task) => task.id !== id),
-        );
-        return { previous };
-      },
-      onError: (_error, _vars, context) => {
-        if (context?.previous) {
-          queryClient.setQueryData(listKey, context.previous);
-        }
-      },
-      onSettled: () => {
-        void queryClient.invalidateQueries({ queryKey: listKey });
-      },
-    }),
+    trpc.tasks.remove.mutationOptions(
+      optimisticListMutation<Task, { id: string }>(
+        queryClient,
+        listKey,
+        (current, { id }) => current.filter((task) => task.id !== id),
+      ),
+    ),
   );
 
   const [title, setTitle] = useState("");

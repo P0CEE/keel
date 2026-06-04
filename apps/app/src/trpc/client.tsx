@@ -5,7 +5,13 @@ import {
   type QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
+import {
+  createTRPCClient,
+  httpBatchLink,
+  httpSubscriptionLink,
+  loggerLink,
+  splitLink,
+} from "@trpc/client";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -40,15 +46,28 @@ export function TRPCReactProvider({ children }: { children: ReactNode }) {
             process.env.NODE_ENV === "development" ||
             (opts.direction === "down" && opts.result instanceof Error),
         }),
-        httpBatchLink({
-          url: `${apiUrl}/trpc`,
-          transformer: superjson,
-          // Forward the Better Auth session cookie to the tRPC server;
-          // `protectedProcedure` resolves the session from it server-side.
-          // Unauthenticated callers simply get a 401, as expected.
-          fetch(input, init) {
-            return fetch(input, { ...init, credentials: "include" });
-          },
+        splitLink({
+          // Subscriptions stream over Server-Sent Events; everything else is
+          // batched HTTP. Both forward the Better Auth session cookie so
+          // `protectedProcedure` resolves the session server-side.
+          condition: (op) => op.type === "subscription",
+          true: httpSubscriptionLink({
+            url: `${apiUrl}/trpc`,
+            transformer: superjson,
+            // EventSource is cross-origin (app -> api), so opt into credentials
+            // to send the session cookie. The API's CORS allows it.
+            eventSourceOptions() {
+              return { withCredentials: true };
+            },
+          }),
+          false: httpBatchLink({
+            url: `${apiUrl}/trpc`,
+            transformer: superjson,
+            // Unauthenticated callers simply get a 401, as expected.
+            fetch(input, init) {
+              return fetch(input, { ...init, credentials: "include" });
+            },
+          }),
         }),
       ],
     }),
