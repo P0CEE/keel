@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "keel",
@@ -207,7 +208,6 @@
   ],
   "catalog": {
     "@ai-sdk/openai": "^3.0.50",
-    "@hono/node-server": "^1.19.11",
     "@hono/trpc-server": "^0.4.0",
     "@hono/zod-openapi": "^1.1.5",
     "@radix-ui/react-avatar": "^1.1.10",
