@@ -6,10 +6,14 @@
   "sideEffects": false,
   "exports": {
     "./accounts": "./src/accounts.ts",
+    "./balances": "./src/balances.ts",
     "./currencies": "./src/currencies.ts",
     "./dates": "./src/dates.ts",
     "./fx": "./src/fx.ts",
-    "./money": "./src/money.ts"
+    "./labels": "./src/labels.ts",
+    "./money": "./src/money.ts",
+    "./settlement": "./src/settlement.ts",
+    "./transaction-filter": "./src/transaction-filter.ts"
   },
   "scripts": {
     "lint": "oxlint .",
