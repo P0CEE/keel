@@ -89,12 +89,15 @@ Fini quand : la CI passe sur `main`, un test prouve l'isolation RLS, un
 
 ### Lot 1 · Foyer et identité
 
-- Tables `households`, `household_members`, `member_settings` ; le foyer est
-  créé dans la même transaction que l'utilisateur (hook Better Auth), avec
-  fuseau détecté et devise par défaut.
-- **Connexion Google**, la seule méthode de ramnn : c'est elle qui permettra
-  aux utilisateurs migrés de retrouver leur compte (lot 11). L'email et mot
-  de passe de keel reste ou part (question 3).
+- Tables `households`, `household_members` (avancées au lot 0) et
+  `member_settings`. Better Auth lance ses hooks `after` une fois
+  l'utilisateur commité : le foyer est donc créé par ce hook (fuseau et
+  langue du navigateur passés par l'état OAuth), et à défaut par le premier
+  appel du membre, `provisionMember` étant idempotent. Aucun membre ne reste
+  sans foyer.
+- **Connexion Google**, la seule méthode de ramnn et de keel (question 3) :
+  c'est elle qui permettra aux utilisateurs migrés de retrouver leur compte
+  (lot 11). L'email et mot de passe du starter disparaît.
 - Réglages de base : langue, fuseau, devise d'affichage, apparence.
 - Démos portées : `text-field`, `select`, `button`, `switch`, `radio`,
   `segmented-control`, `profile-menu` (déjà vérifié avec la coque).
@@ -357,16 +360,12 @@ vérification à la main).
    dans le dépôt, sans police de remplacement prévue.
 2. **Hébergement de keel** : Railway comme ramnn (Postgres, Redis et
    services au même endroit, bascule simple), ou autre chose ?
-3. **Connexion par email et mot de passe** : ramnn n'avait que Google. On la
-   garde dans keel, ou Google seul ?
-4. **Enable Banking en développement** : une application sandbox distincte
-   de celle de la prod ramnn, pour ne jamais toucher aux sessions réelles
-   avant la bascule ?
-5. **Glisser-déposer de la home** : dnd-kit comme ramnn, ou le mécanisme de
-   réorganisation de la démo `holdings-table` de mint-pocs, pour rester sur
-   la même physique que le reste ?
-6. **Reconversion de démos d'investissement** (`earnings-calendar` pour les
-   échéances, `account-details-drawer` pour la fiche compte,
-   `unlock-progress` pour l'objectif) : même règle que le dock, on garde le
-   mécanisme à l'identique et on change le contenu. D'accord sur le principe,
-   chaque cas étant confirmé sur captures ?
+3. **Connexion** : tranchée le 2026-09-28, Google seul, comme ramnn.
+4. **Enable Banking en développement** : tranchée le 2026-09-28, la même
+   application que la prod ramnn. Conséquence : en développement, ne jamais
+   révoquer ni supprimer une session qu'on n'a pas créée soi-même.
+5. **Glisser-déposer de la home** : reportée. Le design de chaque widget
+   sera revu au lot 8, et le mécanisme de réorganisation choisi avec lui.
+6. **Reconversion de démos d'investissement** : tranchée le 2026-09-28,
+   d'accord sur le principe (mécanisme identique, contenu changé), chaque
+   cas vérifié à l'écran.

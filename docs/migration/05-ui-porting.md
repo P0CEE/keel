@@ -74,7 +74,7 @@ d'abord l'apparence du système.
 | le carré courant du rail                    | `--current`                                                                                                    |
 | le soleil du rail (`--sb-sun`)              | `--sun`                                                                                                        |
 | popups, scrim                               | `--popup`, `--scrim`                                                                                           |
-| ombres `raised`, `dock`, `float`            | `--shadow-dock`, `--shadow-float` (`--shadow-raised` reviendra avec son premier usage)                         |
+| ombres `raised`, `dock`, `float`            | `--shadow-dock`, `--shadow-float`, `--shadow-raised` (revenue avec la carte, lot 1)                            |
 | palette catégorielle (`dataviz-category-*`) | `--category-blue`, `-purple`, `-pink`, `-yellow`, `-orange`, `-mauve`, `-green`, `-green-deep`, `-green-light` |
 | tout `--component-*`                        | **interdit** : trouver le rôle, ou en créer un                                                                 |
 
@@ -110,6 +110,11 @@ Valeurs de Mint gardées telles quelles : `ink-3` reste `fg.secondary` en clair
 | `mint/profile-menu`                                   | AppTopBar (bouton), ProfileMenu (menu)   | Le bouton profil de 32 px de la barre du téléphone ouvre le menu de ProfileMenu, transposé : 252 px, lignes de 40 px, touches affichées qui choisissent leur ligne. Règle des touches testée   |
 | `mint/mobile-tab-bar`                                 | NavDrawerMorph                           | Un seul élément morphe de la pilule au tiroir                                                                                                                                                  |
 | `mint/app-top-bar`, `page-indicator`, `swipe-pager`   | AppTopBar                                | Barre du téléphone, indicateur pilule et points, pages balayées sur SNAP (un quart de largeur ou un geste vif). Géométrie pure testée                                                          |
+| `mint/button`                                         | Button                                   | Cinq variantes, trois tailles, `RoundButton` (l'IconButton de la démo, renommé à côté de `icon-button`) ; un clic qui renvoie une promesse tient l'état de chargement (lot 1)                  |
+| `mint/text-field`                                     | TextField                                | Champ à libellé flottant, message d'erreur, `PasswordField` (lot 1)                                                                                                                            |
+| `mint/select`                                         | Select                                   | Déclencheur en champ à libellé flottant, liste portée dans `<body>` (lot 1)                                                                                                                    |
+| `mint/switch`, `mint/radio`, `mint/segmented-control` | Switch, Radio, Segmented control         | Géométrie et touches dans des `.ts` testés (lot 1)                                                                                                                                             |
+| `mint/card`                                           | Card                                     | `elevated`, `tinted`, `inset` ; rayon concentrique publié par le puits ; squelette sur la même boîte au chargement (lot 1)                                                                     |
 
 ### `@keel/ui/finance`
 
