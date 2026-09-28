@@ -1,0 +1,23 @@
+{
+  "status": "AUTHORIZED",
+  "accounts": [
+    "1f2e3d4c-0000-4000-8000-000000000001",
+    "1f2e3d4c-0000-4000-8000-000000000002"
+  ],
+  "accounts_data": [
+    {
+      "uid": "1f2e3d4c-0000-4000-8000-000000000001",
+      "identification_hash": "WwpbCiAgImFjY291bnQiLAogICJpYmFuIgpdCg==.1"
+    }
+  ],
+  "aspsp": { "name": "CIC", "country": "FR" },
+  "psu_type": "personal",
+  "psu_id_hash": "5a3b7c",
+  "access": {
+    "valid_until": "2027-03-27T09:00:00.000000+00:00",
+    "balances": true,
+    "transactions": true
+  },
+  "created": "2026-09-28T09:00:00.000000+00:00",
+  "authorized": "2026-09-28T09:01:12.000000+00:00"
+}

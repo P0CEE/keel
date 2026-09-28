@@ -22,6 +22,8 @@
         "@hono/trpc-server": "catalog:",
         "@hono/zod-openapi": "catalog:",
         "@keel/ai": "workspace:*",
+        "@keel/bank-providers": "workspace:*",
+        "@keel/banking": "workspace:*",
         "@keel/cache": "workspace:*",
         "@keel/db": "workspace:*",
         "@keel/finance": "workspace:*",
@@ -31,6 +33,7 @@
         "@trpc/server": "catalog:",
         "better-auth": "catalog:",
         "hono": "catalog:",
+        "ioredis": "catalog:",
         "superjson": "catalog:",
         "zod": "catalog:",
       },
@@ -102,8 +105,10 @@
       "name": "@keel/worker",
       "version": "0.0.0",
       "dependencies": {
+        "@keel/banking": "workspace:*",
         "@keel/db": "workspace:*",
         "@keel/jobs": "workspace:*",
+        "@keel/realtime": "workspace:*",
         "bullmq": "catalog:",
         "drizzle-orm": "catalog:",
         "hono": "catalog:",
@@ -133,6 +138,11 @@
     "packages/bank-providers": {
       "name": "@keel/bank-providers",
       "version": "0.0.0",
+      "dependencies": {
+        "@keel/finance": "workspace:*",
+        "jose": "catalog:",
+        "zod": "catalog:",
+      },
       "devDependencies": {
         "@keel/tsconfig": "workspace:*",
         "@types/bun": "catalog:",
@@ -142,7 +152,15 @@
     "packages/banking": {
       "name": "@keel/banking",
       "version": "0.0.0",
+      "dependencies": {
+        "@keel/bank-providers": "workspace:*",
+        "@keel/db": "workspace:*",
+        "@keel/finance": "workspace:*",
+        "@keel/realtime": "workspace:*",
+        "drizzle-orm": "catalog:",
+      },
       "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
         "@keel/tsconfig": "workspace:*",
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -312,6 +330,7 @@
     "hono": "4.12.22",
     "husky": "9.1.7",
     "ioredis": "^5.8.1",
+    "jose": "^6.1.3",
     "lint-staged": "16.2.7",
     "lucide-react": "^0.545.0",
     "motion": "^13.4.0",

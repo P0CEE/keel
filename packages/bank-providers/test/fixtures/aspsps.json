@@ -1,0 +1,52 @@
+{
+  "aspsps": [
+    {
+      "name": "CIC",
+      "country": "FR",
+      "logo": "https://enablebanking.com/brands/FR/CIC/",
+      "psu_types": ["personal", "business"],
+      "auth_methods": [
+        {
+          "name": "redirect",
+          "title": "Redirect",
+          "psu_type": "personal",
+          "approach": "REDIRECT",
+          "hidden_method": false
+        }
+      ],
+      "maximum_consent_validity": 15552000,
+      "beta": false,
+      "bic": "CMCIFRPP",
+      "required_psu_headers": ["Psu-Ip-Address", "Psu-User-Agent", "Psu-Accept"]
+    },
+    {
+      "name": "Boursorama",
+      "country": "fr",
+      "logo": "https://enablebanking.com/brands/FR/Boursorama/",
+      "psu_types": ["personal"],
+      "auth_methods": [],
+      "maximum_consent_validity": 7776000,
+      "beta": true,
+      "bic": "BOUSFRPP"
+    },
+    {
+      "name": "Payments Only Bank",
+      "country": "FR",
+      "logo": "https://enablebanking.com/brands/FR/Payments/",
+      "psu_types": [],
+      "auth_methods": [],
+      "maximum_consent_validity": 7776000,
+      "beta": false
+    },
+    {
+      "name": "Wise",
+      "country": "FR",
+      "logo": "",
+      "psu_types": ["business", "corporate"],
+      "auth_methods": [],
+      "maximum_consent_validity": 0,
+      "beta": false,
+      "required_psu_headers": []
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "transactions": [
+    {
+      "entry_reference": "20260926-0001",
+      "merchant_category_code": "5812",
+      "transaction_amount": { "currency": "EUR", "amount": "23.80" },
+      "creditor": null,
+      "creditor_account": null,
+      "debtor": null,
+      "debtor_account": null,
+      "bank_transaction_code": {
+        "description": "",
+        "code": null,
+        "sub_code": null
+      },
+      "credit_debit_indicator": "DBIT",
+      "status": "BOOK",
+      "booking_date": "2026-09-26",
+      "value_date": "2026-09-25",
+      "transaction_date": "2026-09-24",
+      "balance_after_transaction": { "currency": "EUR", "amount": "-1245.30" },
+      "reference_number": null,
+      "remittance_information": [
+        "PAIEMENT PSC 2409 PARIS",
+        "  ",
+        "DIZIMA           CARTE 5699"
+      ],
+      "note": null,
+      "transaction_id": "tx-volatile-1"
+    },
+    {
+      "entry_reference": null,
+      "merchant_category_code": null,
+      "transaction_amount": { "currency": "EUR", "amount": "2850.00" },
+      "creditor": { "name": "M. JEAN DUPONT" },
+      "creditor_account": { "iban": "FR7630004000010001234567812" },
+      "debtor": {
+        "name": " ACME SAS ",
+        "postal_address": { "town_name": "LYON" }
+      },
+      "debtor_account": { "iban": "fr17 3000 3035 9800 0501 1234 567" },
+      "bank_transaction_code": {
+        "description": "Virement SEPA reçu",
+        "code": "RCDT",
+        "sub_code": "ESCT"
+      },
+      "credit_debit_indicator": "CRDT",
+      "status": "BOOK",
+      "booking_date": "2026-09-25",
+      "value_date": "2026-09-25",
+      "transaction_date": null,
+      "balance_after_transaction": null,
+      "reference_number": "RF18539007547034",
+      "remittance_information": ["VIR SEPA ACME SAS", "SALAIRE SEPTEMBRE"],
+      "note": null,
+      "transaction_id": "tx-volatile-2"
+    }
+  ],
+  "continuation_key": "page-2"
+}

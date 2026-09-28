@@ -1,0 +1,30 @@
+{
+  "transactions": [
+    {
+      "entry_reference": "20260924-0007",
+      "transaction_amount": { "currency": "EUR", "amount": "19.99" },
+      "creditor": { "name": "FREE MOBILE" },
+      "creditor_account": { "iban": "FR83 1010 7001 1800 0123 4567 890" },
+      "debtor": { "name": "M. JEAN DUPONT" },
+      "debtor_account": { "iban": "FR7630004000010001234567812" },
+      "bank_transaction_code": {
+        "description": "Prélèvement SEPA",
+        "code": "RDDT",
+        "sub_code": "ESDD"
+      },
+      "credit_debit_indicator": "DBIT",
+      "status": "BOOK",
+      "booking_date": "2026-09-24",
+      "value_date": "2026-09-24",
+      "remittance_information": ["PRLV SEPA FREE MOBILE"]
+    },
+    {
+      "entry_reference": "20260923-0003",
+      "transaction_amount": { "currency": "EUR", "amount": "0.00" },
+      "credit_debit_indicator": "DBIT",
+      "status": "BOOK",
+      "booking_date": "2026-09-23",
+      "remittance_information": ["AUTORISATION ANNULEE"]
+    }
+  ]
+}

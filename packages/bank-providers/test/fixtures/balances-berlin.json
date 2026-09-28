@@ -1,0 +1,16 @@
+{
+  "balances": [
+    {
+      "name": "Available",
+      "balance_amount": { "currency": "EUR", "amount": "812.00" },
+      "balance_type": "interimAvailable",
+      "last_change_date_time": "2026-09-28T06:00:00Z"
+    },
+    {
+      "name": "Booked",
+      "balance_amount": { "currency": "EUR", "amount": "734.12" },
+      "balance_type": "interimBooked",
+      "last_change_date_time": "2026-09-27T23:30:00.000000+02:00"
+    }
+  ]
+}

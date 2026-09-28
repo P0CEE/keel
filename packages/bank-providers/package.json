@@ -4,12 +4,18 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./fake": "./src/fake/index.ts"
   },
   "scripts": {
     "lint": "oxlint .",
-    "test": "bun test --pass-with-no-tests",
+    "test": "bun test",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@keel/finance": "workspace:*",
+    "jose": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@keel/tsconfig": "workspace:*",

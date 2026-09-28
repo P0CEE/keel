@@ -1,0 +1,17 @@
+{
+  "account_id": { "iban": "fr76 3000 4000 0100 0123 4567 812" },
+  "all_account_ids": [
+    { "identification": "FR7630004000010001234567812", "scheme_name": "IBAN" }
+  ],
+  "account_servicer": { "bic_fi": "CMCIFRPP", "name": "CIC" },
+  "name": "M. JEAN DUPONT",
+  "details": "Compte de M. Dupont",
+  "usage": "PRIV",
+  "cash_account_type": "CACC",
+  "product": "  COMPTE CHEQUE  ",
+  "currency": "EUR",
+  "psu_status": "Account Holder",
+  "uid": "1f2e3d4c-0000-4000-8000-000000000001",
+  "identification_hash": "WwpbCiAgImFjY291bnQiLAogICJpYmFuIgpdCg==.1",
+  "identification_hashes": ["WwpbCiAgImFjY291bnQiLAogICJpYmFuIgpdCg==.1"]
+}

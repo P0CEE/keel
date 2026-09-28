@@ -1,0 +1,49 @@
+{
+  "session_id": "8b3f3c3e-5d6a-4a7e-9f0b-2c1d4e5f6a7b",
+  "accounts": [
+    {
+      "account_id": { "iban": "FR76 3000 4000 0100 0123 4567 812" },
+      "all_account_ids": [
+        {
+          "identification": "FR7630004000010001234567812",
+          "scheme_name": "IBAN"
+        }
+      ],
+      "account_servicer": { "bic_fi": "CMCIFRPP" },
+      "name": "M. JEAN DUPONT",
+      "cash_account_type": "CACC",
+      "product": "COMPTE CHEQUE",
+      "currency": "EUR",
+      "uid": "1f2e3d4c-0000-4000-8000-000000000001",
+      "identification_hash": "WwpbCiAgImFjY291bnQiLAogICJpYmFuIgpdCg==.1",
+      "identification_hashes": ["WwpbCiAgImFjY291bnQiLAogICJpYmFuIgpdCg==.1"]
+    },
+    {
+      "account_id": {
+        "other": { "identification": "4970XXXXXXXX5699", "scheme_name": "CPAN" }
+      },
+      "all_account_ids": [],
+      "name": "M. JEAN DUPONT",
+      "cash_account_type": "CARD",
+      "product": "CB VISA PREMIER",
+      "currency": "EUR",
+      "uid": "1f2e3d4c-0000-4000-8000-000000000002",
+      "identification_hashes": ["card-hash-alt"]
+    },
+    {
+      "account_id": { "iban": "FR8530004000010008765432134" },
+      "cash_account_type": "SVGS",
+      "product": "LIVRET A",
+      "currency": "EUR",
+      "identification_hash": "closed-account-hash",
+      "identification_hashes": ["closed-account-hash"]
+    }
+  ],
+  "aspsp": { "name": "CIC", "country": "FR" },
+  "psu_type": "personal",
+  "access": {
+    "valid_until": "2027-03-27T09:00:00.000000+00:00",
+    "balances": true,
+    "transactions": true
+  }
+}
