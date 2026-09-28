@@ -29,10 +29,14 @@ keel/
 │   ├── api/        @keel/api     — Hono + tRPC (port 3001)
 │   └── worker/     @keel/worker  — BullMQ worker (port 8080)
 ├── packages/
-│   ├── db/         @keel/db         — Drizzle schema, queries + migrations
-│   ├── ai/         @keel/ai         — AI SDK + GPT-4.1 vision
-│   ├── jobs/       @keel/jobs       — typed job registry + queue
-│   ├── cache/      @keel/cache      — Redis: rate limiting, locks, caching
+│   ├── db/             @keel/db             — Drizzle schema, withScope (RLS), migrations
+│   ├── finance/        @keel/finance        — pure domain logic (money, dates)
+│   ├── banking/        @keel/banking        — banking application modules
+│   ├── bank-providers/ @keel/bank-providers — aggregator port and adapters
+│   ├── realtime/       @keel/realtime       — event registry, streams, SSE hub
+│   ├── ai/             @keel/ai             — AI SDK + GPT-4.1 vision
+│   ├── jobs/           @keel/jobs           — job registry, queues, Dispatch port
+│   ├── cache/          @keel/cache          — Redis: rate limiting, locks, caching
 │   ├── ui/         @keel/ui         — shared React components + Tailwind v4 tokens
 │   └── tsconfig/   @keel/tsconfig   — shared TypeScript presets
 ├── scripts/               repo maintenance (clean)
@@ -83,17 +87,27 @@ Docker exposes Postgres on `127.0.0.1:5432` and Redis on `127.0.0.1:6379`.
   mounted at `/api/auth/*`, with the Redis-backed `AUTH_RATE_LIMIT` at the
   edge. `apps/app` uses cookie sessions; `protectedProcedure` resolves the
   session from the forwarded Better Auth cookie via `auth.api.getSession`.
-- **Jobs** — `@keel/jobs` holds the registry: each job is `(name, Zod schema)`.
-  The API enqueues (`trpc.jobs.enqueue`); the worker consumes and processes them.
+- **Row-level security** — the API and the worker act as the `keel_app`
+  role, which cannot bypass RLS; every unit of work runs in
+  `withScope({ householdId, memberId }, ...)` (ADR 0013).
+- **Jobs** — `@keel/jobs` holds the registry: each job is
+  `(name, { queue, schema })`, on one of three queues (`bank-sync`,
+  `bank-pipeline`, `default`). Producers go through `enqueue`, or the
+  `Dispatch` port in application modules; the worker runs one BullMQ `Worker`
+  per queue.
+- **Realtime** — events are declared in `@keel/realtime`, published after
+  commit to a Redis Stream per household, and delivered to `apps/app` by a
+  tRPC subscription over SSE with replay (ADR 0016).
 - **Design tokens** — `@keel/ui` owns the Tailwind v4 theme. Every app's
   stylesheet is one line: `@import "@keel/ui/styles.css"`.
 - **Observability** — `apps/app` ships `@sentry/nextjs`, gated to production.
 
 ## Adding a background job
 
-1. Add an entry (name + Zod schema) to `packages/jobs/src/registry.ts`.
+1. Add an entry (`name: { queue, schema }`) to `packages/jobs/src/registry.ts`.
 2. Add a processor file in `apps/worker/src/processors/` and register it.
-3. Enqueue from anywhere: `enqueue("your-job", { ... })`.
+3. Enqueue with `enqueue("domain.your-job", { ... })`, or `dispatch` from an
+   application module.
 
 ## Scripts
 

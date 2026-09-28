@@ -16,7 +16,7 @@
 | Tailwind                             | Gardé pour les pages existantes de keel (login, site), jamais dans un composant Mint                | Traduire le CSS de Mint en utilitaires serait long, lossy (`light-dark()`, `:has()`, masques) et empêcherait de comparer à la référence                                                                                                                |
 | Radix                                | Gardé pour les composants shadcn existants, jusqu'à leur remplacement                               | Aucun composant Mint n'utilise Radix                                                                                                                                                                                                                   |
 | Icônes                               | **Celles de mint-pocs**, copiées tracé par tracé (`@keel/ui/mint/icons`, `finance/category-glyphs`) | Une icône approchée d'un autre jeu se voit à côté des vraies : lucide a été essayé puis retiré                                                                                                                                                         |
-| Police                               | **Wealthsimple Sans** (400, 500, 700), en local via `next/font/local`, exposée en `--font-app`      | Rendu identique à la référence pendant le portage. **Propriétaire : à remplacer par une police sous licence avant la production.** Jamais via Google Fonts au build : hors ligne, Next retombait en silence sur Arial                                  |
+| Police                               | **Wealthsimple Sans** (400, 500, 700), en local via `next/font/local`, exposée en `--font-app`      | Rendu identique à la référence. Versionnée dans le dépôt (décision du lot 0). Jamais via Google Fonts au build : hors ligne, Next retombait en silence sur Arial                                                                                       |
 | Portage                              | **À l'identique** : le balisage, les valeurs et les popups de la démo, sans recomposition           | Le rail recomposé à partir de pièces (rail, dock, menu, tooltip séparés) divergeait : le soleil bougeait à l'ouverture du menu, le flou manquait. Le Sidebar est maintenant la démo transposée                                                         |
 | Montants                             | `@keel/finance/money` : unités mineures, multi-devises                                              | Plus de CAD en dur ni de `toFixed` : 16 démos redéfinissaient leur propre `money()`                                                                                                                                                                    |
 
@@ -195,11 +195,10 @@ de téléphone. Ce qui change :
 
 ## 7. Limites connues
 
-- Pas encore de tests visuels en CI. Un test Playwright par composant (clair,
-  sombre, 390 px) viendra avec les premiers écrans réels.
+- Pas de tests visuels automatisés : la vérification visuelle est faite à la
+  main, à chaque écran (décision du 2026-09-28).
 - Pas de route de logos (`/logos/<domaine>.svg`) : `MerchantLogo` montre
   l'initiale en attendant.
-- Wealthsimple Sans est propriétaire : à remplacer avant la production.
 - Les pages du haut étant montées par la coque, elles sont des composants
   client : leurs données viendront de requêtes tRPC préchargées, pas de
   composants serveur par route.

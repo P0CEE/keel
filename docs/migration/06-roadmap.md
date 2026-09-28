@@ -3,8 +3,7 @@
 - Date : 2026-09-28
 - Entrées : `01-audit.md` à `05-ui-porting.md` et leurs décisions validées,
   ADR 0001 à 0017, `CONTEXT.md`, catalogue des démos mint-pocs.
-- Statut : proposition, à valider. C'est la dernière étape de la mission :
-  après validation, on attaque le lot 0.
+- Statut : validée le 2026-09-28 ; le lot 0 est en cours.
 
 ## 1. Principes de découpage
 
@@ -65,9 +64,8 @@ lot 10 dès le lot 4) : ils peuvent s'entrelacer si un besoin presse.
 Ce que tous les lots suivants supposent.
 
 - **Branche et CI.** `feat/ramnn-banking-migration` (étapes 1 à 5) part sur
-  `main` par une PR. Blocage connu : le build échoue sur un clone neuf, parce
-  que Wealthsimple Sans est ignorée par git (dépôt public). Il faut une
-  solution avant la PR (question 1).
+  `main` par une PR. Le build échouait sur un clone neuf, Wealthsimple Sans
+  étant ignorée par git : elle est désormais versionnée (question 1).
 - **RLS réellement actif** (ADR 0013) : rôles `keel_owner` et `keel_app`,
   `withScope(scope, fn)` avec `set_config(..., true)`, fonctions
   `SECURITY DEFINER` pour les parcours globaux, test qui prouve qu'une
@@ -83,8 +81,6 @@ Ce que tous les lots suivants supposent.
   commit depuis `withScope`, flux Redis par foyer, subscription tRPC en SSE
   avec `tracked` et reprise par `lastEventId`, `RealtimeProvider` et sa table
   d'invalidation vide.
-- **Tests visuels** : harnais Playwright (clair, sombre, 390 px, desktop) et
-  premiers tests sur la coque existante (`05-ui-porting.md`, section 7).
 - **`AGENTS.md`** mis à jour : trois packages, règle de test assouplie pour
   `@keel/banking`, files de jobs, registry d'événements.
 
@@ -310,8 +306,6 @@ compte synchronisé, ne crée aucun doublon.
 
 ### Lot 11 · Mise en production et reprise de ramnn
 
-- **Police sous licence** en place, si la question 1 ne l'a pas réglée plus
-  tôt.
 - **Hébergement** de keel (question 2) : web, app, API, worker, Postgres,
   Redis, stockage objet ; Sentry ; sauvegardes et restauration testée.
 - **Secrets** : rotation de la clé de la Gateway et des variables de ramnn
@@ -343,8 +337,8 @@ catégories, budgets et séries dans keel, et la vérification 7 de l'ETL (sync
   construction, vérifiés ici avec deux membres réels.
 
 Fini quand : deux membres d'un même foyer voient chacun leur vue, et aucun
-chiffre d'un compte privé ne fuit dans la vue de l'autre (test RLS et test
-visuel).
+chiffre d'un compte privé ne fuit dans la vue de l'autre (test RLS et
+vérification à la main).
 
 ## 4. Hors roadmap
 
@@ -359,10 +353,8 @@ visuel).
 
 ## 5. Questions ouvertes
 
-1. **Police.** Le build échoue sans Wealthsimple Sans, et le dépôt est
-   public. Choisir maintenant la police sous licence définitive (le lot 0 la
-   pose et la CI passe), ou garder Wealthsimple Sans en local avec une police
-   de repli libre pour la CI jusqu'au lot 11 ?
+1. **Police.** Tranchée le 2026-09-28 : Wealthsimple Sans est versionnée
+   dans le dépôt, sans police de remplacement prévue.
 2. **Hébergement de keel** : Railway comme ramnn (Postgres, Redis et
    services au même endroit, bascule simple), ou autre chose ?
 3. **Connexion par email et mot de passe** : ramnn n'avait que Google. On la

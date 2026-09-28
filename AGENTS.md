@@ -70,10 +70,19 @@ attacks.
   `/api/auth/*`, and exposes the tasks CRUD and AI (vision) procedures.
 - `apps/worker` (Bun + BullMQ, port 8080) consumes the queue and runs the job
   processors.
-- `packages/db` — Drizzle ORM: schema, client, ownership-scoped queries, and
-  `drizzle-kit` migrations (Postgres). Better Auth uses its Drizzle adapter here.
-- `packages/jobs` — typed job registry (`(name, Zod schema)` pairs) shared by
-  producers and consumers.
+- `packages/db` — Drizzle ORM: schema, client, `withScope` / `resolveScope`,
+  and `drizzle-kit` migrations (Postgres). Better Auth uses its Drizzle
+  adapter here. `@keel/db/testing` gives a migrated in-memory PGlite.
+- `packages/jobs` — typed job registry (`name: { queue, schema }`) on three
+  queues (`bank-sync`, `bank-pipeline`, `default`), `enqueue`, and the
+  `Dispatch` port with its test recorder (`createRecordingDispatch`).
+- `packages/realtime` — realtime events (ADR 0016): the client-safe registry
+  (`@keel/realtime`), and the server side (`@keel/realtime/server`): emitter,
+  Redis Stream per household, one reader hub per API instance.
+- `packages/banking` — the banking application modules (settlement,
+  categorization, reconciliation...), each behind a small interface.
+- `packages/bank-providers` — the `BankingProvider` port, the Enable Banking
+  adapter and the scenario-driven fake (ADR 0005).
 - `packages/ai` — AI SDK helpers over GPT-4.1: `describeImage` (structured
   vision) and `generateReply` (text). Call from `apps/api`, never the browser.
 - `packages/cache` — Redis primitives: rate limiter, distributed lock,
@@ -88,16 +97,47 @@ attacks.
   `react-library`).
 
 Durable data (auth + app data) lives in Postgres via Drizzle; Redis is
-self-hosted (cache, rate limiting, BullMQ payloads). There is no Convex and no
-local-first/offline layer — the API is the single source of truth.
+self-hosted (cache, rate limiting, BullMQ payloads, realtime streams).
+
+### Row-level security (ADR 0013)
+
+- Migrations run as the tables' owner. The API and the worker act as
+  `keel_app`, which cannot bypass RLS.
+- Every unit of work on household data runs in
+  `withScope(scope, ({ tx, afterCommit }) => ...)`: one transaction as
+  `keel_app` with the household and member pinned transaction-locally. Never
+  `SET` a session variable on a pooled connection.
+- Queries still filter by `household_id` explicitly: the policy is the second
+  lock, not the only one.
+- A scan across households goes through a `SECURITY DEFINER` function that
+  returns ids only (e.g. `keel_household_ids()`), then one `withScope` per
+  household.
+- A new household table gets a `pgPolicy` for `keelApp` comparing against
+  `currentHousehold` (`packages/db/src/schema/rls.ts`).
+- tRPC procedures on household data use `scopedProcedure` (`ctx.scope`). There is no Convex and no
+  local-first/offline layer — the API is the single source of truth.
 
 ## Adding things
 
 ### A new background job
 
-1. Add `(name, z.object({...}))` to `packages/jobs/src/registry.ts`.
-2. Add a processor file under `apps/worker/src/processors/` and register it.
-3. Enqueue with `enqueue("your-job", payload)` — never bypass the registry.
+1. Add `"domain.your-job": { queue, schema: z.object({...}) }` to
+   `packages/jobs/src/registry.ts`.
+2. Add a processor file under `apps/worker/src/processors/` and register it
+   (the processor map is exhaustive).
+3. Enqueue with `enqueue("domain.your-job", payload)`, or through the
+   `Dispatch` port from an application module — never bypass the registry.
+   Follow-up jobs carry only a household id and are debounced
+   (`debounce: { id, windowMs }`), never lists of row ids (ADR 0008).
+
+### A new realtime event
+
+1. Add `"domain.event": z.object({...})` to `packages/realtime/src/registry.ts`:
+   ids, months, accounts and counts only, never an amount or a label.
+2. Emit it inside the scoped transaction with `emit(unit, name, payload)`;
+   it is published only after the commit.
+3. Add its row to `apps/app/src/realtime/invalidations.ts` (the app's test
+   fails on a missing row).
 
 ### A new full-stack feature
 
@@ -149,8 +189,14 @@ Bun's built-in runner (`bun test`). Test files live under `packages/<name>/test/
 
 - Prefer pure unit tests on extracted helpers (e.g. validate the Zod job
   schemas in `packages/jobs` without touching Redis).
-- For anything that needs a real Redis or Postgres, mock at the boundary or
-  skip — don't write tests that depend on a live network.
+- Anything that touches Postgres (`@keel/db`, `@keel/banking`) is tested on
+  PGlite through `createTestDatabase()` from `@keel/db/testing`: migrations,
+  roles and policies included, so RLS is exercised for real.
+- Anything that needs Redis uses a fake at the boundary (the in-memory
+  stream store in `@keel/realtime/testing`, `createRecordingDispatch`). A
+  contract test against real Redis may run when `REDIS_URL` is set (CI has
+  a Redis service) and must skip otherwise.
+- No automated visual tests: screens are checked by hand.
 - Validate Zod schemas in `packages/jobs` (defaults, enum cases, refusals).
 - Test the assertion/error types from `packages/cache/src/rate-limit.ts` rather
   than the Redis-backed limiter directly.
