@@ -1,0 +1,4 @@
+{
+  "extends": "@keel/tsconfig/base.json",
+  "include": ["src"]
+}

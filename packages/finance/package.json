@@ -1,0 +1,21 @@
+{
+  "name": "@keel/finance",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./money": "./src/money.ts",
+    "./dates": "./src/dates.ts"
+  },
+  "scripts": {
+    "lint": "oxlint .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@keel/tsconfig": "workspace:*",
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}
