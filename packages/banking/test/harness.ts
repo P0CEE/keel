@@ -1,5 +1,8 @@
 import { createMemoryConsentStore } from "../src/consent-store";
 import { type BankingDeps, providerRegistry } from "../src/deps";
+import { reconcileHousehold } from "../src/reconcile";
+import { syncAccount, syncConnection } from "../src/sync";
+import { createMemorySyncLimits } from "../src/sync-limits";
 import { createFakeProvider } from "@keel/bank-providers/fake";
 import {
   householdMembers,
@@ -9,6 +12,7 @@ import {
   user,
 } from "@keel/db";
 import { createTestDatabase, type TestDatabase } from "@keel/db/testing";
+import { createRecordingDispatch, type RecordedJob } from "@keel/jobs";
 import type { AppEvents, EventMeta } from "@keel/realtime";
 import type { Emit } from "@keel/realtime/server";
 
@@ -55,6 +59,7 @@ export type Harness = {
   readonly clock: ReturnType<typeof createClock>;
   readonly recorder: ReturnType<typeof createRecordingEmitter>;
   readonly provider: ReturnType<typeof createFakeProvider>;
+  readonly jobs: ReturnType<typeof createRecordingDispatch>;
 };
 
 export async function createHarness(
@@ -67,16 +72,20 @@ export async function createHarness(
     redirectUrl: CALLBACK,
     now: clock.now,
   });
+  const jobs = createRecordingDispatch();
   return {
     testDb,
     clock,
     recorder,
     provider,
+    jobs,
     deps: {
       database: testDb.db,
       providers: providerRegistry(provider),
       consents: createMemoryConsentStore(clock.now),
       emit: recorder.emit,
+      dispatch: jobs.dispatch,
+      limits: createMemorySyncLimits(clock.now),
       now: clock.now,
     },
   };
@@ -127,5 +136,48 @@ export function callbackParams(redirectUrl: string): {
   return {
     state: url.searchParams.get("state") ?? "",
     code: url.searchParams.get("code") ?? "",
+  };
+}
+
+/**
+ * Runs the jobs the modules planned since the last call, in order, the way
+ * the worker would (the jobs they plan in turn run too). Returns what ran.
+ */
+export function createJobRunner(h: Harness) {
+  // Indices of the recorded jobs already run; the others stay pending.
+  let done: ReadonlySet<number> = new Set();
+  return async function runJobs(
+    only?: readonly string[],
+  ): Promise<readonly RecordedJob[]> {
+    let ran: readonly RecordedJob[] = [];
+    for (let index = 0; index < h.jobs.recorded().length; index += 1) {
+      const job = h.jobs.recorded()[index];
+      if (
+        job === undefined ||
+        done.has(index) ||
+        (only !== undefined && !only.includes(job.name))
+      ) {
+        continue;
+      }
+      done = new Set([...done, index]);
+      ran = [...ran, job];
+      if (job.name === "bank.sync-connection") {
+        await syncConnection(
+          h.deps,
+          job.payload as Parameters<typeof syncConnection>[1],
+        );
+      } else if (job.name === "bank.sync-account") {
+        await syncAccount(
+          h.deps,
+          job.payload as Parameters<typeof syncAccount>[1],
+        );
+      } else if (job.name === "bank.reconcile") {
+        await reconcileHousehold(
+          h.deps,
+          (job.payload as { householdId: string }).householdId,
+        );
+      }
+    }
+    return ran;
   };
 }

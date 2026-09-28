@@ -5,10 +5,13 @@ import { bankingProcedure, router } from "../trpc";
 import {
   accountsOverview,
   archiveAccount,
+  BALANCE_RANGES,
+  balanceHistory,
   connectionOffer,
   createManualAccount,
   declareBalance,
   followAccounts,
+  refreshConnection,
   removeConnection,
   restoreConnection,
   searchInstitutions,
@@ -93,6 +96,17 @@ export const connectionsRouter = router({
       }),
     ),
 
+  // The refresh button: a sync now, with the member's context. `queued`
+  // is false within five minutes of the last one.
+  refresh: bankingProcedure
+    .input(z.object({ connectionId: z.uuid() }))
+    .mutation(({ ctx, input }) =>
+      refreshConnection(bankingDeps(), ctx.scope, {
+        ...input,
+        ...(ctx.psu === undefined ? {} : { psu: ctx.psu }),
+      }),
+    ),
+
   remove: bankingProcedure
     .input(z.object({ connectionId: z.uuid() }))
     .mutation(({ ctx, input }) =>
@@ -117,6 +131,11 @@ export const accountsRouter = router({
   overview: bankingProcedure.query(({ ctx }) =>
     accountsOverview(bankingDeps(), ctx.scope),
   ),
+
+  // The account sheet's balance curve over a range ending today.
+  balanceHistory: bankingProcedure
+    .input(z.object({ accountId: z.uuid(), range: z.enum(BALANCE_RANGES) }))
+    .query(({ ctx, input }) => balanceHistory(bankingDeps(), ctx.scope, input)),
 
   createManual: bankingProcedure
     .input(

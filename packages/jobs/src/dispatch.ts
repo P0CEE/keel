@@ -11,6 +11,11 @@ export type DispatchOptions = {
    */
   readonly debounce?: { readonly id: string; readonly windowMs: number };
   readonly delayMs?: number;
+  /**
+   * How a failing job is retried, when the registry's default (3 attempts
+   * from 2s) does not fit: exponential backoff from `backoffMs`.
+   */
+  readonly retry?: { readonly attempts: number; readonly backoffMs: number };
 };
 
 /**
@@ -26,13 +31,19 @@ export type Dispatch = <N extends JobName>(
 
 /** Translate dispatch options to BullMQ's; debouncing needs a delay. */
 export function toJobsOptions(options: DispatchOptions = {}): JobsOptions {
-  const { jobId, debounce, delayMs } = options;
+  const { jobId, debounce, delayMs, retry } = options;
   if (debounce && delayMs !== undefined) {
     throw new Error("A debounced job takes its delay from the window");
   }
   return {
     ...(jobId === undefined ? {} : { jobId }),
     ...(delayMs === undefined ? {} : { delay: delayMs }),
+    ...(retry === undefined
+      ? {}
+      : {
+          attempts: retry.attempts,
+          backoff: { type: "exponential", delay: retry.backoffMs },
+        }),
     ...(debounce
       ? {
           delay: debounce.windowMs,

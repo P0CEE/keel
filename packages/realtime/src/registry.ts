@@ -25,6 +25,41 @@ export const eventSchemas = {
   "accounts.changed": z
     .object({ accountIds: z.array(z.uuid()).min(1).max(200) })
     .strict(),
+  /**
+   * Where a connection's sync stands, per account: the refresh button and
+   * the connection's status follow it without a request.
+   */
+  "sync.progress": z
+    .object({
+      connectionId: z.uuid(),
+      accountId: z.uuid().optional(),
+      phase: z.enum(["queued", "fetching", "done", "failed"]),
+      /** How many accounts the run syncs; with `queued` only. */
+      accounts: z.number().int().nonnegative().optional(),
+      /** Rows the sync added or revised; with `done` only. */
+      changed: z.number().int().nonnegative().optional(),
+    })
+    .strict(),
+  /**
+   * Transactions were added, revised, edited, deleted or restored on these
+   * accounts, their purchase days within the range. Sent with `privateTo`
+   * when the account is private.
+   */
+  "transactions.changed": z
+    .object({
+      accountIds: z.array(z.uuid()).min(1).max(200),
+      from: z.iso.date(),
+      to: z.iso.date(),
+      cause: z.enum(["arrival", "entry", "edited", "deleted", "restored"]),
+    })
+    .strict(),
+  /**
+   * A reconciliation rewrote derived state (lot 3: the balance history of
+   * these accounts).
+   */
+  "household.reconciled": z
+    .object({ accountIds: z.array(z.uuid()).max(200) })
+    .strict(),
 } as const satisfies EventSchemas;
 
 export type EventSchemas = Readonly<Record<string, z.ZodType>>;

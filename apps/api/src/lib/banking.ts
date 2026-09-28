@@ -1,8 +1,13 @@
 import { env } from "../env";
 import { getRealtime } from "../realtime";
 import { createRedisConsentStore } from "./consent-store";
-import { type BankingDeps, createProviders } from "@keel/banking";
+import {
+  type BankingDeps,
+  createProviders,
+  createRedisSyncLimits,
+} from "@keel/banking";
 import { getRedis } from "@keel/cache/redis";
+import { enqueue } from "@keel/jobs";
 
 let deps: BankingDeps | undefined;
 
@@ -25,6 +30,8 @@ export function bankingDeps(): BankingDeps {
     }),
     consents: createRedisConsentStore(getRedis()),
     emit: getRealtime().emit,
+    dispatch: enqueue,
+    limits: createRedisSyncLimits(getRedis()),
     now: () => new Date(),
   };
   return deps;

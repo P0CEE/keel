@@ -12,6 +12,13 @@ export {
   updateAccount,
 } from "./accounts";
 export {
+  type Change,
+  type ChangeCause,
+  followUps,
+  PIPELINE_DEBOUNCE_MS,
+  transactionsChanged,
+} from "./after-write";
+export {
   completeConsent,
   connectionOffer,
   type ConsentOutcome,
@@ -32,6 +39,44 @@ export {
 } from "./deps";
 export { BankingError, type BankingErrorCode, isBankingError } from "./errors";
 export { type FetchText, parseEcbRates, refreshFxRates } from "./fx";
+export { reconcileHousehold } from "./reconcile";
+export { settleArrivals, type SettleSummary } from "./settle-arrivals";
+export {
+  refreshConnection,
+  scheduleDueSyncs,
+  syncAccount,
+  syncConnection,
+  type SyncOutcome,
+  type SyncReason,
+} from "./sync";
+export {
+  createMemorySyncLimits,
+  createRedisSyncLimits,
+  MANUAL_REFRESH_SECONDS,
+  type RedisLike,
+  type SyncLimits,
+  UNATTENDED_CALLS_PER_DAY,
+} from "./sync-limits";
+export { nextSyncAt } from "./sync-schedule";
+export { type TransactionView } from "./transaction-view";
+export {
+  createTransaction,
+  deleteTransaction,
+  editTransaction,
+  LABEL_MAX,
+  NOTE_MAX,
+  restoreTransaction,
+} from "./transactions";
+export {
+  BALANCE_RANGES,
+  type BalanceHistory,
+  balanceHistory,
+  type BalanceRange,
+  PAGE_SIZE,
+  transactionDetail,
+  type TransactionsPage,
+  transactionsPage,
+} from "./transactions-read";
 export { createProviders, type ProvidersConfig } from "./providers";
 export {
   institutionsLoaded,

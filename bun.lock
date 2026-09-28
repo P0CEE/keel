@@ -156,6 +156,7 @@
         "@keel/bank-providers": "workspace:*",
         "@keel/db": "workspace:*",
         "@keel/finance": "workspace:*",
+        "@keel/jobs": "workspace:*",
         "@keel/realtime": "workspace:*",
         "drizzle-orm": "catalog:",
       },

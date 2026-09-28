@@ -9,6 +9,8 @@ import {
 } from "../src/accounts";
 import { BankingError } from "../src/errors";
 import { accountsOverview } from "../src/overview";
+import { reconcileHousehold } from "../src/reconcile";
+import { balanceHistory } from "../src/transactions-read";
 import { createHarness, type Harness, seedHousehold } from "./harness";
 import { bankAccounts, fxRates } from "@keel/db";
 
@@ -225,5 +227,39 @@ describe("currencies", () => {
         .find((a) => a.id === accountId)?.converted,
     ).toBe(100_000);
     expect(full.netWorth.minor).toBe(partial.netWorth.minor + 100_000);
+  });
+});
+
+describe("a manual account's history", () => {
+  test("starts at its declared balance and follows a new declaration", async () => {
+    const { accountId } = await createManualAccount(h.deps, alice, {
+      name: "Tirelire",
+      kind: "savings",
+      currency: "EUR",
+      balanceMinor: 10_000,
+      on: "2026-09-26",
+    });
+    expect(h.jobs.recorded().at(-1)?.name).toBe("bank.reconcile");
+    await reconcileHousehold(h.deps, HOUSEHOLD);
+    const first = await balanceHistory(h.deps, alice, {
+      accountId,
+      range: "1M",
+    });
+    expect(first.series).toEqual([
+      { day: "2026-09-26", minor: 10_000 },
+      { day: "2026-09-27", minor: 10_000 },
+      { day: "2026-09-28", minor: 10_000 },
+    ]);
+    await declareBalance(h.deps, alice, {
+      accountId,
+      balanceMinor: 12_500,
+      on: "2026-09-28",
+    });
+    await reconcileHousehold(h.deps, HOUSEHOLD);
+    const second = await balanceHistory(h.deps, alice, {
+      accountId,
+      range: "1M",
+    });
+    expect(second.series).toEqual([{ day: "2026-09-28", minor: 12_500 }]);
   });
 });

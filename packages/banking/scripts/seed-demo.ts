@@ -1,7 +1,9 @@
 // Gives a member of the local database demo accounts, through the same
 // modules as the app: two connections to the fake bank's scenarios (their
-// suggested accounts followed, the card mirror left out) and a manual
-// account. Development only: it refuses to run in production.
+// suggested accounts followed, the card mirror left out, their history
+// synced) and a manual account. The jobs the modules plan run here, in
+// process, so no worker is needed. Development only: it refuses to run in
+// production.
 //
 //   bun run db:seed-demo <email>
 
@@ -9,19 +11,25 @@ import { eq } from "drizzle-orm";
 
 import {
   accountsOverview,
+  type BankingDeps,
   completeConsent,
   connectionOffer,
   createManualAccount,
   createMemoryConsentStore,
+  createMemorySyncLimits,
   followAccounts,
   providerRegistry,
+  reconcileHousehold,
   refreshInstitutions,
   searchInstitutions,
   startConnection,
+  syncAccount,
+  syncConnection,
 } from "../src/index";
 import { createFakeProvider } from "@keel/bank-providers/fake";
 import { closePool, db, resolveScope, user } from "@keel/db";
 import { todayIn } from "@keel/finance/dates";
+import type { Dispatch } from "@keel/jobs";
 
 const BANKS = ["Banque Démo", "Néobanque Démo"] as const;
 
@@ -45,11 +53,29 @@ async function main(): Promise<void> {
   const provider = createFakeProvider({
     redirectUrl: "http://localhost:3001/v1/bank/callback",
   });
-  const deps = {
+  // Each planned job runs at once, in order: a sync's reconcile after it.
+  const dispatch: Dispatch = async (name, payload) => {
+    if (name === "bank.sync-connection") {
+      await syncConnection(
+        deps,
+        payload as Parameters<typeof syncConnection>[1],
+      );
+    } else if (name === "bank.sync-account") {
+      await syncAccount(deps, payload as Parameters<typeof syncAccount>[1]);
+    } else if (name === "bank.reconcile") {
+      await reconcileHousehold(
+        deps,
+        (payload as { householdId: string }).householdId,
+      );
+    }
+  };
+  const deps: BankingDeps = {
     providers: providerRegistry(provider),
     consents: createMemoryConsentStore(),
     // The app refetches on focus; nothing to publish from a script.
     emit: () => undefined,
+    dispatch,
+    limits: createMemorySyncLimits(),
     now: () => new Date(),
   };
   await refreshInstitutions(deps);

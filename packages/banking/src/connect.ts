@@ -293,6 +293,16 @@ async function renewConnection(
       deps.emit(unit, "connection.changed", { connectionId: connection.id });
       if (renewed.length > 0) {
         deps.emit(unit, "accounts.changed", { accountIds: renewed });
+        // What the bank booked while the consent was down, at once.
+        unit.afterCommit(() =>
+          deps.dispatch("bank.sync-connection", {
+            householdId: scope.householdId,
+            memberId: connection.consentedBy,
+            connectionId: connection.id,
+            reason: "reconnect",
+            ...(input.psu === undefined ? {} : { psu: input.psu }),
+          }),
+        );
       }
       return {
         previousSession: connection.providerSessionRef,
@@ -455,6 +465,22 @@ export async function followAccounts(
       );
       const ids = inserted.map((row) => row.id);
       if (ids.length > 0) {
+        // The first sync, with the member's context while they are here:
+        // it asks for the whole history of the accounts never synced.
+        unit.afterCommit(() =>
+          deps.dispatch(
+            "bank.sync-connection",
+            {
+              householdId: scope.householdId,
+              memberId: connection.consentedBy,
+              connectionId: connection.id,
+              reason: "initial",
+              ...(input.psu === undefined ? {} : { psu: input.psu }),
+            },
+            // A repeated follow adds no account, so no second job.
+            { jobId: `sync-initial:${ids[0]}` },
+          ),
+        );
         deps.emit(
           unit,
           "accounts.changed",

@@ -1,3 +1,4 @@
+import { planPipeline } from "./after-write";
 import type { BankingDeps } from "./deps";
 import { BankingError } from "./errors";
 import { type Scope, type ScopedWork, withScope } from "@keel/db";
@@ -6,6 +7,7 @@ import {
   type AccountPatch,
   getAccount,
   insertAccounts,
+  markHistoryDirty,
   updateAccount as updateRow,
 } from "@keel/db/banking";
 import { getHousehold } from "@keel/db/members";
@@ -90,6 +92,9 @@ export function createManualAccount(
         },
       ]);
       if (row === undefined) throw new Error("Account insert returned nothing");
+      // Its history starts at the anchor (ADR 0011).
+      await markHistoryDirty(unit.tx, scope, row.id, input.on);
+      planPipeline(deps, unit, ["bank.reconcile"]);
       announce(deps, unit, row, input);
       return { accountId: row.id };
     },
@@ -175,6 +180,9 @@ export function declareBalance(
       );
     }
     await checkDay(unit, deps, input.on);
+    // A new anchor moves the whole history: cause `declared` (ADR 0008).
+    await markHistoryDirty(unit.tx, scope, row.id, input.on);
+    planPipeline(deps, unit, ["bank.reconcile"]);
     return {
       declaredBalanceMinor: input.balanceMinor,
       declaredOn: input.on,

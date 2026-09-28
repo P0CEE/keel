@@ -1,4 +1,4 @@
-import { type Job, Worker } from "bullmq";
+import { DelayedError, type Job, Worker } from "bullmq";
 import { Hono } from "hono";
 import { Redis } from "ioredis";
 
@@ -19,13 +19,21 @@ import {
 } from "@keel/jobs";
 
 /** Process one BullMQ job: check it belongs here, validate, run it. */
-async function processJob(job: Job): Promise<void> {
+async function processJob(job: Job, token?: string): Promise<void> {
   const { name } = job;
   if (!isJobName(name) || queueOf(name) !== job.queueName) {
     throw new Error(`Job "${name}" is not registered on "${job.queueName}"`);
   }
   const payload = parseJobPayload(name, job.data);
-  await getProcessor(name)(payload, { jobId: job.id ?? "unknown", logger });
+  await getProcessor(name)(payload, {
+    jobId: job.id ?? "unknown",
+    logger,
+    // BullMQ's way to delay a running job: move it, then signal the worker.
+    deferUntil: async (at) => {
+      await job.moveToDelayed(at.getTime(), token);
+      throw new DelayedError();
+    },
+  });
 }
 
 const laneOptions = lanes(env);
