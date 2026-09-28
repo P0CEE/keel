@@ -56,6 +56,9 @@ export default async function RootLayout({
   // which is required so every request gets a fresh CSP nonce. Next attaches
   // it to its own scripts; next-themes gets it for its inline theme script,
   // which the CSP would otherwise block (and the page would flash).
+  // Transitions stay on when the theme changes, as in mint-pocs: the sun
+  // cross-fades into the moon, and the pressed button eases back from 0.94
+  // instead of snapping (next-themes' `disableTransitionOnChange` did that).
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
@@ -65,7 +68,6 @@ export default async function RootLayout({
           attribute="class"
           defaultTheme="light"
           enableSystem
-          disableTransitionOnChange
           nonce={nonce}
         >
           {children}
