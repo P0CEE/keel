@@ -1,4 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
+import { pg_trgm } from "@electric-sql/pglite/contrib/pg_trgm";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 
@@ -21,7 +22,8 @@ export type TestDatabase = {
  * per test file: creating one costs about a second.
  */
 export async function createTestDatabase(): Promise<TestDatabase> {
-  const client = new PGlite();
+  // The extensions the migrations create must be loaded into the WASM build.
+  const client = new PGlite({ extensions: { pg_trgm } });
   const database = drizzle({ client, schema });
   await migrate(database, { migrationsFolder });
   return {
