@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const concurrency = (fallback: number) =>
+  z.coerce.number().int().positive().default(fallback);
+
 /**
  * Environment schema for the worker. Validated once at startup so the
  * process fails fast with a clear message instead of crashing later.
@@ -7,7 +10,11 @@ import { z } from "zod";
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8080),
   REDIS_URL: z.string().min(1, "REDIS_URL is required"),
-  WORKER_CONCURRENCY: z.coerce.number().int().positive().default(5),
+  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  // Per queue (02-domain.md, section 6.1): the aggregator lane stays low.
+  WORKER_CONCURRENCY_BANK_SYNC: concurrency(2),
+  WORKER_CONCURRENCY_BANK_PIPELINE: concurrency(4),
+  WORKER_CONCURRENCY_DEFAULT: concurrency(5),
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
@@ -16,8 +23,8 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 function loadEnv(): Env {
-  // Treat empty-string env vars (e.g. `WORKER_CONCURRENCY=` in .env) as absent,
-  // so fields fall back to their schema defaults instead of failing.
+  // Treat empty-string env vars (e.g. `WORKER_CONCURRENCY_DEFAULT=` in .env)
+  // as absent, so fields fall back to their schema defaults.
   const raw = Object.fromEntries(
     Object.entries(process.env).filter(([, value]) => value !== ""),
   );

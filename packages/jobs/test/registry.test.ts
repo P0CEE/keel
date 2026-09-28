@@ -1,63 +1,46 @@
 import { describe, expect, test } from "bun:test";
 
-import { jobNames, jobSchemas, parseJobPayload } from "../src/registry";
+import {
+  isJobName,
+  jobNames,
+  jobs,
+  parseJobPayload,
+  queueNames,
+  queueOf,
+} from "../src/registry";
 
-describe("jobSchemas", () => {
-  test("every registered job has a Zod schema", () => {
+describe("registry", () => {
+  test("every job runs on a declared queue", () => {
     for (const name of jobNames) {
-      expect(jobSchemas[name]).toBeDefined();
+      expect(queueNames).toContain(jobs[name].queue);
     }
   });
 
-  test("jobNames is non-empty (the registry would be useless otherwise)", () => {
-    expect(jobNames.length).toBeGreaterThan(0);
+  test("names are namespaced by domain", () => {
+    for (const name of jobNames) {
+      expect(name).toMatch(/^[a-z]+\.[a-z-]+$/);
+    }
+  });
+
+  test("isJobName refuses unknown and inherited names", () => {
+    expect(isJobName("auth.purge-sessions")).toBe(true);
+    expect(isJobName("send-welcome-email")).toBe(false);
+    expect(isJobName("toString")).toBe(false);
+  });
+
+  test("auth.purge-sessions runs on the default queue", () => {
+    expect(queueOf("auth.purge-sessions")).toBe("default");
   });
 });
 
 describe("parseJobPayload", () => {
-  test("rejects unknown fields/shapes for send-welcome-email", () => {
+  test("auth.purge-sessions takes an empty payload", () => {
+    expect(parseJobPayload("auth.purge-sessions", {})).toEqual({});
+  });
+
+  test("auth.purge-sessions refuses unknown fields", () => {
     expect(() =>
-      parseJobPayload("send-welcome-email", { foo: "bar" }),
+      parseJobPayload("auth.purge-sessions", { olderThanDays: 30 }),
     ).toThrow();
-  });
-
-  test("requires a syntactically valid email", () => {
-    expect(() =>
-      parseJobPayload("send-welcome-email", {
-        userId: "u_1",
-        email: "not-an-email",
-      }),
-    ).toThrow();
-  });
-
-  test("returns the typed payload when the shape is valid", () => {
-    const parsed = parseJobPayload("send-welcome-email", {
-      userId: "u_1",
-      email: "alice@example.com",
-    });
-    expect(parsed).toEqual({ userId: "u_1", email: "alice@example.com" });
-  });
-
-  test("applies schema defaults — cleanup-stale-sessions.olderThanDays", () => {
-    const parsed = parseJobPayload("cleanup-stale-sessions", {});
-    expect(parsed.olderThanDays).toBe(30);
-  });
-
-  test("rejects non-positive olderThanDays", () => {
-    expect(() =>
-      parseJobPayload("cleanup-stale-sessions", { olderThanDays: -1 }),
-    ).toThrow();
-  });
-
-  test("enforces enum for generate-report.range", () => {
-    expect(() =>
-      parseJobPayload("generate-report", {
-        reportId: "r_1",
-        range: "yearly",
-      }),
-    ).toThrow();
-    expect(
-      parseJobPayload("generate-report", { reportId: "r_1", range: "30d" }),
-    ).toEqual({ reportId: "r_1", range: "30d" });
   });
 });

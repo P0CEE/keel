@@ -1,7 +1,5 @@
 import type { logger } from "../logger";
-import { cleanupStaleSessions } from "./cleanup-stale-sessions";
-import { generateReport } from "./generate-report";
-import { sendWelcomeEmail } from "./send-welcome-email";
+import { purgeSessions } from "./purge-sessions";
 import type { JobName, JobPayload } from "@keel/jobs";
 
 /** Per-job context passed to every processor. */
@@ -16,14 +14,14 @@ export type JobProcessor<N extends JobName = JobName> = (
   ctx: JobContext,
 ) => Promise<void>;
 
-/** Maps every registered job name to its processor implementation. */
-const processors: Record<JobName, JobProcessor> = {
-  "send-welcome-email": sendWelcomeEmail as JobProcessor,
-  "generate-report": generateReport as JobProcessor,
-  "cleanup-stale-sessions": cleanupStaleSessions as JobProcessor,
+/**
+ * Every registered job name mapped to its processor. The type is exhaustive:
+ * a job added to the registry fails to type-check until it is wired here.
+ */
+const processors: { readonly [N in JobName]: JobProcessor<N> } = {
+  "auth.purge-sessions": purgeSessions,
 };
 
-/** Look up a processor by job name. Returns undefined for unknown names. */
-export function getProcessor(name: string): JobProcessor | undefined {
-  return processors[name as JobName];
+export function getProcessor<N extends JobName>(name: N): JobProcessor<N> {
+  return processors[name];
 }

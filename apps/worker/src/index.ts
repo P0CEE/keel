@@ -3,56 +3,64 @@ import { Hono } from "hono";
 import { Redis } from "ioredis";
 
 import { env } from "./env";
+import { lanes } from "./lanes";
 import { logger } from "./logger";
 import { getProcessor } from "./processors/registry";
 import { registerSchedules } from "./scheduler";
+import { closePool } from "@keel/db";
 import {
-  closeQueue,
-  getQueue,
+  closeQueues,
   getRedisConnection,
+  isJobName,
   parseJobPayload,
-  QUEUE_NAME,
+  queueNames,
+  queueOf,
 } from "@keel/jobs";
 
-/** Process a single BullMQ job: resolve processor, validate payload, run it. */
+/** Process one BullMQ job: check it belongs here, validate, run it. */
 async function processJob(job: Job): Promise<void> {
-  const processor = getProcessor(job.name);
-  if (!processor) {
-    throw new Error(`No processor registered for job "${job.name}"`);
+  const { name } = job;
+  if (!isJobName(name) || queueOf(name) !== job.queueName) {
+    throw new Error(`Job "${name}" is not registered on "${job.queueName}"`);
   }
-
-  const payload = parseJobPayload(job.name as never, job.data);
-  await processor(payload, { jobId: job.id ?? "unknown", logger });
+  const payload = parseJobPayload(name, job.data);
+  await getProcessor(name)(payload, { jobId: job.id ?? "unknown", logger });
 }
 
-const worker = new Worker(QUEUE_NAME, processJob, {
-  connection: getRedisConnection(),
-  concurrency: env.WORKER_CONCURRENCY,
-});
+const laneOptions = lanes(env);
 
-worker.on("failed", (job, err) => {
-  logger.error("job failed", {
-    jobId: job?.id,
-    jobName: job?.name,
-    attemptsMade: job?.attemptsMade,
-    error: err.message,
+const workers = queueNames.map((queue) => {
+  const worker = new Worker(queue, processJob, {
+    connection: getRedisConnection(),
+    ...laneOptions[queue],
   });
-});
 
-worker.on("error", (err) => {
-  logger.error("worker error", { error: err.message });
-});
+  worker.on("failed", (job, err) => {
+    logger.error("job failed", {
+      queue,
+      jobId: job?.id,
+      jobName: job?.name,
+      attemptsMade: job?.attemptsMade,
+      error: err.message,
+    });
+  });
 
-worker.on("completed", (job) => {
-  logger.info("job completed", { jobId: job.id, jobName: job.name });
+  worker.on("error", (err) => {
+    logger.error("worker error", { queue, error: err.message });
+  });
+
+  worker.on("completed", (job) => {
+    logger.info("job completed", { queue, jobId: job.id, jobName: job.name });
+  });
+
+  return worker;
 });
 
 // Register the crons. Non-fatal: a failure here must not stop the worker from
 // processing jobs.
 try {
-  const queue = getQueue();
-  await registerSchedules(queue);
-  logger.info("schedules registered", { queue: QUEUE_NAME });
+  await registerSchedules();
+  logger.info("schedules registered");
 } catch (err) {
   logger.error("failed to register schedules", {
     error: err instanceof Error ? err.message : String(err),
@@ -92,14 +100,13 @@ const server = Bun.serve({
 
 logger.info("worker started", {
   port: env.PORT,
-  concurrency: env.WORKER_CONCURRENCY,
-  queue: QUEUE_NAME,
+  lanes: laneOptions,
   env: env.NODE_ENV,
 });
 
 let shuttingDown = false;
 
-/** Close worker, queue, and HTTP server, then exit. */
+/** Close the workers, the queues, Postgres and the HTTP server, then exit. */
 async function shutdown(signal: string): Promise<void> {
   if (shuttingDown) {
     return;
@@ -108,8 +115,9 @@ async function shutdown(signal: string): Promise<void> {
   logger.info("shutting down", { signal });
 
   try {
-    await worker.close();
-    await closeQueue();
+    await Promise.all(workers.map((worker) => worker.close()));
+    await closeQueues();
+    await closePool();
     healthRedis.disconnect();
     await server.stop();
     logger.info("shutdown complete");

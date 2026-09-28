@@ -6,14 +6,18 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "start": "bun run src/index.ts",
+    "test": "bun test",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint ."
   },
   "dependencies": {
+    "@keel/db": "workspace:*",
     "@keel/jobs": "workspace:*",
     "bullmq": "catalog:",
+    "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "ioredis": "catalog:"
+    "ioredis": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@keel/tsconfig": "workspace:*",
