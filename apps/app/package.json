@@ -15,7 +15,7 @@
   "dependencies": {
     "@keel/api": "workspace:*",
     "@keel/finance": "workspace:*",
-    "@keel/jobs": "workspace:*",
+    "@keel/realtime": "workspace:*",
     "@keel/ui": "workspace:*",
     "@sentry/nextjs": "catalog:",
     "@tanstack/react-query": "catalog:",
@@ -40,6 +40,7 @@
     "@types/react-dom": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "zod": "catalog:"
   }
 }

@@ -1,8 +1,10 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import type { Context as HonoContext } from "hono";
 import superjson from "superjson";
+import { z } from "zod";
 
 import { getCachedSession } from "../lib/session";
+import { resolveScope } from "@keel/db";
 
 /**
  * Per-request context shared by every tRPC procedure.
@@ -12,14 +14,25 @@ import { getCachedSession } from "../lib/session";
 export type Context = {
   /** Raw request headers, used to resolve the Better Auth session. */
   headers: Headers;
+  /**
+   * The browser tab behind the request, echoed in the realtime events its
+   * writes cause so that tab can skip them (its optimistic update is done).
+   */
+  clientId: string | null;
 };
+
+const clientIdSchema = z.uuid();
 
 /**
  * Build the tRPC context for a request. Consumed by `@hono/trpc-server`,
  * whose factory receives the fetch adapter options plus the Hono context.
  */
 export function createContext(_opts: unknown, c: HonoContext): Context {
-  return { headers: c.req.raw.headers };
+  const clientId = clientIdSchema.safeParse(c.req.header("x-client-id"));
+  return {
+    headers: c.req.raw.headers,
+    clientId: clientId.success ? clientId.data : null,
+  };
 }
 
 const t = initTRPC.context<Context>().create({ transformer: superjson });
@@ -48,4 +61,19 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   return next({
     ctx: { ...ctx, user: result.user, session: result.session },
   });
+});
+
+/**
+ * Requires a member of a household, and puts their scope in ctx: every
+ * application module runs its work through `withScope(ctx.scope, ...)`.
+ */
+export const scopedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  const scope = await resolveScope(ctx.user.id);
+  if (!scope) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "No household for this member",
+    });
+  }
+  return next({ ctx: { ...ctx, scope } });
 });

@@ -20,6 +20,7 @@
     "@keel/cache": "workspace:*",
     "@keel/db": "workspace:*",
     "@keel/jobs": "workspace:*",
+    "@keel/realtime": "workspace:*",
     "@scalar/hono-api-reference": "catalog:",
     "@trpc/server": "catalog:",
     "better-auth": "catalog:",

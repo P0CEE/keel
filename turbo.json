@@ -42,7 +42,8 @@
     "test": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env"],
-      "outputs": []
+      "outputs": [],
+      "env": ["REDIS_URL"]
     },
     "lint": {
       "dependsOn": ["^topo"],

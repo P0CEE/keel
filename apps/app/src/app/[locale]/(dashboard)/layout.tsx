@@ -5,6 +5,7 @@ import { type ReactNode, useEffect } from "react";
 
 import { AppShell } from "@/components/shell/app-shell";
 import { useSession } from "@/lib/auth-client";
+import { RealtimeProvider } from "@/realtime/realtime-provider";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -24,14 +25,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppShell
-      user={{
-        name: session?.user.name ?? session?.user.email ?? "",
-        email: session?.user.email ?? "",
-        avatarUrl: session?.user.image ?? null,
-      }}
-    >
-      {children}
-    </AppShell>
+    <RealtimeProvider>
+      <AppShell
+        user={{
+          name: session?.user.name ?? session?.user.email ?? "",
+          email: session?.user.email ?? "",
+          avatarUrl: session?.user.image ?? null,
+        }}
+      >
+        {children}
+      </AppShell>
+    </RealtimeProvider>
   );
 }

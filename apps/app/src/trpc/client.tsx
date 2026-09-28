@@ -18,6 +18,7 @@ import { useState } from "react";
 import superjson from "superjson";
 
 import { makeQueryClient } from "./query-client";
+import { clientId } from "@/realtime/client-id";
 import type { AppRouter } from "@keel/api";
 
 export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>();
@@ -67,6 +68,8 @@ export function TRPCReactProvider({ children }: { children: ReactNode }) {
             fetch(input, init) {
               return fetch(input, { ...init, credentials: "include" });
             },
+            // Tags the realtime events this tab's writes cause.
+            headers: () => ({ "x-client-id": clientId }),
           }),
         }),
       ],

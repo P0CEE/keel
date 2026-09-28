@@ -4,9 +4,11 @@ A Hono HTTP server (Bun) that exposes a tRPC v11 API for the Keel monorepo.
 
 Authentication is Better Auth, mounted at `/api/auth/*` and backed by Postgres
 via the Drizzle adapter (`@keel/db`). Protected procedures resolve the caller's
-session from the forwarded Better Auth cookie via `auth.api.getSession`. The API
-also enqueues background jobs through `@keel/jobs` (BullMQ) and reports queue
-statistics.
+session from the forwarded Better Auth cookie via `auth.api.getSession`;
+scoped procedures also resolve the member's household, and run their work in
+`withScope` as the `keel_app` role. The API enqueues background jobs through
+`@keel/jobs` and streams the household's realtime events (`realtime.events`,
+an SSE subscription with replay).
 
 ## Environment variables
 
