@@ -714,3 +714,139 @@ export function DrawerIcon({ size = 16, className }: IconProps) {
     </svg>
   );
 }
+
+// ---- The Toast's (mint-pocs): Mint's inline glyphs on their 16 masters,
+// drawn at 20px, a spinner, and the small close. ----
+
+function Master16({
+  size = 16,
+  className,
+  children,
+}: IconProps & { readonly children: ReactNode }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
+
+/** Mint's spinner: a faint ring and a quarter arc turning over it. */
+export function SpinnerIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.25"
+        strokeWidth="3"
+      />
+      <path
+        d="M12 3a9 9 0 0 1 9 9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** Success on the 16 master: a filled disc with a check. */
+export function SuccessMarkIcon({ size = 20, className }: IconProps) {
+  return (
+    <Master16 size={size} className={className}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 0.5C12.14 0.5 15.5 3.86 15.5 8C15.5 12.14 12.14 15.5 8 15.5C3.86 15.5 0.5 12.14 0.5 8C0.5 3.86 3.86 0.5 8 0.5ZM11.04 4.96C10.63 4.68 10.07 4.78 9.79 5.19L6.77 9.54L5.78 8.41C5.45 8.03 4.88 8 4.51 8.32C4.13 8.65 4.1 9.22 4.42 9.59L6.17 11.59C6.35 11.8 6.62 11.91 6.9 11.9C7.18 11.88 7.43 11.74 7.59 11.51L11.26 6.21C11.55 5.8 11.45 5.24 11.04 4.96Z"
+      />
+    </Master16>
+  );
+}
+
+/** Error on the 16 master: a filled octagon with a mark. */
+export function ErrorMarkIcon({ size = 20, className }: IconProps) {
+  return (
+    <Master16 size={size} className={className}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M10.17 0.5C10.7 0.5 11.21 0.71 11.59 1.09L14.91 4.41C15.29 4.79 15.5 5.3 15.5 5.83V10.17C15.5 10.7 15.29 11.21 14.91 11.59L11.59 14.91C11.21 15.29 10.7 15.5 10.17 15.5H5.83C5.3 15.5 4.79 15.29 4.41 14.91L1.09 11.59C0.71 11.21 0.5 10.7 0.5 10.17V5.83C0.5 5.3 0.71 4.79 1.09 4.41L4.41 1.09C4.79 0.71 5.3 0.5 5.83 0.5H10.17ZM8 10C7.45 10 7 10.45 7 11C7 11.55 7.45 12 8 12C8.55 12 9 11.55 9 11C9 10.45 8.55 10 8 10ZM8 3.9C7.5 3.9 7.1 4.3 7.1 4.8V7.8C7.1 8.3 7.5 8.7 8 8.7C8.5 8.7 8.9 8.3 8.9 7.8V4.8C8.9 4.3 8.5 3.9 8 3.9Z"
+      />
+    </Master16>
+  );
+}
+
+/** Information on the 16 master: a filled disc with an i. */
+export function InfoMarkIcon({ size = 20, className }: IconProps) {
+  return (
+    <Master16 size={size} className={className}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 0.5C12.14 0.5 15.5 3.86 15.5 8C15.5 12.14 12.14 15.5 8 15.5C3.86 15.5 0.5 12.14 0.5 8C0.5 3.86 3.86 0.5 8 0.5ZM7.44 7.05C7 7.05 6.64 7.41 6.64 7.85C6.64 8.23 6.9 8.54 7.25 8.63L6.84 11.07C6.8 11.3 6.86 11.54 7.01 11.72C7.17 11.9 7.39 12 7.63 12H8.38C8.82 12 9.17 11.64 9.17 11.2C9.17 10.82 8.92 10.51 8.57 10.42L8.98 7.98C9.02 7.75 8.95 7.51 8.8 7.33C8.65 7.15 8.42 7.05 8.19 7.05H7.44ZM8 4C7.45 4 7 4.45 7 5C7 5.55 7.45 6 8 6C8.55 6 9 5.55 9 5C9 4.45 8.55 4 8 4Z"
+      />
+    </Master16>
+  );
+}
+
+/** Close on the 16 master: the toast's small x. */
+export function CloseSmallIcon({ size = 16, className }: IconProps) {
+  return (
+    <Master16 size={size} className={className}>
+      <path d="M11.36 3.36C11.71 3.01 12.29 3.01 12.64 3.36C12.99 3.71 12.99 4.29 12.64 4.64L9.27 8L12.64 11.36C12.99 11.71 12.99 12.29 12.64 12.64C12.29 12.99 11.71 12.99 11.36 12.64L8 9.27L4.64 12.64C4.29 12.99 3.71 12.99 3.36 12.64C3.01 12.29 3.01 11.71 3.36 11.36L6.73 8L3.36 4.64C3.01 4.29 3.01 3.71 3.36 3.36C3.71 3.01 4.29 3.01 4.64 3.36L8 6.73L11.36 3.36Z" />
+    </Master16>
+  );
+}
+
+// ---- The Date time input's (mint-pocs): its month arrows, drawn in 2px
+// strokes on the 16 master, like the chevron down beside the field. ----
+
+function Stroke16({
+  size = 16,
+  className,
+  d,
+}: IconProps & { readonly d: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 16 16"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  );
+}
+
+/** A drawn chevron back: the previous month. */
+export function ChevronBackIcon(props: IconProps) {
+  return <Stroke16 {...props} d="M10 4l-4 4 4 4" />;
+}
+
+/** A drawn chevron forward: the next month. */
+export function ChevronForwardIcon(props: IconProps) {
+  return <Stroke16 {...props} d="M6 4l4 4-4 4" />;
+}

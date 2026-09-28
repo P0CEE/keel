@@ -73,7 +73,13 @@
     "./mint/menu": "./src/mint/menu/menu.tsx",
     "./mint/callout": "./src/mint/callout/callout.tsx",
     "./mint/amount-input": "./src/mint/amount-input/amount-input.tsx",
-    "./mint/spinning-checkmark": "./src/mint/spinning-checkmark/spinning-checkmark.tsx"
+    "./mint/spinning-checkmark": "./src/mint/spinning-checkmark/spinning-checkmark.tsx",
+    "./mint/chips": "./src/mint/chips/chip.tsx",
+    "./mint/checkbox": "./src/mint/checkbox/checkbox.tsx",
+    "./mint/toast": "./src/mint/toast/toast.tsx",
+    "./mint/date-time-input": "./src/mint/date-time-input/date-time-input.tsx",
+    "./mint/timeframe-selector": "./src/mint/timeframe-selector/timeframe-selector.tsx",
+    "./finance/balance-chart": "./src/finance/balance-chart/balance-chart.tsx"
   },
   "scripts": {
     "lint": "oxlint .",

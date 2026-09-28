@@ -80,6 +80,8 @@
   --z-shell: 20;
   --z-scrim: 9010;
   --z-popup: 9020;
+  /* toasts sit above popups, under tooltips */
+  --z-toast: 9030;
 
   /* ---- Ink: text and glyphs ---- */
   --ink: light-dark(#000000, #ffffff);
@@ -207,6 +209,18 @@
   --negative-soft: light-dark(#c0241614, #ed4f3c33);
   --info: light-dark(#305faa, #9cb7ed);
   --info-soft: light-dark(#305faa26, #a9bce533);
+  /* Mint's snackbar washes, the only colour it gives a toast: a failure
+     and a notice stand out, a success stays in the popup's dress */
+  --negative-wash: linear-gradient(
+    180deg,
+    light-dark(#f6dedb, #3e1e1d),
+    light-dark(#efc7c3, #3e1e1d99)
+  );
+  --info-wash: linear-gradient(
+    180deg,
+    light-dark(#c3d0ee4d, #557cbe4d),
+    light-dark(#c3d0ee, #557cbe33)
+  );
   --warning: light-dark(#7e6812, #d4b316);
   --warning-soft: light-dark(#dac96733, #eece2d33);
   /* the warning ink on its soft tint (the Callout's): dataviz yellow 09 in

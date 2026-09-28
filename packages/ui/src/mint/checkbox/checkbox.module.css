@@ -1,0 +1,129 @@
+/* mint-pocs' Checkbox (src/demos/checkbox/CheckboxDemo.tsx), rule for rule:
+   its values, its palette read from the roles in tokens.css. The labelled
+   row is the Radio's ControlLabel, the same row in the demo. */
+
+/* A 22px root, the 28px squircle art overflowing it by 3px. */
+.box {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  overflow: visible;
+}
+
+/* Invisible hit-area extension to 28px (WCAG 2.5.8), no layout change. */
+.box::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+}
+
+.box:disabled,
+.box[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 4px out, past the art. */
+.box:focus-visible {
+  border-radius: var(--radius-8);
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* The input fill, not a translucent white that would glow in dark. */
+.squircle {
+  position: absolute;
+  display: block;
+  top: -3px;
+  left: -3px;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  transform-origin: center;
+  fill: var(--field);
+  stroke: var(--line-heavy);
+  stroke-width: 1px;
+  transition:
+    fill 300ms ease,
+    stroke 300ms ease;
+}
+
+.box[data-checked] .squircle,
+.box[data-indeterminate] .squircle {
+  fill: var(--ink-fill);
+  stroke: var(--ink-fill);
+}
+
+/* Hover darkens an empty box's edge, on the box or anywhere on its label
+   (fast in, slow out). */
+@media (hover: hover) {
+  .box:hover:not([data-checked], [data-indeterminate], [data-disabled])
+    .squircle,
+  label:hover
+    .box:not([data-checked], [data-indeterminate], [data-disabled])
+    .squircle {
+    stroke: var(--line-hover);
+    transition-duration: var(--duration-fast);
+  }
+}
+
+/* Drawn in by sliding the dash offset from the path length to zero, once the
+   box has filled (the delay is the fill's duration). */
+.check {
+  position: absolute;
+  display: block;
+  top: 6px;
+  left: 5px;
+  width: 12px;
+  height: 10px;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--on-ink);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 14px;
+  stroke-dashoffset: 14px;
+  transition: stroke-dashoffset var(--duration-fast) ease;
+}
+
+.box[data-checked] .check {
+  stroke-dashoffset: 0;
+  transition-delay: var(--duration-fast);
+}
+
+.box[data-indeterminate] .check {
+  display: none;
+}
+
+.dash {
+  position: absolute;
+  display: none;
+  top: 10px;
+  left: 5px;
+  width: 12px;
+  height: 2px;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--on-ink);
+  stroke-width: 2px;
+  stroke-linecap: round;
+}
+
+.box[data-indeterminate] .dash {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .squircle,
+  .check {
+    transition: none;
+  }
+}

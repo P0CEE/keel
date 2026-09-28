@@ -24,6 +24,13 @@ const EXTERNAL = new Set([
   // Base UI's tabs: the active tab's place, which the indicator slides to
   "active-tab-left",
   "active-tab-width",
+  // Base UI's toasts: their place in the stack, its heights, and the swipe
+  "toast-index",
+  "toast-offset-y",
+  "toast-height",
+  "toast-frontmost-height",
+  "toast-swipe-movement-x",
+  "toast-swipe-movement-y",
 ]);
 
 function files(dir: string): string[] {

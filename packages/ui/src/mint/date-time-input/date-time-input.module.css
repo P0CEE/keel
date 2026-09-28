@@ -1,0 +1,534 @@
+/* mint-pocs' Date time input (src/demos/date-time-input/DateTimeInput.tsx),
+   rule for rule: its values, its palette read from the roles in
+   tokens.css. The popup is portalled: the roles are global, so it keeps the
+   palette wherever it lands, and it carries the face and box model the
+   demo's root gave it. */
+
+/* ---- Field: Mint's text field at 44px, the chevron turning while open ---- */
+.field {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  gap: var(--space-s1);
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-12);
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .field:hover:not(:focus-visible, [data-popup-open]) {
+    border-color: var(--line-hover);
+  }
+}
+
+.field:focus-visible,
+.field[data-popup-open] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.value[data-placeholder] {
+  color: var(--ink-3);
+  font-weight: var(--weight-regular);
+}
+
+.chevron {
+  flex: none;
+  transition: transform 150ms ease;
+}
+
+.field[data-popup-open] .chevron {
+  transform: rotate(180deg);
+}
+
+/* ---- Popup: Mint's frosted select popup, unfolding from the field. It
+   rests on `transform: none`, so at rest the text is on no 3D layer, where
+   it would be rasterised soft. ---- */
+.positioner {
+  z-index: var(--z-popup);
+}
+
+.popup {
+  box-sizing: border-box;
+  width: min(392px, calc(100vw - 32px));
+  container-type: inline-size;
+  border-radius: 18px;
+  background-color: var(--popup);
+  backdrop-filter: blur(56px);
+  box-shadow: var(--shadow-float);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  outline: none;
+  transform-origin: top right;
+  transform: none;
+  transition:
+    opacity var(--duration-instant) ease-out,
+    transform var(--duration-fast) var(--ease-overshoot);
+}
+
+.popup *,
+.popup *::before,
+.popup *::after {
+  box-sizing: border-box;
+}
+
+.popup[data-side="top"] {
+  transform-origin: bottom right;
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  transform: perspective(800px) scale(0.96) translateY(-4px) rotateX(-4deg);
+}
+
+.popup[data-side="top"][data-starting-style],
+.popup[data-side="top"][data-ending-style] {
+  transform: perspective(800px) scale(0.96) translateY(4px) rotateX(4deg);
+}
+
+.popup[data-ending-style] {
+  transition:
+    opacity var(--duration-instant) ease-in,
+    transform var(--duration-instant) ease-in;
+}
+
+/* ---- Panel: the calendar and, beside it, the times in a column of the
+   calendar's height ---- */
+.panel {
+  padding: var(--space-s1-50) 0 var(--space-s1);
+}
+
+.panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+}
+
+/* A date-only field: the calendar alone. */
+.panes[data-date-only] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cal {
+  padding: 0 var(--space-s1-50);
+}
+
+.calHead {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 32px;
+  padding-left: 6px;
+  margin-bottom: var(--space-s0-75);
+}
+
+.calTitle,
+.timesTitle {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+}
+
+.calTitle {
+  flex: 1;
+}
+
+/* The month arrows: Mint's small ghost icon button. */
+.step {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-8);
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+}
+
+@media (hover: hover) {
+  .step:hover:not(:disabled) {
+    background: var(--hover);
+  }
+}
+
+.step:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.step:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.step:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.week,
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  justify-items: center;
+}
+
+.week span {
+  padding: 4px 0;
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-medium);
+  color: var(--ink-3);
+}
+
+/* The leaving and the coming month in one cell, sliding past each other;
+   clipped to it, 4px out, so a focus ring on an edge day shows whole. */
+.months {
+  display: grid;
+  overflow: clip;
+  overflow-clip-margin: 4px;
+}
+
+.days {
+  grid-area: 1 / 1;
+  row-gap: 2px;
+}
+
+.day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .day:hover:not([aria-disabled], [aria-pressed="true"]) {
+    background: var(--hover);
+  }
+}
+
+/* Focus: the Mint ring drawn inside the cell (the month clips its edges).
+   On the picked disc it steps outside, 2px off, as an ink ring on the ink
+   disc would not show. */
+.day:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.day[aria-disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* The neighbouring months' days: there to keep six full weeks, read as the
+   edges. */
+.day[data-outside] {
+  color: var(--ink-3);
+  font-weight: var(--weight-regular);
+}
+
+.day[data-outside][aria-disabled] {
+  opacity: 0.2;
+}
+
+/* Today: a dot under the number. Picked: the ink disc, inverted. */
+.day[aria-current="date"]::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.day[aria-pressed="true"] {
+  background: var(--ink-fill);
+  color: var(--on-ink);
+  font-weight: var(--weight-bold);
+}
+
+.day[aria-pressed="true"]:focus-visible {
+  outline-offset: 2px;
+}
+
+/* The times take the calendar's height: the column is laid over its grid
+   cell, the list scrolls inside it and fades out at its ends. */
+.times {
+  position: relative;
+  border-left: 1px solid var(--line);
+}
+
+.timesTitle {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.timeList {
+  position: absolute;
+  inset: 38px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--space-s1) var(--space-s1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 12px,
+    black calc(100% - 16px),
+    transparent
+  );
+}
+
+.timeList::-webkit-scrollbar {
+  display: none;
+}
+
+.time {
+  flex: none;
+  height: 34px;
+  padding: 0 var(--space-s1);
+  border: 0;
+  border-radius: var(--radius-1000);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .time:hover:not([aria-disabled], [aria-pressed="true"]) {
+    background: var(--hover);
+  }
+}
+
+.time:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.time[aria-disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.time[aria-pressed="true"] {
+  background: var(--ink-fill);
+  color: var(--on-ink);
+  font-weight: var(--weight-bold);
+}
+
+.time[aria-pressed="true"]:focus-visible {
+  outline-offset: 2px;
+}
+
+/* Narrow: the times leave the column for a row of pills under the
+   calendar. */
+@container (max-width: 359px) {
+  .panes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .times {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    margin-top: var(--space-s1);
+    padding-top: var(--space-s1);
+  }
+
+  .timesTitle {
+    position: static;
+    display: block;
+    padding: 0 var(--space-s2) var(--space-s0-75);
+    text-align: left;
+  }
+
+  .timeList {
+    position: static;
+    flex-direction: row;
+    padding: 0 var(--space-s1-50) 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 12px,
+      black calc(100% - 16px),
+      transparent
+    );
+  }
+
+  .time {
+    padding: 0 var(--space-s1-50);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+}
+
+/* ---- None: a ring-and-dot row under the panes ---- */
+.none {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s1-50);
+  width: calc(100% - 2 * var(--space-s0-75));
+  margin: var(--space-s1) var(--space-s0-75) 0;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: var(--radius-12);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .none:hover {
+    background: var(--highlight);
+  }
+}
+
+.none:focus-visible {
+  background: var(--highlight);
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.noneCopy {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+}
+
+.noneDetail {
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-regular);
+  color: var(--ink-2);
+}
+
+.ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--line-heavy);
+  border-radius: 50%;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--on-ink);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-pop);
+}
+
+.none[aria-pressed="true"] .ring {
+  border-color: var(--ink-fill);
+  background: var(--ink-fill);
+}
+
+.none[aria-pressed="true"] .dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron,
+  .day,
+  .time,
+  .dot,
+  .field,
+  .step {
+    transition: none;
+  }
+
+  .step:active:not(:disabled) {
+    transform: none;
+  }
+
+  .popup {
+    transition: opacity var(--duration-instant) ease-out;
+  }
+
+  .popup[data-starting-style],
+  .popup[data-ending-style] {
+    transform: none;
+  }
+}

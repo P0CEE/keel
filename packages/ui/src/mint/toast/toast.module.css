@@ -1,0 +1,337 @@
+/* mint-pocs' Toast (src/demos/toast/Toast.tsx), rule for rule: its values,
+   its palette read from the roles in tokens.css. The viewport is portalled
+   to the body, so it carries the type and ink itself. */
+
+/* ---- The viewport: the bottom right corner; the bottom, full width, on a
+   phone ---- */
+.viewport {
+  position: fixed;
+  z-index: var(--z-toast);
+  right: var(--space-s3);
+  bottom: var(--space-s3);
+  width: 360px;
+  outline: none;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.viewport *,
+.viewport *::before,
+.viewport *::after {
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .viewport {
+    right: var(--space-s2);
+    left: var(--space-s2);
+    bottom: var(--space-s2);
+    width: auto;
+  }
+}
+
+/* ---- A toast: stacked behind the newest, fanned out while the stack is
+   hovered. Collapsed, every toast takes the front one's height so the
+   peeks are even; each step back scales 0.978 (4px a side at 360px) and
+   rises 10px. ---- */
+.toast {
+  --gap: var(--space-s1);
+  --peek: 10px;
+  --scale: calc(max(0, 1 - var(--toast-index) * 0.022));
+  --shrink: calc(1 - var(--scale));
+  --height: var(--toast-frontmost-height, var(--toast-height));
+  --lift: calc(
+    var(--toast-offset-y) * -1 - var(--toast-index) * var(--gap) +
+      var(--toast-swipe-movement-y)
+  );
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: var(--height);
+  z-index: calc(1000 - var(--toast-index));
+  border-radius: 18px;
+  background: var(--popup);
+  backdrop-filter: blur(56px);
+  box-shadow: var(--shadow-float);
+  color: var(--ink);
+  transform-origin: bottom center;
+  transform: translateX(var(--toast-swipe-movement-x))
+    translateY(
+      calc(
+        var(--toast-swipe-movement-y) - var(--toast-index) * var(--peek) -
+          var(--shrink) * var(--height)
+      )
+    )
+    scale(var(--scale));
+  transition:
+    transform 300ms var(--ease-sheet),
+    opacity 200ms ease,
+    height 300ms var(--ease-sheet);
+  user-select: none;
+  cursor: default;
+}
+
+.toast[data-type="error"] {
+  background: var(--negative-wash);
+}
+
+.toast[data-type="info"] {
+  background: var(--info-wash);
+}
+
+/* the gap under a fanned-out toast still counts as the stack, so it does not
+   fold in between */
+.toast::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: calc(var(--gap) + 1px);
+}
+
+.toast[data-expanded] {
+  height: var(--toast-height);
+  transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--lift));
+}
+
+/* in from below the corner, out the same way */
+.toast:is([data-starting-style], [data-ending-style]) {
+  opacity: 0;
+  transform: translateY(calc(100% + var(--space-s3)));
+}
+
+.toast[data-limited] {
+  opacity: 0;
+}
+
+/* thrown away: it leaves the way the finger sent it */
+.toast[data-ending-style][data-swipe-direction="right"] {
+  transform: translateX(calc(var(--toast-swipe-movement-x) + 120%))
+    translateY(var(--lift));
+}
+
+.toast[data-ending-style][data-swipe-direction="down"] {
+  transform: translateY(calc(var(--toast-swipe-movement-y) + 120%));
+}
+
+/* under the finger, no lag */
+.toast[data-swiping] {
+  transition: opacity 200ms ease;
+}
+
+.toast:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  padding: var(--space-s1-50) var(--space-s1-50) var(--space-s1-50)
+    var(--space-s2);
+  overflow: hidden;
+  transition: opacity 200ms ease;
+}
+
+/* behind the newest the words would crowd its edge: hidden until the stack
+   fans out */
+.content[data-behind] {
+  opacity: 0;
+}
+
+.content[data-expanded] {
+  opacity: 1;
+}
+
+/* ---- The mark: every type in one cell, the one shown cross-fading and
+   popping ---- */
+.mark {
+  display: grid;
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+.glyph {
+  grid-area: 1 / 1;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 200ms ease,
+    transform 200ms var(--ease-pop);
+}
+
+.mark[data-type="loading"] .loading,
+.mark[data-type="success"] .success,
+.mark[data-type="error"] .error,
+.mark[data-type="info"] .info {
+  opacity: 1;
+  transform: none;
+}
+
+.loading {
+  color: var(--ink-2);
+}
+
+.success {
+  color: var(--positive);
+}
+
+.error {
+  color: var(--negative);
+}
+
+.info {
+  color: var(--info);
+}
+
+.mark[data-type="loading"] .loading {
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* ---- The words: they blur in when the toast is updated ---- */
+.text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  animation: words 200ms ease backwards;
+}
+
+@keyframes words {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-2);
+}
+
+/* ---- The action: Mint's small tertiary Button; the x: its small
+   transparent icon button ---- */
+.action {
+  flex: none;
+  height: 28px;
+  min-width: 60px;
+  padding: 0 var(--space-s1);
+  border: 0;
+  border-radius: var(--radius-1000);
+  background: var(--pill);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--text-xsmall);
+  line-height: normal;
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition:
+    background-image 200ms ease,
+    transform 70ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-1000);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    background-image 200ms ease,
+    color 100ms ease,
+    transform 70ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .action:hover,
+  .close:hover {
+    background-image: linear-gradient(var(--hover), var(--hover));
+    color: var(--ink);
+  }
+}
+
+.action:active {
+  transform: scale(0.98);
+}
+
+.close:active {
+  transform: scale(0.94);
+  background-image: linear-gradient(var(--pill), var(--pill));
+}
+
+.action:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* no slide, scale or fan: toasts fade where they stand, the stack takes
+     its places at once */
+  .toast {
+    transition: opacity 200ms ease;
+  }
+
+  .toast:is([data-starting-style], [data-ending-style]) {
+    transform: translateY(
+        calc(
+          0px - var(--toast-index) * var(--peek) - var(--shrink) * var(--height)
+        )
+      )
+      scale(var(--scale));
+  }
+
+  .toast[data-expanded]:is([data-starting-style], [data-ending-style]) {
+    transform: translateY(var(--lift));
+  }
+
+  .glyph {
+    transition: opacity 200ms ease;
+    transform: none;
+  }
+
+  .text {
+    animation: none;
+  }
+
+  .mark[data-type="loading"] .loading {
+    animation-duration: 1600ms;
+  }
+
+  .action:active,
+  .close:active {
+    transform: none;
+  }
+}

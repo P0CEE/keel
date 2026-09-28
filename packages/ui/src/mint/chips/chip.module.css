@@ -1,0 +1,73 @@
+/* mint-pocs' Chips (src/demos/chips/ChipsDemo.tsx), rule for rule: its
+   values, its palette read from the roles in tokens.css. */
+
+/* The resting tint is appearance-specific: the neutral soft accent in light
+   (--highlight, 5% ink), the hover state in dark (--hover, 8% white), so
+   hover (--pill) is always one step stronger and never flips direction. */
+.chip {
+  --rest: light-dark(var(--highlight), var(--hover));
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s0-75);
+  height: var(--space-s5);
+  padding: 0 var(--space-s2);
+  border-radius: var(--radius-1000);
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.14px;
+  line-height: var(--leading-small);
+  border: 0;
+  white-space: nowrap;
+  max-width: 100%;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+  background-color: var(--rest);
+  color: var(--ink);
+}
+
+.chip[data-size="small"] {
+  height: var(--space-s4);
+  padding: 0 var(--space-s1-50);
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    background-color: var(--pill);
+  }
+}
+
+.chip[data-selected],
+.chip[data-selected]:hover {
+  background-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* min-width: 0 so the label can shrink and actually ellipsize. */
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A filter row: the chips side by side, 6px apart. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s0-75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none;
+  }
+}

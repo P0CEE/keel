@@ -1,0 +1,69 @@
+/* mint-pocs' Timeframe selector (src/demos/timeframe-selector/
+   TimeframeSelector.tsx), rule for rule: its values, its palette read from
+   the roles in tokens.css. */
+
+.pills {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.pill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--radius-8);
+  background: var(--pill);
+}
+
+.tab {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  min-width: 36px;
+  padding: 0 var(--space-s1-50);
+  border: 0;
+  border-radius: var(--radius-8);
+  background: transparent;
+  /* bold whatever the state: only the colour says which is selected, so
+     nothing shifts */
+  font-family: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--ink);
+  }
+}
+
+.tab[aria-selected="true"] {
+  color: var(--ink);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.pills[data-size="small"] .tab {
+  height: 28px;
+  min-width: 34px;
+  padding: 0 var(--space-s1);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+}
