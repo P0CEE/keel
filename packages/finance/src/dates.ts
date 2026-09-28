@@ -11,6 +11,22 @@ export class InvalidDayError extends Error {
   override readonly name = "InvalidDayError";
 }
 
+/** Where a household lives until it says otherwise. */
+export const DEFAULT_TIME_ZONE = "Europe/Paris";
+
+/** An IANA time zone the runtime knows ("Europe/Paris"), not an offset. */
+export function isTimeZone(zone: string): boolean {
+  if (!/^[A-Za-z_]+(\/[A-Za-z0-9_+-]+)*$/.test(zone)) {
+    return false;
+  }
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: zone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Today's date in a time zone, as a day string. */
 export function todayIn(timeZone: string, now: Date = new Date()): Day {
   const parts = formatter("en-CA", {
@@ -118,4 +134,28 @@ function formatter(
   const created = new Intl.DateTimeFormat(locale, options);
   formatterCache.set(key, created);
   return created;
+}
+
+/** Every IANA zone the runtime knows, for a picker. */
+export function listTimeZones(): readonly string[] {
+  return Intl.supportedValuesOf("timeZone");
+}
+
+/**
+ * How a picker names a zone: its city and its offset at `now`
+ * ("Paris · UTC+02:00", "Buenos Aires · UTC−03:00"). The offset is read at
+ * the given instant, so it follows daylight saving.
+ */
+export function timeZoneLabel(
+  zone: string,
+  locale: string,
+  now: Date = new Date(),
+): string {
+  const city = (zone.split("/").at(-1) ?? zone).replaceAll("_", " ");
+  const offset =
+    formatter(locale, { timeZone: zone, timeZoneName: "longOffset" })
+      .formatToParts(now)
+      .find((part) => part.type === "timeZoneName")?.value ?? "";
+  const utc = offset === "GMT" ? "UTC" : offset.replace("GMT", "UTC");
+  return `${city} · ${utc.replace("-", "−")}`;
 }

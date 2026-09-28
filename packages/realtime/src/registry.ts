@@ -8,7 +8,12 @@ import { z } from "zod";
  *
  * This module is client-safe: the app imports it for its invalidation table.
  */
-export const eventSchemas = {} as const satisfies EventSchemas;
+export const eventSchemas = {
+  /** The household's shared settings changed (name, currency, timezone). */
+  "household.updated": z.object({}).strict(),
+  /** A member's own settings changed; sent with `privateTo` that member. */
+  "member.settings-updated": z.object({}).strict(),
+} as const satisfies EventSchemas;
 
 export type EventSchemas = Readonly<Record<string, z.ZodType>>;
 

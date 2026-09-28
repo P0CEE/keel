@@ -3,8 +3,10 @@ import type { Context as HonoContext } from "hono";
 import superjson from "superjson";
 import { z } from "zod";
 
+import { newMemberDefaults } from "../lib/new-member";
 import { getCachedSession } from "../lib/session";
 import { resolveScope } from "@keel/db";
+import { provisionMember } from "@keel/db/members";
 
 /**
  * Per-request context shared by every tRPC procedure.
@@ -65,15 +67,18 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 
 /**
  * Requires a member of a household, and puts their scope in ctx: every
- * application module runs its work through `withScope(ctx.scope, ...)`.
+ * application module runs its work through `withScope(ctx.scope, ...)`. A
+ * member the sign-up hook failed to provision gets their household here.
  */
 export const scopedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  const scope = await resolveScope(ctx.user.id);
-  if (!scope) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "No household for this member",
-    });
-  }
+  const scope =
+    (await resolveScope(ctx.user.id)) ??
+    (await provisionMember(
+      newMemberDefaults({
+        memberId: ctx.user.id,
+        name: ctx.user.name,
+        context: { locale: ctx.headers.get("accept-language") ?? undefined },
+      }),
+    ));
   return next({ ctx: { ...ctx, scope } });
 });

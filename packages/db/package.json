@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
     "./client": "./src/client.ts",
-    "./testing": "./src/testing.ts"
+    "./testing": "./src/testing.ts",
+    "./members": "./src/queries/members.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",

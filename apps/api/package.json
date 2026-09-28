@@ -19,6 +19,7 @@
     "@keel/ai": "workspace:*",
     "@keel/cache": "workspace:*",
     "@keel/db": "workspace:*",
+    "@keel/finance": "workspace:*",
     "@keel/jobs": "workspace:*",
     "@keel/realtime": "workspace:*",
     "@scalar/hono-api-reference": "catalog:",

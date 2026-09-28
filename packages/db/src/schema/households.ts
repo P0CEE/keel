@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   char,
+  jsonb,
   pgEnum,
   pgPolicy,
   pgTable,
@@ -67,6 +68,38 @@ export const householdMembers = pgTable(
       for: "all",
       using: sql`${table.householdId} = ${currentHousehold} OR ${table.userId} = ${currentMember}`,
       withCheck: sql`${table.householdId} = ${currentHousehold}`,
+    }),
+  ],
+);
+
+export const memberLocale = pgEnum("member_locale", ["en", "fr"]);
+
+/**
+ * A member's own preferences. Only the member reads or writes them; the
+ * household's shared settings (currency, timezone) live on `households`.
+ */
+export const memberSettings = pgTable(
+  "member_settings",
+  {
+    userId: text("user_id")
+      .primaryKey()
+      .references(() => user.id, { onDelete: "cascade" }),
+    householdId: uuid("household_id")
+      .notNull()
+      .references(() => households.id, { onDelete: "cascade" }),
+    locale: memberLocale("locale").notNull(),
+    // Null: the household's base currency.
+    displayCurrency: char("display_currency", { length: 3 }),
+    // Null: the adaptive default layout (lot 8).
+    homeLayout: jsonb("home_layout"),
+    onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
+  },
+  (table) => [
+    pgPolicy("member_settings_scope", {
+      to: keelApp,
+      for: "all",
+      using: sql`${table.householdId} = ${currentHousehold} AND ${table.userId} = ${currentMember}`,
+      withCheck: sql`${table.householdId} = ${currentHousehold} AND ${table.userId} = ${currentMember}`,
     }),
   ],
 );

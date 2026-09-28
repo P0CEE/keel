@@ -7,7 +7,10 @@ import {
   formatMonth,
   formatShortDate,
   InvalidDayError,
+  isTimeZone,
+  listTimeZones,
   startOfMonth,
+  timeZoneLabel,
   todayIn,
 } from "../src/dates";
 
@@ -68,5 +71,50 @@ describe("formatShortDate and formatMonth", () => {
     expect(
       formatMonth("2026-09-14", "en-US", { length: "long", withYear: true }),
     ).toBe("September 2026");
+  });
+});
+
+describe("isTimeZone", () => {
+  test("accepts IANA zones", () => {
+    expect(isTimeZone("Europe/Paris")).toBe(true);
+    expect(isTimeZone("America/Argentina/Buenos_Aires")).toBe(true);
+    expect(isTimeZone("UTC")).toBe(true);
+  });
+
+  test("refuses offsets, unknown zones and junk", () => {
+    expect(isTimeZone("+02:00")).toBe(false);
+    expect(isTimeZone("Europe/Atlantis")).toBe(false);
+    expect(isTimeZone("")).toBe(false);
+    expect(isTimeZone("Europe/Paris; DROP")).toBe(false);
+  });
+});
+
+describe("time zone picker", () => {
+  const summer = new Date("2026-07-01T12:00:00Z");
+  const winter = new Date("2026-01-15T12:00:00Z");
+
+  test("lists real zones, Paris among them", () => {
+    const zones = listTimeZones();
+    expect(zones).toContain("Europe/Paris");
+    expect(zones.every(isTimeZone)).toBe(true);
+  });
+
+  test("names a zone by its city and its offset at that instant", () => {
+    expect(timeZoneLabel("Europe/Paris", "fr", summer)).toBe(
+      "Paris · UTC+02:00",
+    );
+    expect(timeZoneLabel("Europe/Paris", "fr", winter)).toBe(
+      "Paris · UTC+01:00",
+    );
+  });
+
+  test("writes a true minus and spaces in city names", () => {
+    expect(timeZoneLabel("America/Argentina/Buenos_Aires", "en", summer)).toBe(
+      "Buenos Aires · UTC\u221203:00",
+    );
+  });
+
+  test("names UTC itself", () => {
+    expect(timeZoneLabel("UTC", "en", summer)).toBe("UTC · UTC");
   });
 });

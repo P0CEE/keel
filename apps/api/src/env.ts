@@ -12,6 +12,10 @@ const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(32),
   // Public origin Better Auth issues callbacks/cookies for (this API).
   BETTER_AUTH_URL: z.string().url().default("http://localhost:3001"),
+  // Google OAuth, the only sign-in method (same application as ramnn, so
+  // migrated members keep their account).
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
   // Optional: only required to call the AI endpoints. The OpenAI provider
   // reads it directly; the AI router fails with a clear error when it's unset.
   OPENAI_API_KEY: z.string().min(1).optional(),

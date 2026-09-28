@@ -6,7 +6,8 @@
   "sideEffects": false,
   "exports": {
     "./money": "./src/money.ts",
-    "./dates": "./src/dates.ts"
+    "./dates": "./src/dates.ts",
+    "./currencies": "./src/currencies.ts"
   },
   "scripts": {
     "lint": "oxlint .",
