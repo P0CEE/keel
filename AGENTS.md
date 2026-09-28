@@ -19,7 +19,8 @@ Guidance for AI coding agents working in this monorepo.
 - Build: `bun run build`
 - Clean caches/builds: `bun run clean`
 - Demo banking data for a local member: `bun run db:seed-demo <email>`
-  (fake bank, idempotent, refused in production)
+  (fake bank, two years of history synced in process, idempotent, refused
+  in production)
 
 **Definition of done** for any change:
 

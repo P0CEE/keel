@@ -120,20 +120,25 @@ Valeurs de Mint gardées telles quelles : `ink-3` reste `fg.secondary` en clair
 | `mint/callout`                                        | Callout                                  | Quatre tons, cliquable en entier ; le nom du ton en prop (lot 2)                                                                                                                               |
 | `mint/amount-input`                                   | AmountInput                              | Groupement à la frappe, curseur gardé, devise et côté du symbole lus par Intl, négatifs sur demande ; `toMinor` (lot 2)                                                                        |
 | `mint/spinning-checkmark`                             | Spinning checkmark                       | Contrôlé seulement (lot 2)                                                                                                                                                                     |
+| `mint/chips`, `mint/checkbox`                         | Chips, Checkbox                          | Rangée à choix unique qui dérive `selected` de sa valeur ; case avec libellé et description (lot 3)                                                                                            |
+| `mint/toast`                                          | Toast                                    | Toast de Base UI habillé ; `Toaster` monté par le layout, `useToasts().add` avec une action « Annuler » (lot 3)                                                                                |
+| `mint/date-time-input`                                | Date time input                          | Valeur en jour du foyer (`Day`), mode date seule sans `times`, semaine au lundi par défaut (lot 3)                                                                                             |
+| `mint/timeframe-selector`                             | Timeframe selector                       | Pilules étirées du set, mesures et touches dans `pills.ts` (lot 3)                                                                                                                             |
 
 ### `@keel/ui/finance`
 
-| Export                              | Porté depuis                          | Notes                                                                                                                               |
-| ----------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `category-tag`, `category-colors`   | Tag, Transactions, spending breakdown | L'accent neutre du Tag, icône à 8 px du bord, comme la démo ; la couleur reste aux graphiques                                       |
-| `category-glyphs`                   | Transactions, Icon picker             | Logement et santé : Home et Health de l'Icon picker ; « À catégoriser » dessiné sur la même grille                                  |
-| `amount`                            | Transactions (`signed`)               | Chiffres tabulaires                                                                                                                 |
-| `rolling-number`, `animated-amount` | AnimatedNumber (`RollingTicker`)      | Logique de cases extraite et testée ; séparateurs lus sur la locale (espace fine en français)                                       |
-| `transaction-list`                  | Transactions                          | Jours du foyer, multi-devises (pas de net du jour quand les devises diffèrent), statut en attente ou refusée, container queries     |
-| `cash-flow`                         | CashFlow                              | Barres HTML sur TRAIL, bleu et orange de la palette, roving tabindex                                                                |
-| `privacy`, `privacy-balance`        | Privacy, Privacy mode                 | État global par appareil (localStorage) ; masqué, le chiffre quitte le DOM ; branché sur tous les montants (lot 2)                  |
-| `net-worth-breakdown`               | Net worth breakdown                   | `BreakdownCard` seule pour un foyer d'un membre, onglets par membre prêts pour le lot 12 (lot 2)                                    |
-| `account-drawer`                    | Account details drawer (reconverti)   | Carte dessinée aux couleurs de la nature, IBAN masqué qui roule, « masquer des totaux » à la place du gel, actions en props (lot 2) |
+| Export                              | Porté depuis                          | Notes                                                                                                                                  |
+| ----------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `category-tag`, `category-colors`   | Tag, Transactions, spending breakdown | L'accent neutre du Tag, icône à 8 px du bord, comme la démo ; la couleur reste aux graphiques                                          |
+| `category-glyphs`                   | Transactions, Icon picker             | Logement et santé : Home et Health de l'Icon picker ; « À catégoriser » dessiné sur la même grille                                     |
+| `amount`                            | Transactions (`signed`)               | Chiffres tabulaires                                                                                                                    |
+| `rolling-number`, `animated-amount` | AnimatedNumber (`RollingTicker`)      | Logique de cases extraite et testée ; séparateurs lus sur la locale (espace fine en français)                                          |
+| `transaction-list`                  | Transactions                          | Jours du foyer, multi-devises (pas de net du jour quand les devises diffèrent), statut en attente ou refusée, container queries        |
+| `cash-flow`                         | CashFlow                              | Barres HTML sur TRAIL, bleu et orange de la palette, roving tabindex                                                                   |
+| `privacy`, `privacy-balance`        | Privacy, Privacy mode                 | État global par appareil (localStorage) ; masqué, le chiffre quitte le DOM ; branché sur tous les montants (lot 2)                     |
+| `net-worth-breakdown`               | Net worth breakdown                   | `BreakdownCard` seule pour un foyer d'un membre, onglets par membre prêts pour le lot 12 (lot 2)                                       |
+| `account-drawer`                    | Account details drawer (reconverti)   | Carte dessinée aux couleurs de la nature, IBAN masqué qui roule, « masquer des totaux » à la place du gel, actions en props (lot 2)    |
+| `balance-chart`                     | Price chart (reconverti)              | Solde contre son niveau d'ouverture, tracé rééchantillonné à 240 points pour morpher entre périodes, scrub sur les vrais jours (lot 3) |
 
 ### Dans l'app
 

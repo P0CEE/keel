@@ -3,7 +3,7 @@
 - Date : 2026-09-28
 - Entrées : `01-audit.md` à `05-ui-porting.md` et leurs décisions validées,
   ADR 0001 à 0017, `CONTEXT.md`, catalogue des démos mint-pocs.
-- Statut : validée le 2026-09-28 ; lots 0 à 2 livrés.
+- Statut : validée le 2026-09-28 ; lots 0 à 3 livrés.
 
 ## 1. Principes de découpage
 
@@ -176,35 +176,71 @@ l'autorisation de l'URL de callback.
 ### Lot 3 · Transactions et Settlement
 
 - **`@keel/finance`** : `labels` (le normaliseur unique : `merchantKey`,
-  `purchaseDate` lue dans le libellé CB, `cardAcceptor`, `LABELS_VERSION`),
-  `settlement` (`insert`, `promote`, `skip`, tombstones), `balances`
-  (`reconstruct`).
+  `purchaseDate` lue dans le libellé CB, `cardAcceptor`, `transactionMethod`,
+  `LABELS_VERSION`), `settlement` (`insert`, `promote`, `skip`, tombstones),
+  `balances` (`reconstruct`), `transaction-filter` (le filtre de la liste,
+  normalisé par la même fonction dans l'app et l'API). L'empreinte d'une
+  ligne sans `entry_reference` lit un libellé figé (`identityLabel`) : changer
+  le normaliseur de marchands ne la déplace jamais. Settlement passe dans
+  l'ordre : répétitions du fetch, identité (référence, puis empreinte et
+  rang), révision d'une ligne sans référence dont la banque a reformulé le
+  libellé, rapprochement composite avec une ligne d'une autre origine
+  (5 jours d'écart au plus, IBAN de contrepartie non contradictoire), puis
+  insertion.
+- **`@keel/bank-providers`** : chaque ligne arrivante porte `part`, la
+  requête du fetch qui l'a rendue (0 pour la fenêtre live). Les deux moitiés
+  d'un fetch complet se recouvrent : les rangs d'occurrence se comptent par
+  partie. Le fake date ses lignes du jour du consentement (une vraie banque
+  ne déplace pas ses lignes) et la Banque Démo a deux ans d'historique.
 - **`@keel/banking`** : `settleArrivals`, la seule porte (ADR 0004), qui
-  charge, décide et écrit une fois par fetch entier ; `transactionsChanged`
-  et ses causes (ADR 0008), avec pour l'instant les seules étapes qui existent
-  (historique de solde).
-- **Jobs** : `bank.sync-due` (toutes les 15 min, deux créneaux par jour dans
-  le fuseau du foyer), `bank.sync-connection`, `bank.sync-account`, budget
-  d'appels par compte et par jour, contexte PSU sur le rafraîchissement
-  manuel limité à un toutes les 5 minutes, relances selon la classe d'erreur
-  (`02-domain.md`, section 6.3). Événement `sync.progress`.
-- **Historique de solde** reconstruit (ADR 0011), `account_balances`, marque
-  `history_dirty_from`.
-- **Écrans** : page Transactions (liste par jour, filtres dans l'URL,
-  recherche trigramme en `simple` + `unaccent`, pagination par curseur), fiche
-  détail avec navigation clavier, saisie manuelle, édition avec colonnes
-  « banque » verrouillées sur les lignes synchronisées, suppression avec
-  undo ; courbe de solde dans la fiche compte. Démos : `transactions` (déjà
-  porté), `chips`, `date-time-input`, `checkbox`, `toast`, `price-chart` ou
-  `return-chart` pour la courbe (à trancher sur captures), `timeframe-selector`.
-- **Cas nommés** : lots de 500 de ramnn (une copie périmée ne promeut jamais
-  par-dessus la ligne fraîche), deux achats identiques le même jour sans
-  `entry_reference`, ligne supprimée jamais ressuscitée, `bankAccountId`
-  d'un autre foyer refusé.
+  charge, décide et écrit une fois par fetch entier ; une saisie promue
+  garde son libellé comme nom et sa note. `transactionsChanged` et
+  `followUps` (ADR 0008) : pour l'instant toutes les causes planifient
+  `bank.reconcile`, dédoublonné par foyer (5 s). Saisie, édition (montant,
+  date et libellé verrouillés sur une ligne synchronisée), suppression en
+  tombstone et restauration ; `transactionsPage` par curseur,
+  `transactionDetail`, `balanceHistory`.
+- **Jobs** : `bank.sync-due` (toutes les 15 min, parcours `SECURITY DEFINER`
+  `keel_connections_due`), `bank.sync-connection` (créneaux 7 h et 19 h dans
+  le fuseau du foyer, décalés de 0 à 29 min par connexion), `bank.sync-account`
+  (fenêtre `full` tant que le compte n'a jamais été synchronisé),
+  `bank.reconcile` (une passe par membre, `keel_household_member_ids`, pour
+  voir les comptes privés de chacun). Budget : 4 syncs non initiées par
+  compte et par jour, compteur Redis ; rafraîchissement manuel par le seul
+  membre qui a consenti, avec son contexte PSU, un par connexion toutes les
+  5 minutes. `rate_limited` remet le job en file sans compter d'échec,
+  `reconnect_required` passe la connexion à reconnecter, `transient` et
+  `bank_unavailable` sont relancés 5 fois à partir de 30 s. Sync initiale
+  après le choix des comptes, et sync de reprise après une reconnexion.
+  Événements `sync.progress`, `transactions.changed`, `household.reconciled`.
+- **Historique de solde** reconstruit (ADR 0011), `account_balances` : tout
+  l'historique d'un compte marqué (`history_dirty_from`) est réécrit, car un
+  nouveau solde de la banque déplace chaque jour ; le compte est verrouillé
+  pendant la reconstruction. Un compte manuel a son solde déclaré depuis le
+  jour de la déclaration, jusqu'à la reconnaissance des virements (lot 5).
+- **Écrans** : page Transactions (filtres dans l'URL, `?accounts=`, chips de
+  période, de sens et de comptes préchargées au survol, recherche trigramme
+  sans accents, pages suivantes chargées avant la fin du scroll), fiche
+  détail avec ↑/↓ (ou K/J), saisie (dépense ou rentrée), renommer, note,
+  édition entière d'une saisie, suppression avec toast « Annuler » ; courbe
+  de solde (price-chart reconverti) et « Voir les transactions » dans la
+  fiche compte ; « Actualiser » sur chaque banque, qui suit la sync sans
+  requête. Démos portées : `chips`, `checkbox`, `toast`, `date-time-input`,
+  `timeframe-selector`, `price-chart` (retenu plutôt que `return-chart` :
+  un solde se lit contre son niveau d'ouverture, pas en rendement).
+- **Écarts** : les montants de la liste restent en devise native (la
+  conversion vient avec les agrégats du lot 5) ; les captures côte à côte
+  n'ont pas été faites à la clôture du lot.
+- **Cas nommés** (tests) : lots de 500 de ramnn, deux achats identiques le
+  même jour sans `entry_reference`, ligne supprimée jamais ressuscitée,
+  `bankAccountId` d'un autre foyer refusé (aussi par une clé étrangère
+  composite en base), sync rejouée deux fois sans doublon.
 
 Fini quand : une sync réelle sur la sandbox, rejouée deux fois, ne produit
 aucun doublon ; la liste s'affiche sans état de chargement au changement de
-filtre préchargé.
+filtre préchargé. Vérifié le 2026-09-29 sur la fausse banque (PGlite, puis
+Postgres 17 en local avec le seed) ; la sandbox Enable Banking attend la clé
+de l'application, absente des environnements de dev.
 
 ### Lot 4 · Catégorisation
 
