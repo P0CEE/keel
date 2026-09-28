@@ -15,6 +15,13 @@
       "when": 1780566594300,
       "tag": "0001_silent_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790592702238,
+      "tag": "0002_drop_tasks",
+      "breakpoints": true
     }
   ]
 }

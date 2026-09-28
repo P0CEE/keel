@@ -5,7 +5,7 @@ import { Redis } from "ioredis";
 import { env } from "./env";
 import { logger } from "./logger";
 import { getProcessor } from "./processors/registry";
-import { registerSchedules, seedExampleJobs } from "./scheduler";
+import { registerSchedules } from "./scheduler";
 import {
   closeQueue,
   getQueue,
@@ -47,14 +47,10 @@ worker.on("completed", (job) => {
   logger.info("job completed", { jobId: job.id, jobName: job.name });
 });
 
-// Register the example cron and, outside production, seed demo jobs so there
-// is data to process. Non-fatal: a failure here must not stop the worker from
+// Register the crons. Non-fatal: a failure here must not stop the worker from
 // processing jobs.
 try {
   const queue = getQueue();
-  if (env.NODE_ENV !== "production") {
-    await seedExampleJobs(queue);
-  }
   await registerSchedules(queue);
   logger.info("schedules registered", { queue: QUEUE_NAME });
 } catch (err) {
