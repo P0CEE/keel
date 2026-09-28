@@ -3,7 +3,7 @@
 - Date : 2026-09-28
 - Entrées : `01-audit.md` à `05-ui-porting.md` et leurs décisions validées,
   ADR 0001 à 0017, `CONTEXT.md`, catalogue des démos mint-pocs.
-- Statut : validée le 2026-09-28 ; le lot 0 est en cours.
+- Statut : validée le 2026-09-28 ; lots 0 à 2 livrés.
 
 ## 1. Principes de découpage
 
@@ -107,33 +107,71 @@ l'app passe par `withScope`.
 
 ### Lot 2 · Connexions et comptes
 
-- **`@keel/bank-providers`** : port `BankingProvider`, adaptateur fake piloté
-  par scénarios, adaptateur Enable Banking (JWT RS256 avec `jose`, `fetch`
-  natif, réponses validées par Zod, `ProviderError` classée, signe du solde
-  normalisé une fois, devise `XXX` résolue). Tests sur réponses enregistrées,
-  dont les 32 cas du transform de ramnn qui restent pertinents.
-- **Institutions** : table, recherche trigramme par pays, job
-  `bank.institutions-refresh`.
-- **Connexions** : consentement avec `state` porteur de l'id de connexion et
-  nonce dans Redis, callback, choix des comptes (miroirs de carte décochés),
-  un seul flux de reconnexion, retrait avec délai de grâce de 30 jours puis
-  `bank.purge`, rappels `bank.consent-reminders` à J-14 et J-3.
-- **Comptes** : synchronisés et manuels, `kind` corrigeable, « Déclarer un
-  solde » distinct de « Modifier le compte », archivage. Unicité
-  (`connection_id`, `stable_ref`).
-- **Change** : table `fx_rates`, job `fx.refresh-rates` (BCE), module `fx` de
-  `@keel/finance`.
-- **Écrans** : page Comptes (liste par nature, patrimoine, répartition),
-  parcours de connexion, bandeau de reconnexion. Démos : `net-worth-breakdown`,
-  `account-details-drawer` (pour la fiche compte, reconvertie comme le dock),
-  `sheet`, `menu`, `amount-input`, `callout`, `privacy-mode`, `privacy`,
-  `spinning-checkmark` (fin de connexion).
-- **Onboarding** : objectif d'épargne reporté au lot 7 ; ici, le parcours
-  mène à la connexion bancaire ou à un compte manuel.
+- **`@keel/bank-providers`** : port `BankingProvider`, `ProviderError` classée
+  (table des codes Enable Banking dans `enable-banking/failures.ts`, lue
+  dans le corps de la réponse, jamais déduite du statut HTTP), adaptateur
+  Enable Banking (JWT RS256 avec `jose`, `fetch` natif, réponses validées par
+  Zod, solde gardé signé tel que la banque l'envoie, devise `XXX` résolue par
+  celle du solde, préférence de solde sur les codes ISO `CLBD`... et non sur
+  les noms longs que ramnn cherchait sans jamais les trouver). Fake piloté
+  par scénarios (Banque Démo, Crédit Démo en `reconnect_required`, Caisse
+  Démo limitée en appels, Néobanque Démo en `XXX`, Banque Privée Démo sans
+  devise), dont les références encodent la session : l'API et le worker
+  lisent les mêmes. Les fenêtres de ramnn et leurs 8 cas sont repris ; des
+  32 cas du transform, ceux de l'adaptateur (devise, nature, contrepartie),
+  la date d'achat, la méthode et l'accepteur de carte restant au domaine
+  (lot 3).
+- **Institutions** : table globale, recherche par pays en trigramme
+  (`pg_trgm`, chargé aussi dans PGlite), job `bank.institutions-refresh`
+  hebdomadaire et au premier démarrage du worker.
+- **Connexions** : le `state` n'est qu'un nonce ; ce qu'il désigne
+  (connexion pré-allouée, membre, banque, type d'accès) reste dans Redis,
+  15 minutes, lu et effacé d'un `GETDEL`. Le callback est une route REST de
+  l'API (`/v1/bank/callback`, navigation de premier niveau, donc cookie de
+  session présent) qui échange le code avec le contexte PSU du membre et
+  renvoie toujours sur `/accounts`. Les comptes du consentement sont décrits
+  une fois et gardés une heure comme « offre » ; le membre choisit, le
+  miroir de carte décoché. Un seul flux de renouvellement, qui retrouve les
+  comptes par `stable_ref` (renommages gardés) et rend l'ancienne session à
+  la banque. Retrait avec 30 jours de grâce, restauration, puis
+  `bank.purge` quotidien qui révoque avant de supprimer (une révocation
+  ratée attend le lendemain). `psu_type` mémorisé sur la connexion.
+  **Écart** : `bank.consent-reminders` (J-14, J-3) est reporté au lot 9,
+  faute de canal de notification ; le bandeau de reconnexion de la page
+  Comptes s'affiche dès J-14 en attendant.
+- **Comptes** : synchronisés et manuels, nature corrigible (le choix du
+  membre prime), « Déclarer un solde » distinct de « Modifier », masquer
+  des totaux, archivage. Unicité (`connection_id`, `stable_ref`). Le solde
+  d'un compte manuel est son ancre jusqu'à la reconnaissance des virements
+  (lot 5).
+- **Change** : table `fx_rates`, job `fx.refresh-rates` (BCE, fichier de
+  90 jours, historique complet pour un rattrapage plus ancien), module `fx`
+  de `@keel/finance` en arithmétique entière. Une devise sans taux sort du
+  total, qui le dit.
+- **Lecture** : `accounts.overview`, une seule requête pour la page
+  (groupes par nature, soldes convertis, patrimoine et répartition,
+  connexions et ce qu'elles demandent), préchargée par le layout.
+  Événements `connection.changed` et `accounts.changed`.
+- **Écrans** : page Comptes (patrimoine en `privacy-balance`, répartition
+  en `BreakdownCard` par nature, comptes par nature, banques en
+  composition `cards-inset`), choix de la banque, choix des comptes (fin sur
+  `spinning-checkmark`), compte manuel (`amount-input`), fiche compte
+  (`account-details-drawer` reconverti : carte dessinée aux couleurs de la
+  nature, IBAN masqué, « masquer des totaux » à la place du gel), bandeaux
+  (`callout`), menu des banques (`menu`). Mode confidentialité monté pour
+  toute l'app, branché sur tous les composants de montant.
+- **Onboarding** : objectif d'épargne reporté au lot 7 ; ici, la page Comptes
+  vide mène à la connexion bancaire ou à un compte manuel.
+- **Développement** : `BANKING_PROVIDER=fake` par défaut, la fausse banque
+  répond sans réseau ; `bun run db:seed-demo <email>` donne à un membre
+  local deux connexions et un compte manuel (refusé en production).
 
 Fini quand : sur la sandbox, un membre connecte une banque, voit ses comptes
 et son patrimoine ; un compte manuel a son solde déclaré ; une reconnexion
-garde les comptes et leurs renommages.
+garde les comptes et leurs renommages. Vérifié le 2026-09-28 sur la fausse
+banque (tests de `@keel/banking` sur PGlite, et parcours réel en local) ;
+le passage sur Enable Banking attend les identifiants de l'application et
+l'autorisation de l'URL de callback.
 
 ### Lot 3 · Transactions et Settlement
 

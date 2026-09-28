@@ -115,17 +115,25 @@ Valeurs de Mint gardées telles quelles : `ink-3` reste `fg.secondary` en clair
 | `mint/select`                                         | Select                                   | Déclencheur en champ à libellé flottant, liste portée dans `<body>` (lot 1)                                                                                                                    |
 | `mint/switch`, `mint/radio`, `mint/segmented-control` | Switch, Radio, Segmented control         | Géométrie et touches dans des `.ts` testés (lot 1)                                                                                                                                             |
 | `mint/card`                                           | Card                                     | `elevated`, `tinted`, `inset` ; rayon concentrique publié par le puits ; squelette sur la même boîte au chargement (lot 1)                                                                     |
+| `mint/sheet`                                          | Sheet                                    | Drawer de Base UI : dialogue sur desktop, feuille du bas sur téléphone ; `SheetBody` qui défile pour les listes et formulaires, `label` quand le contenu porte son propre titre (lot 2)        |
+| `mint/menu`                                           | Menu                                     | Parties habillant le Menu de Base UI, bouton ··· , sous-menus ; règle des touches testée (lot 2)                                                                                               |
+| `mint/callout`                                        | Callout                                  | Quatre tons, cliquable en entier ; le nom du ton en prop (lot 2)                                                                                                                               |
+| `mint/amount-input`                                   | AmountInput                              | Groupement à la frappe, curseur gardé, devise et côté du symbole lus par Intl, négatifs sur demande ; `toMinor` (lot 2)                                                                        |
+| `mint/spinning-checkmark`                             | Spinning checkmark                       | Contrôlé seulement (lot 2)                                                                                                                                                                     |
 
 ### `@keel/ui/finance`
 
-| Export                              | Porté depuis                          | Notes                                                                                                                           |
-| ----------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `category-tag`, `category-colors`   | Tag, Transactions, spending breakdown | L'accent neutre du Tag, icône à 8 px du bord, comme la démo ; la couleur reste aux graphiques                                   |
-| `category-glyphs`                   | Transactions, Icon picker             | Logement et santé : Home et Health de l'Icon picker ; « À catégoriser » dessiné sur la même grille                              |
-| `amount`                            | Transactions (`signed`)               | Chiffres tabulaires                                                                                                             |
-| `rolling-number`, `animated-amount` | AnimatedNumber (`RollingTicker`)      | Logique de cases extraite et testée ; séparateurs lus sur la locale (espace fine en français)                                   |
-| `transaction-list`                  | Transactions                          | Jours du foyer, multi-devises (pas de net du jour quand les devises diffèrent), statut en attente ou refusée, container queries |
-| `cash-flow`                         | CashFlow                              | Barres HTML sur TRAIL, bleu et orange de la palette, roving tabindex                                                            |
+| Export                              | Porté depuis                          | Notes                                                                                                                               |
+| ----------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `category-tag`, `category-colors`   | Tag, Transactions, spending breakdown | L'accent neutre du Tag, icône à 8 px du bord, comme la démo ; la couleur reste aux graphiques                                       |
+| `category-glyphs`                   | Transactions, Icon picker             | Logement et santé : Home et Health de l'Icon picker ; « À catégoriser » dessiné sur la même grille                                  |
+| `amount`                            | Transactions (`signed`)               | Chiffres tabulaires                                                                                                                 |
+| `rolling-number`, `animated-amount` | AnimatedNumber (`RollingTicker`)      | Logique de cases extraite et testée ; séparateurs lus sur la locale (espace fine en français)                                       |
+| `transaction-list`                  | Transactions                          | Jours du foyer, multi-devises (pas de net du jour quand les devises diffèrent), statut en attente ou refusée, container queries     |
+| `cash-flow`                         | CashFlow                              | Barres HTML sur TRAIL, bleu et orange de la palette, roving tabindex                                                                |
+| `privacy`, `privacy-balance`        | Privacy, Privacy mode                 | État global par appareil (localStorage) ; masqué, le chiffre quitte le DOM ; branché sur tous les montants (lot 2)                  |
+| `net-worth-breakdown`               | Net worth breakdown                   | `BreakdownCard` seule pour un foyer d'un membre, onglets par membre prêts pour le lot 12 (lot 2)                                    |
+| `account-drawer`                    | Account details drawer (reconverti)   | Carte dessinée aux couleurs de la nature, IBAN masqué qui roule, « masquer des totaux » à la place du gel, actions en props (lot 2) |
 
 ### Dans l'app
 
@@ -196,7 +204,6 @@ de téléphone. Ce qui change :
 - Du rail : la pastille « Tax », le switch « Advanced trading », le menu de
   tri et les lignes d'ordres de bourse (le mécanisme du dock est gardé,
   reconverti).
-- Le mode confidentialité (`PrivacyDots`) : à porter avec les premiers écrans.
 
 ## 7. Limites connues
 

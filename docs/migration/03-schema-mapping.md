@@ -73,14 +73,15 @@ Tables `oauth_*` (MCP) : non reprises (MCP reporté).
 | `name`, `logo`                                  | `name`, `logo_url`                     | Identique                                                                        |
 | `provider`                                      | `provider`                             | `enablebanking` → `enable_banking`                                               |
 | `countries[]` (toujours un seul pays)           | `country`                              | Premier élément                                                                  |
-| —                                               | `provider_ref`                         | `<country>:<name>:<psu_type>`                                                    |
+| —                                               | `provider_ref`                         | `<COUNTRY>:<name>` (Enable Banking nomme une banque par nom et pays)             |
 | `available_history`, `maximum_consent_validity` | `max_history_days`, `max_consent_days` | Identique                                                                        |
 | `popularity`                                    | `popularity`                           | Identique                                                                        |
 | `status`                                        | `active`                               | `active` → vrai                                                                  |
 | `type`                                          | `psu_types`                            | `[type]`                                                                         |
 
 Plus simple encore : relancer `bank.institutions-refresh`, puis rattacher par
-(`country`, `name`, `psu_type`).
+(`country`, `name`) ; le `type` de ramnn devient le `psu_type` de la
+connexion.
 
 ### `bank_connections` → `bank_connections`
 

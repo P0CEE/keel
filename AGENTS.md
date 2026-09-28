@@ -18,6 +18,8 @@ Guidance for AI coding agents working in this monorepo.
 - Test: `bun run test`
 - Build: `bun run build`
 - Clean caches/builds: `bun run clean`
+- Demo banking data for a local member: `bun run db:seed-demo <email>`
+  (fake bank, idempotent, refused in production)
 
 **Definition of done** for any change:
 
@@ -82,7 +84,8 @@ attacks.
 - `packages/banking` — the banking application modules (settlement,
   categorization, reconciliation...), each behind a small interface.
 - `packages/bank-providers` — the `BankingProvider` port, the Enable Banking
-  adapter and the scenario-driven fake (ADR 0005).
+  adapter and the scenario-driven fake (ADR 0005). `BANKING_PROVIDER=fake`
+  (the default outside production) runs the app without a bank.
 - `packages/ai` — AI SDK helpers over GPT-4.1: `describeImage` (structured
   vision) and `generateReply` (text). Call from `apps/api`, never the browser.
 - `packages/cache` — Redis primitives: rate limiter, distributed lock,
@@ -209,7 +212,9 @@ with `cd packages/<name> && bun test`.
 - Avoid nested loops on hot paths — compute upfront, scan once.
 - Don't introduce `getState()` calls inside list iteration (we infer state
   from job fields specifically to avoid per-job Redis round-trips).
-- Prefer `Promise.all` over sequential `await`s when fetches are independent.
+- Prefer `Promise.all` over sequential `await`s when fetches are independent,
+  except inside one `withScope` transaction: it is one connection, so its
+  queries run one after the other (node-postgres would only queue them).
 - For UI: animate compositor-friendly properties (`transform`, `opacity`,
   `clip-path`). Layout-bound properties trigger reflow.
 
