@@ -39,6 +39,7 @@
   --weight-bold: 700;
 
   /* ---- Space and radius ---- */
+  --space-s0-25: 2px;
   --space-s0-50: 4px;
   --space-s0-75: 6px;
   --space-s1: 8px;
@@ -46,6 +47,7 @@
   --space-s2: 16px;
   --space-s2-50: 20px;
   --space-s3: 24px;
+  --space-s4: 32px;
   --space-s5: 40px;
   --radius-4: 4px;
   --radius-8: 8px;
@@ -79,6 +81,10 @@
   --ink-muted: light-dark(#00000052, #ffffff52);
   --on-ink: light-dark(#ffffff, #000000);
   --ink-fill: light-dark(#0d0d0d, #f2f2f2);
+  /* ink on a saturated fill, white in both appearances (Mint's
+     reserved.pure-white): the negative button's label, the switch's knob,
+     which went black in dark as fg.inverted and read as a hole in the track */
+  --on-accent: #ffffff;
 
   /* ---- Grounds and fills ---- */
   --page: light-dark(#f2f2f2, #0d0d0d);
@@ -93,10 +99,42 @@
   /* the search palette over the page: frosted in light, a raised grey in dark,
      so its field can sit a step deeper; the page behind only dims lightly */
   --palette: light-dark(rgba(250, 250, 250, 0.82), #272727);
+  /* White type over a photo (the sign-in panel): the foot darkened just
+     enough to read, whatever the picture and the appearance. */
+  --photo-scrim: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0) 55%
+  );
   --palette-scrim: light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.22));
   /* a panel raised on the page (a side panel, the search field): the
      brightest thing in light, the card fill in dark */
   --panel: light-dark(#ffffff, #1c1c1c);
+  /* Mint's input fill: the text field, the select's trigger, the radio's ring */
+  --field: light-dark(#00000008, #ffffff08);
+  /* a firmer empty fill (input.bg.inactive and switch.bg.default, one value):
+     a read-only field, a switch that is off */
+  --well: light-dark(#0000000d, #ffffff0d);
+  /* a track carved into the surface (accent.neutral-soft-opaque): the inset
+     segmented control; and the thumb raised in it, a grey a step above the
+     page in dark */
+  --sunken: light-dark(#f2f2f2, #181716);
+  --thumb: light-dark(#ffffff, #3a3a3a);
+  /* the Button's fills. The secondary one is translucent (blurred behind);
+     the negative one is the strong red in light, which white reads on at
+     5.9:1 (Mint's button red at 90% is 3.3:1 under white) */
+  --primary-fill: light-dark(#000000, #f2f2f2);
+  --secondary-fill: light-dark(#ffffffcc, #ffffff24);
+  --negative-fill: light-dark(#c02416, #e22b1854);
+  /* a card raised on the page (the Card's elevated variant): white in light
+     (bg.elevation.l1), a 10% white film over its glow in dark
+     (bg.secondary); and its hover, the Mint card lift in light
+     (card.bg.primary), the row hover in dark */
+  --surface: light-dark(#ffffff, #ffffff1a);
+  --surface-hover: light-dark(#f9f9f9, #ffffff14);
+  /* the well a card nests in (the Card's inset variant), sunk below the page
+     on purpose: states.bg.pressed in light, black (bg.elevation.l1) in dark */
+  --recess: light-dark(#0000000a, #000000);
 
   /* ---- States ---- */
   --highlight: light-dark(#0000000d, #ffffff1a);
@@ -104,10 +142,32 @@
   --press: light-dark(#0000000a, #ffffff0a);
   --pill: light-dark(#00000014, #ffffff1a);
   --current: light-dark(#00000014, #ffffff14);
+  /* a skeleton's fill while its content loads (bg.secondary): it inverts,
+     5% black in light and 10% white in dark, so it stays visible on
+     near-black surfaces; and the sheen that sweeps across it */
+  --placeholder: light-dark(#0000000d, #ffffff1a);
+  --shimmer: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0%) 0%,
+    rgba(255, 255, 255, 35%) 50%,
+    rgba(255, 255, 255, 0%) 100%
+  );
+  /* a switch that is on (switch.bg.selected) */
+  --checked: light-dark(#558e52, #84c082);
+  /* the hover wash laid over a Button's fill: a light one on the ink pill,
+     a white one on the translucent secondary and negative fills */
+  --wash-primary: light-dark(rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.06));
+  --wash-tinted: rgba(255, 255, 255, 0.1);
 
   /* ---- Lines ---- */
   --line: light-dark(#0000000d, #ffffff1a);
   --line-heavy: light-dark(#00000014, #ffffff24);
+  /* a field's hairline under the pointer, and an invalid field's */
+  --line-hover: light-dark(#00000024, #ffffff24);
+  --line-negative: light-dark(#e22b18, #f27868);
+  /* the elevated segmented control's edge, where the gradient one cannot be
+     masked */
+  --capsule-edge: light-dark(#dee2e6, #3e3f40);
 
   /* ---- Meaning ---- */
   /* accent.positive.strong is 3.3:1 on the page; this green is 4.6:1 */
@@ -142,7 +202,98 @@
   --category-green-deep: light-dark(#357941, #6dc382);
   --category-green-light: light-dark(#4db565, #409652);
 
-  /* ---- Shadows (Mint's recipes; "raised" returns with its first use) ---- */
+  /* ---- Edges: 1px gradient frames, masked down to a ring where used.
+     light-dark() cannot pick a whole gradient, so each stop is a pair. ---- */
+  /* the Button's outer frame (rim) and top-lit inner stroke (sheen) */
+  --rim-primary: linear-gradient(
+    146.26deg,
+    light-dark(#000000, rgba(255, 255, 255, 0.95)) 8.55%,
+    light-dark(#000000, rgba(255, 255, 255, 0.7)) 57.49%,
+    light-dark(#000000, rgba(255, 255, 255, 0.9)) 86.93%
+  );
+  --sheen-primary: linear-gradient(
+    180deg,
+    light-dark(rgba(255, 255, 255, 0.5), #ffffff) 0%,
+    rgba(255, 255, 255, 0) 25.12%,
+    light-dark(rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.08)) 102.08%
+  );
+  --rim-secondary: linear-gradient(
+    270deg,
+    light-dark(rgba(0, 0, 0, 0.07), rgba(255, 255, 255, 0.14)) 0%,
+    rgba(0, 0, 0, 0) 24.61%,
+    light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.1)) 100%
+  );
+  --sheen-secondary: linear-gradient(
+    180deg,
+    light-dark(#ffffff, rgba(255, 255, 255, 0.35)) 0%,
+    rgba(255, 255, 255, 0) 25.12%,
+    light-dark(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.18)) 102.08%
+  );
+  --rim-negative: linear-gradient(
+    273.75deg,
+    light-dark(#de3221, rgba(222, 50, 33, 0.6)) 3.96%,
+    light-dark(#ff9d8c, rgba(255, 157, 140, 0.5)) 34.23%,
+    light-dark(#c42828, rgba(196, 40, 40, 0.55)) 98.29%
+  );
+  --sheen-negative: linear-gradient(
+    180deg,
+    light-dark(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.35)) 0%,
+    rgba(255, 255, 255, 0) 25.12%,
+    light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.25)) 102.08%
+  );
+  /* the elevated segmented control's edge: light and dark differ in angle
+     and stops, so both layers are drawn, each transparent in the other
+     appearance */
+  --capsule-rim:
+    linear-gradient(
+      317.27deg,
+      light-dark(#fff, transparent) 0.65%,
+      transparent 25.1%,
+      light-dark(#fff, transparent) 100%
+    ),
+    linear-gradient(
+      336.4deg,
+      light-dark(transparent, #3e3f40) 14.76%,
+      light-dark(transparent, rgba(62, 63, 64, 30%)) 51.14%,
+      light-dark(transparent, #3e3f40) 93.14%
+    );
+  /* the raised card's etched ring in dark (none in light): a grey frame
+     lit green along its foot, masked down to 1px where used */
+  --rim-surface:
+    linear-gradient(
+      220deg,
+      light-dark(transparent, rgb(62 63 64)) 10%,
+      light-dark(transparent, rgb(62 63 64 / 30%)) 50.03%,
+      light-dark(transparent, rgb(62 63 64)) 83.94%
+    ),
+    linear-gradient(
+      180deg,
+      light-dark(transparent, rgb(64 150 82 / 0%)) 93.44%,
+      light-dark(transparent, rgb(64 150 82 / 30%)) 100%
+    );
+  /* the raised card's materials: a whisper of grain in both appearances (an
+     SVG fractal noise at 3.5%), and in dark a green-tinted glow from its top
+     left corner, which the surface's white film sits over */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.035'/></svg>");
+  --glow-surface: radial-gradient(
+    100% 100% at 0% 0%,
+    light-dark(transparent, rgb(33 48 43 / 50%)) 0%,
+    light-dark(transparent, rgb(23 23 24 / 50%)) 100%
+  );
+
+  /* ---- Shadows (Mint's recipes) ---- */
+  /* a card raised on the page (the shared raised shadow of mint-pocs) */
+  --shadow-raised:
+    0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.4)),
+    0 6px 16px light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.35));
+  /* the recess's lips: a white lip under it and a soft inner shade in light,
+     a black inner edge and a faint white lip in dark (both drawn, each
+     transparent in the other appearance) */
+  --shadow-recess:
+    0px 1px 0px light-dark(#ffffff, transparent),
+    inset 0px 1px 1px light-dark(rgba(0, 0, 0, 0.08), transparent),
+    inset 0 0.5px 0.5px 0 light-dark(transparent, rgb(0 0 0)),
+    0 0.5px 0 0 light-dark(transparent, rgb(255 255 255 / 24%));
   /* bars and docks over content */
   --shadow-dock:
     0 1px 2px light-dark(#0000000d, #00000066),
@@ -150,6 +301,25 @@
   /* popups, menus, tooltips, open panels */
   --shadow-float:
     0 0 0 1px var(--line), 0 12px 40px light-dark(#0000001f, #00000080);
+  /* under the Button's primary, secondary and negative fills */
+  --shadow-primary: 0 8px 16px
+    light-dark(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.5));
+  --shadow-secondary: 0 8px 16px
+    light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.35));
+  --shadow-negative: 0 8px 16px
+    light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.35));
+  /* a sunken track's rim: heavy above and light below in light, swapped in
+     dark, so it always reads as carved into the surface */
+  --shadow-sunken:
+    0 -0.5px 0 light-dark(#00000014, #000000),
+    0 1px 0 light-dark(#ffffff, #ffffff24);
+  /* the thumb raised in a sunken track */
+  --shadow-thumb: 0 1px 4px light-dark(rgba(0, 0, 0, 10%), rgba(0, 0, 0, 40%));
+  /* a floating capsule: wide and soft in light, tighter and darker in dark
+     (light-dark() cannot pick a shadow's shape, so both are drawn) */
+  --shadow-capsule:
+    0 8px 24px light-dark(rgba(0, 0, 0, 5%), transparent),
+    0 4px 6px light-dark(transparent, rgba(0, 0, 0, 12%));
 }
 
 .light {

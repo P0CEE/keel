@@ -1,0 +1,300 @@
+/* mint-pocs' Select (src/demos/select/SelectDemo.tsx), rule for rule: its
+   values, its palette read from the roles in tokens.css. The popup is
+   portalled (to <body> unless a SelectAnchor is given): the roles are
+   global, so it keeps the palette wherever it lands, and it carries the
+   face and box model the demo's root gave it. */
+
+/* ---- Trigger ---- */
+.trigger {
+  display: flex;
+  position: relative;
+  box-sizing: border-box;
+  align-items: center;
+  gap: var(--space-s0-75);
+  width: 100%;
+  height: 52px;
+  text-align: left;
+  cursor: pointer;
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+  border-radius: var(--radius-12);
+  border: 1px solid var(--line);
+  outline: none;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+  /* The value starts on the label's 12px inset, so the two share one left
+     edge; the chevron side is wider, to clear the absolutely-positioned
+     glyph below. */
+  padding: 0 var(--space-s4) 0 var(--space-s1-50);
+}
+
+.trigger.floated {
+  padding: var(--space-s3) var(--space-s4) var(--space-s1) var(--space-s1-50);
+}
+
+/* Focus is a 2px full-ink stroke; the inset shadow doubles the 1px border
+   without shifting layout. Open counts as focused; a mouse pick that closes
+   the popup does not keep the stroke (:focus-visible, not :focus). */
+.trigger:focus-visible,
+.trigger[data-popup-open] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+@media (hover: hover) {
+  .trigger:hover:not(:focus-visible, [data-popup-open], [data-disabled]) {
+    border-color: var(--line-hover);
+  }
+}
+
+.trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* The chevron hugs the right edge and centres against the WHOLE field (with
+   a floated label the content box is pushed down by the asymmetric vertical
+   padding). At the field scale the glyph steps up to 16px. The negative
+   margin is half the glyph height, dodging the icon's own open-state
+   rotation. */
+.trigger > :last-child {
+  margin-left: auto;
+  position: absolute;
+  top: 50%;
+  right: var(--space-s1-50);
+  margin-top: calc(var(--space-s1) * -1);
+}
+
+.trigger > :last-child svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Floated, the label is the 12px face; it gets there by scaling the 14px
+   one (12 / 14), so the glyphs travel rather than swap size. */
+.label {
+  position: absolute;
+  left: var(--space-s1-50);
+  top: 50%;
+  transform: translateY(-50%);
+  transform-origin: top left;
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-xsmall);
+  /* Resting, the label is placeholder-like (tertiary); floated it is the
+     field's real label, so it steps up to secondary for contrast at 12px. */
+  color: var(--ink-3);
+  pointer-events: none;
+  transition:
+    transform 300ms cubic-bezier(0.65, 0, 0.35, 1),
+    top 300ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.label.floated {
+  top: var(--space-s1);
+  transform: scale3d(calc(12 / 14), calc(12 / 14), 1);
+  color: var(--ink-2);
+}
+
+.chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 150ms ease;
+}
+
+[data-popup-open] .chevron {
+  transform: rotate(180deg);
+}
+
+/* ---- Popup ---- */
+/* Mint's stacking scale puts popups at 9020, over scrims and modals. */
+.positioner {
+  z-index: var(--z-popup);
+}
+
+.popup {
+  box-sizing: border-box;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* Clip children to the rounded corners: without this, the highlight on a
+     first or last row would paint square corners over the panel's radius. */
+  overflow: hidden;
+  overflow-y: auto;
+  outline: none;
+  border-radius: 18px;
+  max-height: min(60vh, 480px);
+  padding: var(--space-s1) 0;
+  /* Frosted glass in light: the blur only shows through the translucent
+     fill; in dark the opaque panel covers it. */
+  background-color: var(--popup);
+  backdrop-filter: blur(56px);
+  box-shadow: var(--shadow-float);
+  /* Keyboard highlight scrolls items into view with block: nearest; this
+     keeps the first/last item's inset when arrowing to the ends of the list. */
+  scroll-padding-block: var(--space-s1);
+  /* Otherwise the list hugs its options. */
+  width: max-content;
+  max-width: min(90vw, 420px);
+  /* Scale from the edge nearest the trigger: Base UI reports the final
+     placement (after collision detection) as data-side / data-align. At
+     rest on no transform: a 3D layer would rasterise the text soft. */
+  transform-origin: top left;
+  transform: none;
+  transition:
+    opacity var(--duration-instant) ease-out,
+    transform var(--duration-fast) var(--ease-overshoot);
+}
+
+/* Base UI publishes the trigger's width as --anchor-width: a field trigger
+   opts in so the list lines up with the box. */
+.popup.matched {
+  width: var(--anchor-width);
+  max-width: none;
+}
+
+.popup[data-align="center"] {
+  transform-origin: top center;
+}
+
+.popup[data-align="end"] {
+  transform-origin: top right;
+}
+
+.popup[data-side="top"] {
+  transform-origin: bottom left;
+}
+
+.popup[data-side="top"][data-align="center"] {
+  transform-origin: bottom center;
+}
+
+.popup[data-side="top"][data-align="end"] {
+  transform-origin: bottom right;
+}
+
+/* Base UI sets these attributes during the enter and exit phases. */
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  transform: perspective(800px) scale(0.96) translateY(-4px) rotateX(-4deg);
+}
+
+/* Opened above the trigger: mirror the motion, so it still unfolds away. */
+.popup[data-side="top"][data-starting-style],
+.popup[data-side="top"][data-ending-style] {
+  transform: perspective(800px) scale(0.96) translateY(4px) rotateX(4deg);
+}
+
+.popup[data-ending-style] {
+  transition:
+    opacity var(--duration-instant) ease-in,
+    transform var(--duration-instant) ease-in;
+}
+
+/* ---- Options ---- */
+.item {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s1-50);
+  padding: 8px 14px;
+  margin: 0 var(--space-s0-75);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  outline: none;
+}
+
+/* No transition, and no :hover paint on top: Base UI moves
+   [data-highlighted] with the pointer and the keyboard alike, so one
+   highlight, moving instantly. */
+.item[data-highlighted] {
+  background-color: var(--highlight);
+}
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  min-width: 0;
+}
+
+.itemCopy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: var(--text-small);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+}
+
+/* The selection indicator: a 20px ring that fills when the row is selected,
+   and a dot that pops up inside it. */
+.indicator {
+  display: inline-flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--line-heavy);
+  transition: border-color var(--duration-fast) ease;
+}
+
+[data-selected] .indicator {
+  border-color: var(--ink-fill);
+  background-color: var(--ink-fill);
+}
+
+.dot {
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--on-ink);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-pop);
+}
+
+[data-selected] .dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---- Anchor: the popup's positioning context when portalled into it ---- */
+.anchor {
+  position: relative;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .label,
+  .dot,
+  .chevron {
+    transition: none;
+  }
+  /* No scale or tilt, only the fade. */
+  .popup {
+    transition: opacity var(--duration-instant) ease-out;
+  }
+  .popup[data-starting-style],
+  .popup[data-ending-style] {
+    transform: none;
+  }
+}

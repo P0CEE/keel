@@ -57,7 +57,14 @@
     "./finance/category-colors": "./src/finance/category-tag/category-colors.ts",
     "./finance/transaction-list": "./src/finance/transaction-list/transaction-list.tsx",
     "./finance/cash-flow": "./src/finance/cash-flow/cash-flow.tsx",
-    "./mint/quick-search": "./src/mint/quick-search/quick-search.tsx"
+    "./mint/quick-search": "./src/mint/quick-search/quick-search.tsx",
+    "./mint/button": "./src/mint/button/button.tsx",
+    "./mint/text-field": "./src/mint/text-field/text-field.tsx",
+    "./mint/select": "./src/mint/select/select.tsx",
+    "./mint/switch": "./src/mint/switch/switch.tsx",
+    "./mint/radio": "./src/mint/radio/radio.tsx",
+    "./mint/segmented-control": "./src/mint/segmented-control/segmented-control.tsx",
+    "./mint/card": "./src/mint/card/card.tsx"
   },
   "scripts": {
     "lint": "oxlint .",

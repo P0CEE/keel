@@ -1,0 +1,145 @@
+/* mint-pocs' Radio (src/demos/radio/RadioDemo.tsx), rule for rule: its
+   values, its palette read from the roles in tokens.css. */
+
+/* ---- Dial: a 22px root, the 28px circle art overflowing it by 3px ---- */
+.dial {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  overflow: visible;
+}
+
+/* The 22px root is under the 24px minimum target size (WCAG 2.5.8): an
+   invisible ::before grows the hit area to 28px without changing layout. */
+.dial::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+}
+
+.dial:disabled,
+.dial[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* rings the dial in ink 4px out, past the art */
+.dial:focus-visible {
+  border-radius: 50%;
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* the ring's fill is the input fill: a translucent white would glow in dark */
+.ring {
+  position: absolute;
+  display: block;
+  top: -3px;
+  left: -3px;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  transform-origin: center;
+  fill: var(--field);
+  stroke: var(--line-heavy);
+  stroke-width: 1px;
+  transition:
+    fill 300ms ease,
+    stroke 300ms ease;
+}
+
+.dial[data-checked] .ring {
+  fill: var(--ink-fill);
+  stroke: var(--ink-fill);
+}
+
+/* Hover darkens an empty dial's edge, on the dial or anywhere on its label
+   (fast in, slow out). */
+@media (hover: hover) {
+  .dial:hover:not([data-checked], [data-disabled]) .ring,
+  label:hover .dial:not([data-checked], [data-disabled]) .ring {
+    stroke: var(--line-hover);
+    transition-duration: var(--duration-fast);
+  }
+}
+
+.dot {
+  position: absolute;
+  display: block;
+  top: 4px;
+  left: 4px;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  fill: var(--on-ink);
+  stroke: none;
+  transform: scale(0);
+  transform-origin: center;
+  transition: transform var(--duration-instant) ease;
+}
+
+.dial[data-checked] .dot {
+  transform: scale(1);
+}
+
+/* ---- ControlLabel ---- */
+.row {
+  display: inline-flex;
+  box-sizing: border-box;
+  align-items: flex-start;
+  gap: var(--space-s1-50);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.row.disabled {
+  cursor: not-allowed;
+}
+
+/* Centre the control against the label's first line (24px line box). */
+.control {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  min-height: 24px;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-25);
+  min-width: 0;
+}
+
+.row:has([disabled]) .copy,
+.row:has([data-disabled]) .copy {
+  opacity: 0.5;
+}
+
+.title {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  color: var(--ink);
+}
+
+.description {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    transition: none;
+  }
+}

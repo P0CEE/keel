@@ -1,0 +1,141 @@
+/* mint-pocs' Segmented control (src/demos/segmented-control/
+   SegmentedControlDemo.tsx), rule for rule: its values, its palette read
+   from the roles in tokens.css. Every appearance difference is CSS: where
+   light and dark differ in shape (shadow, edge gradient) both layers are
+   drawn and the other appearance's colour is transparent. */
+
+/* ---- Track ---- */
+/* subtle matches the default treatment in Patchwork: no track, only the
+   selected segment carries a surface. */
+.track {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.track[data-variant="inset"] {
+  height: 42px;
+  padding: 4px;
+  border-radius: 999px;
+  background-color: var(--sunken);
+  box-shadow: var(--shadow-sunken);
+  isolation: isolate;
+}
+
+/* Raised capsule (Patchwork DSWebToggle): fixed height, the elevated
+   surface, a soft shadow and a 1px gradient edge highlight. */
+.track[data-variant="elevated"] {
+  display: flex;
+  width: 100%;
+  height: 40px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: var(--shadow-capsule);
+  isolation: isolate;
+}
+
+.track[data-variant="elevated"]::after {
+  content: "";
+  box-sizing: border-box;
+  pointer-events: none;
+  user-select: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid var(--capsule-edge);
+}
+
+/* The light and dark edge gradients differ in angle and stops: both are
+   drawn, each transparent in the other appearance. */
+@supports (mask: linear-gradient(black 0 0)) and (mask-composite: exclude) {
+  .track[data-variant="elevated"]::after {
+    border: 0;
+    background: var(--capsule-rim);
+    padding: 1px;
+    mask:
+      linear-gradient(black 0 0) content-box,
+      linear-gradient(black 0 0);
+    mask-composite: exclude;
+  }
+}
+
+/* ---- Indicator ---- */
+.indicator {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.track[data-variant="subtle"] .indicator {
+  top: 0;
+  bottom: 0;
+  border-radius: var(--radius-8);
+  background: var(--pill);
+}
+
+.track[data-variant="inset"] .indicator {
+  top: 4px;
+  bottom: 4px;
+  border-radius: 999px;
+  background: var(--thumb);
+  box-shadow: var(--shadow-thumb);
+}
+
+.track[data-variant="elevated"] .indicator {
+  top: 4px;
+  bottom: 4px;
+  border-radius: 999px;
+  background: var(--pill);
+}
+
+/* ---- Segment ---- */
+.segment {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-small);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-small);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+  outline: none;
+  padding: 7px 8.5px;
+  border-radius: var(--radius-8);
+  color: var(--ink-3);
+}
+
+.segment[data-variant="inset"] {
+  padding: 7px 16px;
+  border-radius: 999px;
+}
+
+.segment[data-variant="elevated"] {
+  flex: 1 1 0;
+  padding: 6px 16px;
+  border-radius: 999px;
+}
+
+@media (hover: hover) {
+  .segment:not(.selected):hover {
+    color: var(--ink);
+  }
+}
+
+.segment.selected {
+  color: var(--ink);
+}
+
+.segment:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

@@ -11,8 +11,9 @@ const SRC = join(import.meta.dir, "../src");
 const APP = join(import.meta.dir, "../../../apps/app/src");
 const TOKENS = join(SRC, "mint/tokens.css");
 
-// Provided from outside the stylesheet: next/font, and Base UI's positioners.
-const EXTERNAL = new Set(["font-app", "transform-origin"]);
+// Provided from outside the stylesheet: next/font, and Base UI's positioners
+// (the popup's origin, and the trigger's width a select's list lines up with).
+const EXTERNAL = new Set(["font-app", "transform-origin", "anchor-width"]);
 
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {

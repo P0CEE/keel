@@ -1,0 +1,83 @@
+/* mint-pocs' Switch (src/demos/switch/SwitchDemo.tsx), rule for rule: its
+   values, its palette read from the roles in tokens.css. */
+
+.track {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 11px;
+  background-color: var(--well);
+  outline: 1px solid var(--line-heavy);
+  outline-offset: -0.5px;
+  cursor: pointer;
+  transition:
+    background-color 300ms ease,
+    outline-color 300ms ease;
+}
+
+/* The track is 22px tall, under the 24px minimum target (WCAG 2.5.8): an
+   invisible ::before widens the hit area by 2px without moving the layout. */
+.track::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+}
+
+/* Knob position before React hydrates; the motion values take over after
+   (18px: the knob's travel, knob.ts). */
+.track > svg {
+  transform: translateX(0);
+}
+
+.track[data-checked] > svg {
+  transform: translateX(18px);
+}
+
+/* Hover is the outline only (line-heavy to line-hover): the fill keeps its
+   role, since a translucent black would vanish in dark. */
+@media (hover: hover) {
+  .track:hover {
+    outline-color: var(--line-hover);
+  }
+}
+
+.track[data-checked],
+.track[data-checked]:hover {
+  background-color: var(--checked);
+  outline-color: var(--checked);
+}
+
+.track:disabled,
+.track[data-disabled],
+.track[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.track:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* White on either track, as the app draws it. */
+.knob {
+  position: absolute;
+  display: block;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  fill: var(--on-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transition: none;
+  }
+}

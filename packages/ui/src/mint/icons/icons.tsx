@@ -399,3 +399,91 @@ export function ChevronSmallIcon({ size = 14, className }: IconProps) {
     </svg>
   );
 }
+
+/** Error: Mint's octagon with its mark, on the 16 master (the text field's). */
+export function ErrorIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10Z" />
+      <path d="M8 3.9C8.5 3.9 8.9 4.3 8.9 4.8V7.8C8.9 8.3 8.5 8.7 8 8.7C7.5 8.7 7.1 8.3 7.1 7.8V4.8C7.1 4.3 7.5 3.9 8 3.9Z" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M9.77 0.6C10.54 0.6 11.28 0.91 11.82 1.45L14.55 4.18C15.09 4.72 15.4 5.46 15.4 6.23V9.77C15.4 10.54 15.09 11.28 14.55 11.82L11.82 14.55C11.28 15.09 10.54 15.4 9.77 15.4H6.23C5.46 15.4 4.72 15.09 4.18 14.55L1.45 11.82C0.91 11.28 0.6 10.54 0.6 9.77V6.23C0.6 5.46 0.91 4.72 1.45 4.18L4.18 1.45C4.72 0.91 5.46 0.6 6.23 0.6H9.77ZM6.23 2.4C5.94 2.4 5.66 2.52 5.45 2.72L2.72 5.45C2.52 5.66 2.4 5.94 2.4 6.23V9.77C2.4 10.06 2.52 10.34 2.72 10.55L5.45 13.28C5.66 13.48 5.94 13.6 6.23 13.6H9.77C10.06 13.6 10.34 13.48 10.55 13.28L13.28 10.55C13.48 10.34 13.6 10.06 13.6 9.77V6.23C13.6 5.94 13.48 5.66 13.28 5.45L10.55 2.72C10.34 2.52 10.06 2.4 9.77 2.4H6.23Z"
+      />
+    </svg>
+  );
+}
+
+/** Show: Mint's open eye, on the 16 master (the password field's). */
+export function ShowIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 5.1C9.6 5.1 10.9 6.4 10.9 8C10.9 9.6 9.6 10.9 8 10.9C6.4 10.9 5.1 9.6 5.1 8C5.1 6.4 6.4 5.1 8 5.1ZM8 6.9C7.39 6.9 6.9 7.39 6.9 8C6.9 8.61 7.39 9.1 8 9.1C8.61 9.1 9.1 8.61 9.1 8C9.1 7.39 8.61 6.9 8 6.9Z"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 1.85C10.04 1.85 11.67 2.72 12.88 3.75C14.08 4.77 14.9 5.98 15.36 6.76C15.81 7.53 15.81 8.47 15.36 9.24C14.9 10.02 14.08 11.23 12.88 12.25C11.67 13.28 10.04 14.15 8 14.15C5.96 14.15 4.33 13.28 3.12 12.25C1.92 11.23 1.1 10.02 0.64 9.24C0.19 8.47 0.19 7.53 0.64 6.76C1.1 5.98 1.92 4.77 3.12 3.75C4.33 2.72 5.96 1.85 8 1.85ZM8 3.65C6.51 3.65 5.28 4.28 4.29 5.12C3.3 5.96 2.59 6.99 2.19 7.67C2.07 7.88 2.07 8.12 2.19 8.33C2.59 9.01 3.3 10.04 4.29 10.88C5.28 11.72 6.51 12.35 8 12.35C9.49 12.35 10.72 11.72 11.71 10.88C12.7 10.04 13.41 9.01 13.81 8.33C13.93 8.12 13.93 7.88 13.81 7.67C13.41 6.99 12.7 5.96 11.71 5.12C10.72 4.28 9.49 3.65 8 3.65Z"
+      />
+    </svg>
+  );
+}
+
+/** Hide: Mint's crossed eye, on the 16 master (the password field's). */
+export function HideIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M1.36 1.36C1.71 1.01 2.29 1.01 2.64 1.36L14.64 13.36C14.99 13.71 14.99 14.29 14.64 14.64C14.29 14.99 13.71 14.99 13.36 14.64L11.85 13.12C10.79 13.78 9.51 14.25 8 14.25C5.93 14.25 4.28 13.37 3.06 12.33C1.84 11.29 1.01 10.07 0.55 9.29C0.08 8.49 0.08 7.51 0.55 6.71C0.97 6 1.69 4.94 2.71 3.98L1.36 2.64C1.01 2.29 1.01 1.71 1.36 1.36ZM4.13 5.4C3.27 6.19 2.65 7.1 2.28 7.72C2.18 7.9 2.18 8.1 2.28 8.28C2.68 8.96 3.37 9.97 4.35 10.8C5.33 11.63 6.54 12.25 8 12.25C8.89 12.25 9.68 12.02 10.38 11.66L9.31 10.59C8.22 11.14 6.86 10.96 5.95 10.05C5.04 9.14 4.86 7.78 5.41 6.69L4.13 5.4ZM6.92 8.19C6.96 8.41 7.06 8.61 7.22 8.78C7.39 8.94 7.59 9.04 7.81 9.08L6.92 8.19Z"
+      />
+      <path d="M8 1.75C10.07 1.75 11.72 2.63 12.94 3.67C14.15 4.71 14.98 5.93 15.45 6.71C15.92 7.51 15.92 8.49 15.45 9.29C15.26 9.61 15 10.01 14.68 10.44L13.25 9.01C13.44 8.74 13.59 8.49 13.72 8.28C13.82 8.1 13.82 7.9 13.72 7.72C13.32 7.04 12.63 6.03 11.65 5.2C10.67 4.37 9.46 3.75 8 3.75C8 3.75 7.99 3.75 7.99 3.75L6.22 1.98C6.77 1.83 7.37 1.75 8 1.75Z" />
+    </svg>
+  );
+}
+
+/** A drawn chevron down: the select's, flipped while its popup is open. */
+export function ChevronDownIcon({ size = 12, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 16 16"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 6l4 4 4-4" />
+    </svg>
+  );
+}

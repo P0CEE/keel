@@ -1,0 +1,241 @@
+/* mint-pocs' Card (src/demos/card/CardDemo.tsx), rule for rule: its values,
+   its palette read from the roles in tokens.css. Every appearance difference
+   is a colour: a layer that only exists in one appearance (the dark glow and
+   etched ring) is transparent in the other, and nothing needs JS to switch. */
+
+/* ---- Card ---- */
+/* The positioning context for the overlay, the skeleton and the etched ring.
+   A card nested in an inset well takes the concentric radius the well
+   published; standalone, its own. */
+.card {
+  position: relative;
+  border: 1px solid transparent;
+  padding: var(--space-s2);
+  border-radius: var(--nested-radius, 20px);
+}
+
+/* White with a whisper of grain and the raised shadow; in dark, a white film
+   over a green-tinted glow. */
+.card[data-variant="elevated"] {
+  background-color: var(--surface);
+  background-image: var(--grain), var(--glow-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.card[data-variant="tinted"] {
+  background-color: var(--field);
+  border-color: var(--line-heavy);
+  box-shadow: none;
+}
+
+/* The well: 36px over 10px of padding, so a card nested inside takes 26px
+   and the corners stay concentric. Its lips are the recess shadow. */
+.card[data-variant="inset"] {
+  --nested-radius: 26px;
+  border-radius: 36px;
+  padding: 10px;
+  background-color: var(--recess);
+  box-shadow: var(--shadow-recess);
+}
+
+/* The dark elevated card's etched ring: a 1px frame cut out of two gradients
+   with a mask, so it follows the radius exactly. Above the content, but it
+   only paints the edge. */
+.card[data-variant="elevated"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@supports (mask: linear-gradient(black 0 0)) and (mask-composite: exclude) {
+  .card[data-variant="elevated"]::before {
+    background: var(--rim-surface);
+    padding: 1px;
+    mask:
+      linear-gradient(black 0 0) content-box,
+      linear-gradient(black 0 0);
+    mask-composite: exclude;
+  }
+}
+
+/* Loading keeps every child mounted but hidden under the skeleton. */
+.card[data-loading] > *:not([data-card-skeleton]):not([data-card-overlay]) {
+  visibility: hidden;
+}
+
+/* ---- Overlay: the control itself, under the content. Press keeps the hover
+   fill (touch browsers can fire :active without :hover). ---- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background-color: transparent;
+  border-radius: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .overlay:hover {
+    background-color: var(--hover);
+  }
+}
+
+.overlay:active {
+  background-color: var(--hover);
+}
+
+/* The elevated card keeps the Mint card lift in light. */
+@media (hover: hover) {
+  .card[data-variant="elevated"] > .overlay:hover {
+    background-color: var(--surface-hover);
+  }
+}
+
+.card[data-variant="elevated"] > .overlay:active {
+  background-color: var(--surface-hover);
+}
+
+.overlay:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Content sits over the overlay, transparent to the pointer except where it
+   is interactive itself, so nested links and buttons keep working. */
+.content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  pointer-events: none;
+}
+
+.content
+  :is(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    label,
+    summary,
+    [role="button"],
+    [role="link"],
+    [role="checkbox"],
+    [role="switch"],
+    [tabindex]
+  ) {
+  pointer-events: auto;
+}
+
+/* ---- Skeleton: a sheen sweeping across every 1.6s over the placeholder
+   fill, clipped to the card's radius. ---- */
+.skeletonSlot {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0px;
+  background-color: var(--placeholder);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: var(--shimmer);
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}
+
+/* ---- CardBox, CardText: the rows a card's content is composed of ---- */
+/* A flex row by default (centred, spread); column stacks. */
+.box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.box[data-column] {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.box[data-end] {
+  align-items: flex-end;
+}
+
+.box[data-gap="s0-25"] {
+  gap: var(--space-s0-25);
+}
+
+.box[data-gap="s2"] {
+  gap: var(--space-s2);
+}
+
+/* Size and line height come as a pair; no colour inherits the parent's ink. */
+.text {
+  margin: 0;
+  font-family: var(--font-sans);
+}
+
+.text[data-size="small"] {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.text[data-size="xsmall"] {
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+}
+
+.text[data-weight="medium"] {
+  font-weight: var(--weight-medium);
+}
+
+.text[data-color="secondary"] {
+  color: var(--ink-2);
+}
+
+.text[data-color="positive"] {
+  color: var(--positive);
+}
+
+.text[data-tabular] {
+  font-variant-numeric: tabular-nums;
+}

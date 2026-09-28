@@ -1,0 +1,252 @@
+/* mint-pocs' Button (src/demos/button/Button.tsx), rule for rule: every
+   value is Mint's Button (heights 28 / 40 / 48, minimum widths 60 / 120 /
+   160, padding 8 / 16 / 24, text 12 / 14 / 16 medium at -0.01em, gaps 4 / 6
+   / 6, 16px glyphs, the pill radius; icon buttons 28 / 32 / 40 square), its
+   palette read from the roles in tokens.css. */
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The variant's paint, reset here so nothing inherited from a surrounding
+   element leaks into a flat variant: fill, label, drop shadow (lift), outer
+   frame (rim), inner stroke (sheen) and hover wash. */
+.button {
+  --fill: transparent;
+  --label: var(--ink);
+  --lift: none;
+  --rim: none;
+  --sheen: none;
+  --wash: transparent;
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: 40px;
+  min-width: 120px;
+  padding: 0 var(--space-s2);
+  gap: var(--space-s0-75);
+  border: 0;
+  border-radius: var(--radius-1000);
+  outline: none;
+  background-color: var(--fill);
+  color: var(--label);
+  box-shadow: var(--lift);
+  font-family: inherit;
+  font-size: var(--text-small);
+  /* the label is trimmed to its cap height so it sits in the optical
+     middle; where that is not supported, normal keeps it within a pixel */
+  line-height: normal;
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.01em;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+  cursor: pointer;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    box-shadow var(--duration-moderate) ease,
+    background-image var(--duration-moderate) ease,
+    transform var(--duration-instant) ease,
+    color 300ms ease;
+}
+
+.button[data-size="small"] {
+  height: 28px;
+  min-width: 60px;
+  padding: 0 var(--space-s1);
+  gap: var(--space-s0-50);
+  font-size: var(--text-xsmall);
+}
+
+.button[data-size="large"] {
+  height: 48px;
+  min-width: 160px;
+  padding: 0 var(--space-s3);
+  font-size: var(--text-default);
+}
+
+.button[data-full] {
+  width: 100%;
+}
+
+/* Icon only: a round button, 28 / 32 / 40. */
+.button.icon {
+  width: 32px;
+  height: 32px;
+  min-width: 0;
+  padding: 0;
+}
+
+.button.icon[data-size="small"] {
+  width: 28px;
+  height: 28px;
+}
+
+.button.icon[data-size="large"] {
+  width: 40px;
+  height: 40px;
+}
+
+.button svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .button:not(:disabled, [data-loading]):hover {
+    background-image: linear-gradient(var(--wash), var(--wash));
+  }
+}
+
+.button:not(:disabled, [data-loading]):active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+.button.icon:not(:disabled, [data-loading]):active {
+  transform: scale(0.94);
+}
+
+.button:is(:disabled, [data-loading]) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* The 1px outer frame and the top-lit inner stroke: gradients masked down
+   to their padding. */
+.button::before,
+.button::after {
+  content: "";
+  position: absolute;
+  box-sizing: border-box;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  mask-composite: exclude;
+}
+
+.button::before {
+  inset: 0;
+  background: var(--rim);
+}
+
+.button::after {
+  inset: 1px;
+  background: var(--sheen);
+}
+
+.button[data-variant="primary"] {
+  --fill: var(--primary-fill);
+  --label: var(--on-ink);
+  --lift: var(--shadow-primary);
+  --rim: var(--rim-primary);
+  --sheen: var(--sheen-primary);
+  --wash: var(--wash-primary);
+}
+
+/* The secondary and negative fills are translucent and blurred behind.
+   Mint blurs the secondary only in dark; a filter cannot follow the colour
+   scheme in CSS, so it blurs in both, where the 80% white fill in light
+   hides the difference. */
+.button[data-variant="secondary"] {
+  --fill: var(--secondary-fill);
+  --label: var(--ink);
+  --lift: var(--shadow-secondary);
+  --rim: var(--rim-secondary);
+  --sheen: var(--sheen-secondary);
+  --wash: var(--wash-tinted);
+  backdrop-filter: blur(18px);
+}
+
+.button[data-variant="tertiary"] {
+  --fill: var(--pill);
+  --label: var(--ink);
+  --wash: var(--hover);
+}
+
+.button[data-variant="transparent"] {
+  --fill: transparent;
+  --label: var(--ink);
+  --wash: var(--hover);
+}
+
+/* the flat ones take the pill fill while pressed */
+.button:is([data-variant="tertiary"], [data-variant="transparent"]):not(
+    :disabled,
+    [data-loading]
+  ):active {
+  background-image: linear-gradient(var(--pill), var(--pill));
+}
+
+/* the label is pure white, as Mint draws it */
+.button[data-variant="negative"] {
+  --fill: var(--negative-fill);
+  --label: var(--on-accent);
+  --lift: var(--shadow-negative);
+  --rim: var(--rim-negative);
+  --sheen: var(--sheen-negative);
+  --wash: var(--wash-tinted);
+  backdrop-filter: blur(18px);
+}
+
+/* Loading: the label stays in the flow, invisible, so the button keeps its
+   width under the pointer; the spinner turns in the middle. */
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.button[data-loading] > .content {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spin {
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button:not(:disabled, [data-loading]):active,
+  .button.icon:not(:disabled, [data-loading]):active {
+    transform: none;
+  }
+  /* a frozen spinner reads as broken: slower, not stopped */
+  .spin {
+    animation-duration: 1600ms;
+  }
+}
