@@ -9,6 +9,7 @@
     "catalog": {
       "@ai-sdk/openai": "^4.0.71",
       "@base-ui/react": "^1.8.0",
+      "@electric-sql/pglite": "^0.5.8",
       "@hono/trpc-server": "^0.4.0",
       "@hono/zod-openapi": "^1.1.5",
       "@radix-ui/react-avatar": "^1.1.10",

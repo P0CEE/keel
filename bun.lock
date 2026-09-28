@@ -25,6 +25,7 @@
         "@keel/cache": "workspace:*",
         "@keel/db": "workspace:*",
         "@keel/jobs": "workspace:*",
+        "@keel/realtime": "workspace:*",
         "@scalar/hono-api-reference": "catalog:",
         "@trpc/server": "catalog:",
         "better-auth": "catalog:",
@@ -44,7 +45,7 @@
       "dependencies": {
         "@keel/api": "workspace:*",
         "@keel/finance": "workspace:*",
-        "@keel/jobs": "workspace:*",
+        "@keel/realtime": "workspace:*",
         "@keel/ui": "workspace:*",
         "@sentry/nextjs": "catalog:",
         "@tanstack/react-query": "catalog:",
@@ -70,6 +71,7 @@
         "babel-plugin-react-compiler": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
+        "zod": "catalog:",
       },
     },
     "apps/website": {
@@ -98,10 +100,13 @@
       "name": "@keel/worker",
       "version": "0.0.0",
       "dependencies": {
+        "@keel/db": "workspace:*",
         "@keel/jobs": "workspace:*",
         "bullmq": "catalog:",
+        "drizzle-orm": "catalog:",
         "hono": "catalog:",
         "ioredis": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@keel/tsconfig": "workspace:*",
@@ -117,6 +122,24 @@
         "ai": "catalog:",
         "zod": "catalog:",
       },
+      "devDependencies": {
+        "@keel/tsconfig": "workspace:*",
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/bank-providers": {
+      "name": "@keel/bank-providers",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@keel/tsconfig": "workspace:*",
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/banking": {
+      "name": "@keel/banking",
+      "version": "0.0.0",
       "devDependencies": {
         "@keel/tsconfig": "workspace:*",
         "@types/bun": "catalog:",
@@ -143,6 +166,7 @@
         "pg": "catalog:",
       },
       "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
         "@keel/tsconfig": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
@@ -168,6 +192,21 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@keel/tsconfig": "workspace:*",
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/realtime": {
+      "name": "@keel/realtime",
+      "version": "0.0.0",
+      "dependencies": {
+        "ioredis": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
+        "@keel/db": "workspace:*",
         "@keel/tsconfig": "workspace:*",
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -225,6 +264,7 @@
   "catalog": {
     "@ai-sdk/openai": "^4.0.71",
     "@base-ui/react": "^1.8.0",
+    "@electric-sql/pglite": "^0.5.8",
     "@hono/trpc-server": "^0.4.0",
     "@hono/zod-openapi": "^1.1.5",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -361,6 +401,8 @@
     "@better-fetch/fetch": ["@better-fetch/fetch@1.1.21", "", {}, "sha512-/ImESw0sskqlVR94jB+5+Pxjf+xBwDZF/N5+y2/q4EqD7IARUTSpPfIo8uf39SYpCxyOCtbyYpUrZ3F/k0zT4A=="],
 
     "@drizzle-team/brocli": ["@drizzle-team/brocli@0.10.2", "", {}, "sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w=="],
+
+    "@electric-sql/pglite": ["@electric-sql/pglite@0.5.8", "", {}, "sha512-n9tsbUOhwx2epK1V0ZG9Ar4SHWUju04dhmzZXiSBXwBoleOvIfals33NAaWgagQVAL4Rbvx/Ptsu3P+pA09f6Q=="],
 
     "@emnapi/runtime": ["@emnapi/runtime@1.10.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-ewvYlk86xUoGI0zQRNq/mC+16R1QeDlKQy21Ki3oSYXNgLb45GV1P6A0M+/s6nyCuNDqe5VpaY84BzXGwVbwFA=="],
 
@@ -508,6 +550,10 @@
 
     "@keel/app": ["@keel/app@workspace:apps/app"],
 
+    "@keel/bank-providers": ["@keel/bank-providers@workspace:packages/bank-providers"],
+
+    "@keel/banking": ["@keel/banking@workspace:packages/banking"],
+
     "@keel/cache": ["@keel/cache@workspace:packages/cache"],
 
     "@keel/db": ["@keel/db@workspace:packages/db"],
@@ -515,6 +561,8 @@
     "@keel/finance": ["@keel/finance@workspace:packages/finance"],
 
     "@keel/jobs": ["@keel/jobs@workspace:packages/jobs"],
+
+    "@keel/realtime": ["@keel/realtime@workspace:packages/realtime"],
 
     "@keel/tsconfig": ["@keel/tsconfig@workspace:packages/tsconfig"],
 

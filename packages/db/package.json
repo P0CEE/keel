@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
-    "./client": "./src/client.ts"
+    "./client": "./src/client.ts",
+    "./testing": "./src/testing.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
@@ -21,6 +22,7 @@
     "pg": "catalog:"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "catalog:",
     "@keel/tsconfig": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",

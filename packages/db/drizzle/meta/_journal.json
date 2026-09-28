@@ -22,6 +22,27 @@
       "when": 1790592702238,
       "tag": "0002_drop_tasks",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790598653343,
+      "tag": "0003_app_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790598655865,
+      "tag": "0004_households",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790598658222,
+      "tag": "0005_household_ids",
+      "breakpoints": true
     }
   ]
 }
