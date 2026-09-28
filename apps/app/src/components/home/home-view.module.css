@@ -1,0 +1,89 @@
+/* A main column and a side panel, once there is room for both. */
+.page {
+  display: grid;
+  gap: var(--space-s5);
+}
+
+/* two thirds for the page, one third for the side panel, 64px apart */
+@media (min-width: 1180px) {
+  .page {
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+    column-gap: 64px;
+    align-items: start;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s5);
+  min-width: 0;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+}
+
+/* the balance, as Mint sets it: 40 / 48, semibold, figures untouched */
+.balance {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-xxlarge);
+  line-height: var(--leading-xxlarge);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+  cursor: pointer;
+}
+
+.change {
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s1);
+}
+
+.aside {
+  min-width: 0;
+}
+
+/* the side panel: a raised white card, its list inside */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  padding: var(--space-s3);
+  border-radius: var(--radius-24);
+  background: var(--panel);
+  box-shadow: light-dark(var(--shadow-raised), inset 0 0 0 1px var(--line));
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}

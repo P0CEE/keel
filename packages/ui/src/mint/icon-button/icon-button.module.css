@@ -1,0 +1,69 @@
+.button {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.button[data-size="32"] {
+  width: 32px;
+  height: 32px;
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--hover);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .button:hover {
+    color: var(--ink);
+  }
+  .button:hover::before {
+    opacity: 1;
+  }
+}
+
+.button[data-popup-open]::before {
+  opacity: 1;
+}
+
+.button:active,
+.button[data-pressed] {
+  transform: scale(0.94);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .button::before {
+    transition: none;
+  }
+  .button:active,
+  .button[data-pressed] {
+    transform: none;
+  }
+}

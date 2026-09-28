@@ -1,0 +1,207 @@
+/* The list: days, each a heading over its rows; its width picks the layout. */
+.list {
+  container: transactions / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s3);
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+.dayHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s2);
+  padding-bottom: var(--space-s0-50);
+}
+
+.dayName {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+}
+
+/* in the tertiary ink, so the rows lead */
+.dayNet {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+}
+
+/* the line between rows, inset to the content; gone beside a hovered row */
+.item + .item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  transition: opacity var(--duration-fast) ease;
+}
+
+/* A row: the content on the column, its tint 8px past it. */
+.row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-s1-50);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-s1) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  text-align: left;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button.row {
+  cursor: pointer;
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(-1 * var(--space-s1));
+  z-index: -1;
+  border-radius: var(--radius-12);
+  background: var(--hover);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .row:hover::before {
+    opacity: 1;
+  }
+  .item:has(.row:hover)::before,
+  .item:has(.row:hover) + .item::before {
+    opacity: 0;
+  }
+}
+
+/* press deepens the tint rather than scaling a full-width row */
+button.row:active::before {
+  opacity: 1;
+  background: var(--pill);
+}
+
+.row:focus-visible::before {
+  opacity: 1;
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.item:has(.row:focus-visible)::before,
+.item:has(.row:focus-visible) + .item::before {
+  opacity: 0;
+}
+
+/* Narrow: the merchant over its tag and account, the amount at the right. */
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-50);
+  min-width: 0;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1);
+  min-width: 0;
+}
+
+.merchant,
+.account {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant {
+  min-width: 0;
+  font-weight: var(--weight-medium);
+}
+
+.account {
+  min-width: 0;
+  color: var(--ink-3);
+}
+
+.recurrence {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-s0-50);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.column {
+  display: none;
+  min-width: 0;
+}
+
+.amount {
+  align-self: start;
+  padding-top: 2px;
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.amount[data-direction="in"] {
+  color: var(--positive);
+}
+
+/* Wide: one line in columns that line up from row to row, every track a
+   fraction and never sized by its content. */
+@container transactions (min-width: 640px) {
+  .row {
+    grid-template-columns:
+      32px minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr)
+      minmax(0, 1fr);
+    min-height: 56px;
+  }
+  .under {
+    display: none;
+  }
+  .column {
+    display: block;
+  }
+  .amount {
+    align-self: center;
+    padding-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row::before,
+  .item + .item::before {
+    transition: none;
+  }
+}

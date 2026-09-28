@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@keel/api": "workspace:*",
+    "@keel/finance": "workspace:*",
     "@keel/jobs": "workspace:*",
     "@keel/ui": "workspace:*",
     "@sentry/nextjs": "catalog:",
@@ -22,6 +23,8 @@
     "@trpc/tanstack-react-query": "catalog:",
     "better-auth": "catalog:",
     "clsx": "catalog:",
+    "lucide-react": "catalog:",
+    "motion": "catalog:",
     "next": "catalog:",
     "next-international": "catalog:",
     "next-themes": "catalog:",

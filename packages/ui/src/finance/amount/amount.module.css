@@ -1,0 +1,8 @@
+.amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.amount[data-tone][data-direction="in"] {
+  color: var(--positive);
+}

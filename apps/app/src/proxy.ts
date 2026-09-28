@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "fr"],
   defaultLocale: "en",
-  // "rewrite" keeps the locale out of the URL entirely: /login, /tasks, /jobs
+  // "rewrite" keeps the locale out of the URL entirely: /login, /design
   // stay prefix-less while translations still resolve per request.
   urlMappingStrategy: "rewrite",
 });
@@ -62,13 +62,34 @@ export function proxy(request: NextRequest) {
   }
 
   // Expose the nonce to server components (read via `headers()` in the
-  // layout) by setting it on the request headers the i18n middleware sees.
-  request.headers.set("x-nonce", nonce);
-  request.headers.set("Content-Security-Policy", csp);
+  // layout) and to Next, which takes it from the request's CSP.
+  const forwarded = new Headers(request.headers);
+  forwarded.set("x-nonce", nonce);
+  forwarded.set("Content-Security-Policy", csp);
 
   const response = I18nMiddleware(request);
+  forwardRequestHeaders(response, forwarded);
   response.headers.set("Content-Security-Policy", csp);
   return response;
+}
+
+/**
+ * next-international answers with a bare `NextResponse.rewrite(url)`, which
+ * drops any change made to the request's headers: the layout never saw the
+ * nonce, the CSP blocked next-themes' inline script and every load painted
+ * the system appearance before the chosen one. Next carries request headers
+ * through override headers on the response; copy them from a response built
+ * the documented way onto the i18n one.
+ */
+function forwardRequestHeaders(response: NextResponse, headers: Headers) {
+  const carrier = NextResponse.next({ request: { headers } });
+  carrier.headers.forEach((value, key) => {
+    if (
+      key === "x-middleware-override-headers" ||
+      key.startsWith("x-middleware-request-")
+    )
+      response.headers.set(key, value);
+  });
 }
 
 export const config = {

@@ -1,0 +1,72 @@
+import { AccountsIcon, ActivityIcon, HomeIcon } from "@keel/ui/mint/icons";
+import type { NavItem } from "@keel/ui/mint/nav";
+
+export type NavigationLabels = {
+  readonly home: string;
+  readonly homeHint: string;
+  readonly accounts: string;
+  readonly accountsHint: string;
+  readonly transactions: string;
+  readonly transactionsHint: string;
+};
+
+/**
+ * The pages the rail lists, with Mint's icons and their filled twins for the
+ * current page, as mint-pocs' Sidebar draws them. Budgets, recurring series
+ * and analysis join the list with their features.
+ */
+export function navigation(labels: NavigationLabels): NavItem[] {
+  return [
+    {
+      id: "home",
+      href: "/",
+      label: labels.home,
+      hint: labels.homeHint,
+      icon: <HomeIcon />,
+      activeIcon: <HomeIcon filled />,
+      shortcut: "h",
+    },
+    {
+      id: "accounts",
+      href: "/accounts",
+      label: labels.accounts,
+      hint: labels.accountsHint,
+      icon: <AccountsIcon />,
+      activeIcon: <AccountsIcon filled />,
+      shortcut: "a",
+      match: "prefix",
+    },
+    {
+      id: "transactions",
+      href: "/transactions",
+      label: labels.transactions,
+      hint: labels.transactionsHint,
+      icon: <ActivityIcon />,
+      activeIcon: <ActivityIcon filled />,
+      shortcut: "y",
+      match: "prefix",
+    },
+  ];
+}
+
+const PHONE_ORDER = ["accounts", "home", "transactions"];
+
+/**
+ * The top pages in the order a phone swipes them: Home in the middle, a page
+ * either side, as mint-pocs' App top bar lays out Invest, Home and Spend.
+ * Items the order does not name follow, in the rail's order.
+ */
+export function phonePageOrder(items: readonly NavItem[]): NavItem[] {
+  const rank = (item: NavItem) => {
+    const at = PHONE_ORDER.indexOf(item.id);
+    return at === -1 ? PHONE_ORDER.length : at;
+  };
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) =>
+      rank(a.item) === rank(b.item)
+        ? a.index - b.index
+        : rank(a.item) - rank(b.item),
+    )
+    .map((entry) => entry.item);
+}

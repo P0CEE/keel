@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { KeelMark } from "@/components/keel-mark";
 import { signIn, signUp } from "@/lib/auth-client";
 import { useScopedI18n } from "@/locales/client";
+import { RamnnPicto } from "@keel/ui/brand/ramnn";
 import { Button } from "@keel/ui/button";
 import {
   Card,
@@ -58,7 +58,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center px-6">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <KeelMark size={28} className="text-primary mb-2" />
+          <RamnnPicto className="text-primary mb-2 h-7 w-9" title="ramnn" />
           <CardTitle>
             {isSignUp ? t("sign_up_title") : t("sign_in_title")}
           </CardTitle>

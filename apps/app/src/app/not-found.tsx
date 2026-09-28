@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { KeelMark } from "@/components/keel-mark";
+import { RamnnPicto } from "@keel/ui/brand/ramnn";
 
 export const metadata: Metadata = {
   title: "Page not found",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 text-center">
-      <KeelMark size={32} className="text-primary" />
+      <RamnnPicto className="text-primary h-8 w-[41px]" title="ramnn" />
       <h1 className="text-foreground mt-8 text-2xl font-semibold tracking-tight">
         Page not found
       </h1>

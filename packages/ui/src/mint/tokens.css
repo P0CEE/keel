@@ -1,0 +1,169 @@
+/* The app's design tokens, from Mint (mint-pocs), in two layers only:
+
+   1. primitives: space, radius, type, motion;
+   2. roles: what a colour is for (ink, surface, line, positive...), each
+      declared once with its light and dark values in light-dark().
+
+   No per-component token (no "--component-button-bg-tertiary"): components
+   read roles, so two components that should look alike cannot drift apart.
+   Every variable here is used somewhere, and every variable a component uses
+   is here: test/tokens.test.ts fails the build otherwise.
+
+   The appearance is the `color-scheme` next-themes puts on <html> (with the
+   .light or .dark class); light-dark() follows it, so a subtree switched to
+   .dark switches every role with it, with nothing to redeclare. */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---- Type. Wealthsimple Sans is proprietary: the app font comes from
+     next/font as --font-app. Sizes and leadings go in pairs. ---- */
+  --font-sans:
+    var(--font-app, ui-sans-serif), -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  --text-xxlarge: 40px;
+  --leading-xxlarge: 48px;
+  --text-xlarge: 32px;
+  --leading-xlarge: 38px;
+  --text-medium: 18px;
+  --leading-medium: 28px;
+  --text-default: 16px;
+  --leading-default: 22px;
+  --text-small: 14px;
+  --leading-small: 20px;
+  --text-xsmall: 12px;
+  --leading-xsmall: 16px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  /* Mint's balances: a true semibold (Wealthsimple Sans faked it from bold) */
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ---- Space and radius ---- */
+  --space-s0-50: 4px;
+  --space-s0-75: 6px;
+  --space-s1: 8px;
+  --space-s1-50: 12px;
+  --space-s2: 16px;
+  --space-s2-50: 20px;
+  --space-s3: 24px;
+  --space-s5: 40px;
+  --radius-4: 4px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-24: 24px;
+  --radius-1000: 1000px;
+
+  /* ---- Motion. Springs live in motion.ts (they need JS). ---- */
+  --duration-instant: 70ms;
+  --duration-fast: 100ms;
+  --duration-moderate: 200ms;
+  --ease-overshoot: cubic-bezier(0.22, 1.6, 0.36, 1);
+  --ease-pop: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-enter: cubic-bezier(0.05, 0.2, 0.5, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 0.8);
+
+  /* ---- Layers ---- */
+  --z-shell: 20;
+  --z-scrim: 9010;
+  --z-popup: 9020;
+
+  /* ---- Ink: text and glyphs ---- */
+  --ink: light-dark(#000000, #ffffff);
+  --ink-2: light-dark(#000000b2, #ffffffb2);
+  /* fg.tertiary is 3.9:1 on the page in light, under AA: light keeps ink-2. */
+  --ink-3: light-dark(#000000b2, #ffffff80);
+  /* disabled and decoration only, never text that must be read */
+  --ink-muted: light-dark(#00000052, #ffffff52);
+  --on-ink: light-dark(#ffffff, #000000);
+  --ink-fill: light-dark(#0d0d0d, #f2f2f2);
+
+  /* ---- Grounds and fills ---- */
+  --page: light-dark(#f2f2f2, #0d0d0d);
+  --card-bg: light-dark(#f9f9f9, #1c1c1c);
+  /* a control resting on the ground: the rail's dock and pills, the avatar */
+  --dock-fill: light-dark(#ffffff, #ffffff14);
+  --dock-edge: light-dark(transparent, #ffffff24);
+  /* the phone's tab bar, its drawer and search: a step above the page in dark */
+  --bar: light-dark(#ffffff, #272727);
+  --popup: light-dark(rgba(250, 250, 250, 0.82), #181716);
+  --scrim: light-dark(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.5));
+  /* the search palette over the page: frosted in light, a raised grey in dark,
+     so its field can sit a step deeper; the page behind only dims lightly */
+  --palette: light-dark(rgba(250, 250, 250, 0.82), #272727);
+  --palette-scrim: light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.22));
+  /* a panel raised on the page (a side panel, the search field): the
+     brightest thing in light, the card fill in dark */
+  --panel: light-dark(#ffffff, #1c1c1c);
+
+  /* ---- States ---- */
+  --highlight: light-dark(#0000000d, #ffffff1a);
+  --hover: light-dark(#0000000d, #ffffff14);
+  --press: light-dark(#0000000a, #ffffff0a);
+  --pill: light-dark(#00000014, #ffffff1a);
+  --current: light-dark(#00000014, #ffffff14);
+
+  /* ---- Lines ---- */
+  --line: light-dark(#0000000d, #ffffff1a);
+  --line-heavy: light-dark(#00000014, #ffffff24);
+
+  /* ---- Meaning ---- */
+  /* accent.positive.strong is 3.3:1 on the page; this green is 4.6:1 */
+  --positive: light-dark(#357941, #6dc382);
+  --positive-soft: light-dark(#4096521a, #6dc38233);
+  --info: light-dark(#305faa, #9cb7ed);
+  --info-soft: light-dark(#305faa26, #a9bce533);
+  --warning: light-dark(#7e6812, #d4b316);
+  --warning-soft: light-dark(#dac96733, #eece2d33);
+  --live: light-dark(#e22b18, #c02416);
+  /* the appearance toggle's sun: dataviz yellow 06, a step deeper in light */
+  --sun: light-dark(#d4b316, #eece2d);
+
+  /* ---- Categories and charts: Mint's categorical palette, in the order of
+     the spending breakdown and the heatmap. A paint is lit from the top in
+     use: linear-gradient(color-mix(in srgb, var(--c), #fff 18%), var(--c)). */
+  --category-blue: #5b88d9;
+  --category-purple: #b27ee4;
+  --category-pink: #e47eca;
+  --category-yellow: #eece2d;
+  --category-orange: #f7984a;
+  --category-mauve: light-dark(#db5ebd, #d03cae);
+  --category-green: #409652;
+  --category-green-deep: light-dark(#357941, #6dc382);
+  --category-green-light: light-dark(#4db565, #409652);
+
+  /* ---- Shadows (Mint's three recipes) ---- */
+  /* cards, round buttons and fields that rest on the page */
+  --shadow-raised:
+    0 1px 2px light-dark(#0000000d, #00000066),
+    0 6px 16px light-dark(#0000000d, #00000059);
+  /* bars and docks over content */
+  --shadow-dock:
+    0 1px 2px light-dark(#0000000d, #00000066),
+    0 10px 28px light-dark(#00000014, #00000073);
+  /* popups, menus, tooltips, open panels */
+  --shadow-float:
+    0 0 0 1px var(--line), 0 12px 40px light-dark(#0000001f, #00000080);
+}
+
+.light {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Mint's focus ring, for keyboard users only: Base UI returns focus to a
+   trigger programmatically, which browsers mark :focus-visible. The
+   InputModality component keeps data-input on <html>. */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+html[data-input="pointer"] :focus-visible {
+  outline: none;
+}

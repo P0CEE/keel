@@ -1,9 +1,11 @@
 @import "@keel/ui/styles.css";
+@import "@keel/ui/mint/tokens.css";
 
-/* The product app uses Inter (loaded via next/font in layout.tsx). Override
-   the shared `--font-sans` token so every `font-sans` utility picks it up. */
+/* The app font (loaded via next/font in layout.tsx as --font-app) is the one
+   every surface reads: the Mint tokens' --font-sans and Tailwind's font-sans
+   utility for the pages not yet ported. */
 @theme {
   --font-sans:
-    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    var(--font-app), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     sans-serif;
 }

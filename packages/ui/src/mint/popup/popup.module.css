@@ -1,0 +1,326 @@
+/* The set's popup dress (the Select's in mint-pocs): tooltips, menus and the
+   shortcuts dialog wear it. Portalled to <body>: the roles are global, so a
+   popup keeps the palette wherever it lands. */
+
+.positioner {
+  z-index: var(--z-popup);
+}
+
+/* ---- Tooltip: what a control does, and its key ---- */
+.tip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  padding: var(--space-s0-75) var(--space-s0-75) var(--space-s0-75)
+    var(--space-s1-50);
+  border-radius: var(--radius-12);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-float);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-enter);
+}
+.tip[data-starting-style],
+.tip[data-ending-style] {
+  opacity: 0;
+}
+.tip[data-side="right"][data-starting-style],
+.tip[data-side="right"][data-ending-style] {
+  transform: translateX(-4px);
+}
+.tip[data-side="left"][data-starting-style],
+.tip[data-side="left"][data-ending-style] {
+  transform: translateX(4px);
+}
+.tip[data-side="top"][data-starting-style],
+.tip[data-side="top"][data-ending-style] {
+  transform: translateY(4px);
+}
+.tip[data-side="bottom"][data-starting-style],
+.tip[data-side="bottom"][data-ending-style] {
+  transform: translateY(-4px);
+}
+.tip[data-ending-style] {
+  transition-duration: var(--duration-instant);
+}
+/* a tooltip moving to the next control swaps in place, without the entry */
+.tip[data-instant] {
+  transition: none;
+}
+
+/* the key in a badge; its 6px radius plus the tooltip's 6px padding make the
+   tooltip's 12px, so the two curves are concentric */
+.kbd {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: var(--highlight);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: var(--text-xsmall);
+  line-height: 1;
+  font-weight: var(--weight-bold);
+}
+
+/* ---- Menu: frosted, one highlight moved by pointer and keys alike ---- */
+.menu {
+  min-width: 264px;
+  padding: var(--space-s1) 0;
+  border-radius: 18px;
+  outline: none;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  background-color: var(--popup);
+  backdrop-filter: blur(56px);
+  box-shadow: var(--shadow-float);
+  transform-origin: var(--transform-origin);
+  /* at rest on no transform: a 3D layer would rasterise the text soft */
+  transform: none;
+  transition:
+    opacity var(--duration-instant) ease-out,
+    transform var(--duration-fast) var(--ease-overshoot);
+}
+.menu[data-starting-style],
+.menu[data-ending-style] {
+  opacity: 0;
+  transform: perspective(800px) scale(0.96) translateX(-4px) rotateY(4deg);
+}
+.menu[data-side="bottom"][data-starting-style],
+.menu[data-side="bottom"][data-ending-style],
+.menu[data-side="top"][data-starting-style],
+.menu[data-side="top"][data-ending-style] {
+  transform: perspective(800px) scale(0.96) translateY(-4px) rotateX(-4deg);
+}
+.menu[data-ending-style] {
+  transition:
+    opacity var(--duration-instant) ease-in,
+    transform var(--duration-instant) ease-in;
+}
+.small {
+  min-width: 180px;
+}
+.menuHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  padding: var(--space-s1) var(--space-s2-50) var(--space-s1-50);
+}
+.menuName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+.menuDetail {
+  display: block;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-regular);
+  color: var(--ink-3);
+}
+.separator {
+  height: 1px;
+  margin: var(--space-s1) var(--space-s2-50);
+  border: 0;
+  background: var(--line);
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  margin: 0 var(--space-s0-75);
+  padding: 9px 14px;
+  border-radius: var(--radius-12);
+  outline: none;
+  cursor: pointer;
+  color: var(--ink-2);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  user-select: none;
+}
+.item[data-highlighted],
+.item[data-popup-open] {
+  background-color: var(--highlight);
+}
+.item:focus-visible {
+  outline: none;
+}
+.item[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.label {
+  flex: 1;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.chevron {
+  color: var(--ink-3);
+}
+.radioItem {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  padding: var(--space-s1) 14px;
+}
+/* the Select's ring-and-dot */
+.radio {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--line-heavy);
+  transition: border-color var(--duration-fast) ease;
+}
+.radio[data-checked] {
+  border-color: var(--ink-fill);
+  background-color: var(--ink-fill);
+}
+.radioDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--on-ink);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-pop);
+}
+.radio[data-checked] .radioDot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---- Dialog over the window, on a scrim that dims it ---- */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-scrim);
+  background: var(--scrim);
+  transition: opacity var(--duration-moderate) ease;
+}
+.scrim[data-starting-style],
+.scrim[data-ending-style] {
+  opacity: 0;
+}
+.dialog {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: var(--z-popup);
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: var(--space-s1) 0 var(--space-s2);
+  border-radius: var(--radius-24);
+  outline: none;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  background-color: var(--popup);
+  backdrop-filter: blur(56px);
+  box-shadow: var(--shadow-float);
+  translate: -50% -50%;
+  transition:
+    opacity var(--duration-fast) ease-out,
+    transform var(--duration-moderate) var(--ease-overshoot);
+}
+.dialog[data-starting-style],
+.dialog[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.dialog[data-ending-style] {
+  transition:
+    opacity var(--duration-instant) ease-in,
+    transform var(--duration-instant) ease-in;
+}
+.dialog:focus-visible {
+  outline: none;
+}
+.dialogHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-s1) var(--space-s1-50) var(--space-s1) var(--space-s3);
+}
+.dialogTitle {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+.close {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: transform var(--duration-instant) ease;
+}
+.close::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--hover);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+@media (hover: hover) {
+  .close:hover::before {
+    opacity: 1;
+  }
+}
+.close:active {
+  transform: scale(0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip,
+  .menu,
+  .dialog {
+    transition: opacity var(--duration-instant) ease-out;
+  }
+  .tip[data-starting-style],
+  .tip[data-ending-style],
+  .menu[data-starting-style],
+  .menu[data-ending-style],
+  .dialog[data-starting-style],
+  .dialog[data-ending-style] {
+    transform: none;
+  }
+  .radioDot,
+  .close {
+    transition: none;
+  }
+  .close:active {
+    transform: none;
+  }
+}

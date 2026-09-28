@@ -1,0 +1,184 @@
+.root {
+  --in: var(--category-blue);
+  --out: var(--category-orange);
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+/* ---- Net change ---- */
+.head {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-s3);
+}
+
+.title {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.swap {
+  display: inline-grid;
+  font-variant-numeric: tabular-nums;
+}
+
+.swap > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.net {
+  font-size: var(--text-xlarge);
+  line-height: var(--leading-xlarge);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.03em;
+}
+
+/* ---- Bars ---- */
+.bars {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-s2);
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-s1);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-12);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pair {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-s0-50);
+  height: 180px;
+}
+
+.bar {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--radius-12) var(--radius-12) var(--radius-4)
+    var(--radius-4);
+  transform-origin: bottom;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--duration-moderate) var(--ease-enter);
+}
+
+/* pale: each colour mixed into the page, so it follows the appearance */
+.bar[data-kind="in"] .pale {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--in) 14%, var(--page)),
+    color-mix(in srgb, var(--in) 24%, var(--page))
+  );
+}
+
+.bar[data-kind="out"] .pale {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--out) 16%, var(--page)),
+    color-mix(in srgb, var(--out) 28%, var(--page))
+  );
+}
+
+/* solid: lit from the top, the light every chart of the set uses */
+.bar[data-kind="in"] .solid {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--in), white 18%),
+    var(--in)
+  );
+}
+
+.bar[data-kind="out"] .solid {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--out), white 18%),
+    var(--out)
+  );
+}
+
+.solid {
+  opacity: 0;
+}
+
+.month[data-focus] .solid {
+  opacity: 1;
+}
+
+.label {
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-3);
+  text-align: center;
+  transition: color var(--duration-fast) ease;
+}
+
+.month[data-focus] .label {
+  color: var(--ink);
+  font-weight: var(--weight-medium);
+}
+
+/* ---- Legend ---- */
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+  margin: var(--space-s3) 0 0;
+}
+
+.legend > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1);
+}
+
+.legend > div::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-4);
+  background: var(--in);
+}
+
+.legend > div[data-kind="out"]::before {
+  background: var(--out);
+}
+
+.legend dt {
+  flex: 1;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.legend dd {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill,
+  .label {
+    transition: none;
+  }
+}

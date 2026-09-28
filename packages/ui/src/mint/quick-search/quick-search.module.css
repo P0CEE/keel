@@ -1,0 +1,245 @@
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* the page behind blurs and dims; only the opacity moves, a transitioned
+   blur would cost every frame */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-scrim);
+  background: var(--palette-scrim);
+  backdrop-filter: blur(3px);
+  transition: opacity 300ms var(--ease-sheet);
+}
+
+.scrim[data-starting-style],
+.scrim[data-ending-style] {
+  opacity: 0;
+}
+
+.scrim[data-ending-style] {
+  transition-duration: var(--duration-moderate);
+  transition-timing-function: var(--ease-exit);
+}
+
+/* concentric: the palette's 28px radius is the field's and the rows' 16 plus its 12px inset */
+.panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: clamp(24px, 20vh, 240px);
+  z-index: var(--z-popup);
+  display: flex;
+  flex-direction: column;
+  width: min(680px, calc(100vw - 32px));
+  margin-inline: auto;
+  padding: var(--space-s1-50);
+  border-radius: 28px;
+  outline: none;
+  background-color: var(--palette);
+  backdrop-filter: blur(56px);
+  box-shadow:
+    inset 0 0 0 1px light-dark(transparent, var(--line)),
+    var(--shadow-float);
+  font-family: var(--font-sans);
+  color: var(--ink);
+  transform-origin: 50% 0;
+  transition:
+    opacity var(--duration-moderate) var(--ease-enter),
+    transform 300ms var(--ease-sheet);
+}
+
+.panel:focus-visible {
+  outline: none;
+}
+
+.panel[data-starting-style] {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.97);
+}
+
+/* leaving: faster than it came, whole, a slight lift */
+.panel[data-ending-style] {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transition:
+    opacity 150ms var(--ease-exit),
+    transform 150ms var(--ease-exit);
+}
+
+/* the field: the palette's one input, a well to type in */
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  height: 52px;
+  padding: 0 var(--space-s2);
+  border-radius: var(--radius-16);
+  background: var(--panel);
+  box-shadow: light-dark(var(--shadow-raised), inset 0 0 0 1px var(--line));
+  color: var(--ink);
+  cursor: text;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-regular);
+  caret-color: var(--ink);
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+}
+
+.section {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-s2) var(--space-s2) var(--space-s1);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* the fade's depth is a registered length, so it eases as the list reaches an end */
+@property --fade-top {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --fade-bottom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.list {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding-bottom: var(--space-s1);
+  scroll-padding-block: var(--space-s3);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--fade-top),
+    black calc(100% - var(--fade-bottom)),
+    transparent
+  );
+  transition:
+    --fade-top var(--duration-moderate) ease,
+    --fade-bottom var(--duration-moderate) ease;
+}
+
+.list[data-more-above] {
+  --fade-top: 32px;
+}
+
+.list[data-more-below] {
+  --fade-bottom: 48px;
+}
+
+/* a row: the set's highlight, one at a time, moved by the pointer and the arrows alike */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  height: 48px;
+  padding: 0 var(--space-s2);
+  border-radius: var(--radius-16);
+  cursor: pointer;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.row[data-active] {
+  background: var(--highlight);
+}
+
+.mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--ink-2);
+}
+
+.label {
+  flex: none;
+  font-weight: var(--weight-bold);
+}
+
+.detail {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink-3);
+}
+
+.meta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 24px;
+  padding: 0 var(--space-s1);
+  border-radius: 6px;
+  border: 1px solid var(--line-heavy);
+  color: var(--ink-3);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-medium);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-s1) var(--space-s2);
+}
+
+.emptyTitle {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+}
+
+.emptyText {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel[data-starting-style],
+  .panel[data-ending-style] {
+    transform: none;
+  }
+}

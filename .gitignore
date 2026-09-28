@@ -47,3 +47,8 @@ coverage
 
 # Claude Code session artifacts (transient agent worktrees, local settings)
 .claude/
+
+# Wealthsimple Sans is proprietary and this repository is public: the files
+# stay local (copy them from mint-pocs' public/fonts into apps/app/src/app/fonts)
+# until a licensed face replaces them.
+apps/app/src/app/fonts/wealthsimple-sans-*.woff2

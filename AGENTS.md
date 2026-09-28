@@ -78,7 +78,12 @@ attacks.
   vision) and `generateReply` (text). Call from `apps/api`, never the browser.
 - `packages/cache` — Redis primitives: rate limiter, distributed lock,
   stampede-safe cache, health check.
-- `packages/ui` — shared React components + Tailwind v4 design tokens.
+- `packages/ui` — shared React components. `src/mint` and `src/finance` are
+  the app's design system, ported from mint-pocs (Base UI + motion + CSS
+  Modules, tokens in `src/mint/tokens.css`); `src/components` are the older
+  shadcn components (Radix + Tailwind v4), kept until replaced.
+- `packages/finance` — pure domain logic with no I/O: money in integer minor
+  units (`money.ts`), household calendar days (`dates.ts`).
 - `packages/tsconfig` — shared TS presets (`base`, `nextjs`, `bun-app`,
   `react-library`).
 
@@ -102,7 +107,29 @@ local-first/offline layer — the API is the single source of truth.
 2. Add a tRPC router under `apps/api/src/trpc/routers/` (use `protectedProcedure`;
    scope every query by `ctx.user.id`) and register it in `router.ts`.
 3. Consume it in `apps/app` with `useTRPC()` + TanStack Query; apply optimistic
-   updates in `onMutate` and roll back in `onError` (see the tasks page).
+   updates in `onMutate` and roll back in `onError` (`apps/app/src/trpc/optimistic.ts`).
+
+### A new UI component
+
+Port it from mint-pocs before inventing anything, following the recipe in
+`docs/migration/05-ui-porting.md` (section 5):
+
+1. Pure logic (geometry, scales, key rules) in a sibling `.ts`, tested first.
+2. Styles in a co-located `.module.css`, never a `<style>` tag or Tailwind.
+3. Paint with the roles of `packages/ui/src/mint/tokens.css` only: no raw
+   colour, no per-component token. A missing role is added to `tokens.css`;
+   `packages/ui/test/tokens.test.ts` fails on unused, missing or raw values.
+4. Icons from `@keel/ui/mint/icons` (Mint's paths, copied from mint-pocs)
+   and category glyphs from `@keel/ui/finance/category-glyphs`; never an
+   approximation from another set. Amounts and dates through
+   `@keel/finance`; every user-facing string as a prop.
+5. Port the mint-pocs component as it is (its markup, its values, its
+   popups portalled to a layer at its root); do not recompose it from other
+   parts. Write standard CSS properties only (`backdrop-filter`, `mask`):
+   Lightning CSS adds the prefixes, and a hand-written `-webkit-` twin erases
+   the standard one (`packages/ui/test/css.test.ts`).
+6. Keep the reduced-motion path; `"use client"` only when it has state,
+   effects or motion.
 
 ### A new dependency
 

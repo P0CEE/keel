@@ -1,0 +1,70 @@
+/* The app's frame: the rail down the left on a desk; on a phone, the top bar
+   over the page and the floating tab bar over its foot. */
+.frame {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.rail {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-shell);
+  flex: none;
+  height: 100dvh;
+}
+
+@media (max-width: 767px) {
+  .rail {
+    display: none;
+  }
+}
+
+/* the R in the phone's top bar, at the rail's size */
+.topMark {
+  display: block;
+  width: 19.6px;
+  height: 24px;
+}
+
+.column {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* On a phone, the pages swipe edge to edge, each inside its own 16px
+   gutter, and keep room under them for the floating tab bar. */
+.main {
+  flex: 1;
+  width: 100%;
+  padding: var(--space-s3) 0 calc(var(--space-s5) * 3);
+}
+
+.gutter {
+  padding-inline: var(--space-s2);
+}
+
+/* On a desk, the page grows with the window as the reference does: the
+   content spans 80% of the window, up to 1600px, centred on the window
+   rather than on the room the 96px rail leaves (the rail sits in the left
+   margin). Never closer than 40px to the rail. */
+@media (min-width: 768px) {
+  .main {
+    width: min(80vw, 1600px);
+    margin-left: max(
+      var(--space-s5),
+      calc((100vw - min(80vw, 1600px)) / 2 - 96px)
+    );
+    margin-right: auto;
+    /* 28px: the page's first line starts level with the rail's mark */
+    padding: 28px 0 var(--space-s5);
+  }
+
+  .gutter {
+    padding-inline: 0;
+  }
+}

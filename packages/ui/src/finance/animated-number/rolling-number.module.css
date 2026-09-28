@@ -1,0 +1,49 @@
+.plain,
+.ticker {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ticker {
+  display: inline-block;
+}
+
+/* the number as one selectable, readable string, at zero size */
+.value {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.slots {
+  position: relative;
+  display: inline-block;
+  user-select: text;
+}
+
+.perspective {
+  display: inline-block;
+  perspective: 320px;
+}
+
+/* one cell per character position: the leaving glyph and its replacement
+   overlap in it, and the cell passes the run's perspective through */
+.cell {
+  display: inline-grid;
+  transform-style: preserve-3d;
+}
+
+.cell > * {
+  grid-area: 1 / 1;
+}
+
+/* every glyph stays on its own compositor layer at rest, so a digit that
+   animated does not re-rasterise (and snap 1px) when its spring settles */
+.glyph {
+  display: inline-block;
+  line-height: 1;
+  transform-origin: center;
+  will-change: transform;
+  backface-visibility: hidden;
+}

@@ -1,0 +1,321 @@
+/* The screen the bar floats on: the viewport, inside its safe areas. It lets
+   clicks through; only the bar, the drawer and search catch them. */
+.screen {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  right: 0;
+  bottom: env(safe-area-inset-bottom, 0px);
+  left: 0;
+  z-index: var(--z-shell);
+  pointer-events: none;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+@media (min-width: 768px) {
+  .screen {
+    display: none;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- The bar, which is also the drawer ---- */
+.shell {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: auto;
+  background: var(--bar);
+  box-shadow: var(--shadow-dock);
+  will-change: transform;
+}
+
+/* anchored to the bar's bottom left, so the tabs stay where they were while
+   the card grows over them, and fade */
+.nav {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 0 6px;
+}
+
+.tab {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    background: var(--hover);
+  }
+}
+
+.tab:active {
+  transform: scale(0.94);
+}
+
+.search {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  pointer-events: auto;
+  background: var(--bar);
+  box-shadow: var(--shadow-dock);
+  color: var(--ink);
+  cursor: pointer;
+  transition: scale var(--duration-instant) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* scale, not transform: motion owns this button's transform for its fade */
+.search:active {
+  scale: 0.94;
+}
+
+/* ---- The drawer: laid out at its final width, the card uncovers it ---- */
+.drawer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  outline: none;
+}
+
+.measure {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+.grabber {
+  display: grid;
+  place-items: center;
+  height: 20px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.grabber:active {
+  cursor: grabbing;
+}
+
+.grabber span {
+  width: 36px;
+  height: 5px;
+  border-radius: var(--radius-1000);
+  background: var(--ink-muted);
+}
+
+.scroll {
+  overflow-y: auto;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  padding: 0 var(--space-s2) var(--space-s2);
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-s0-50) 0 var(--space-s3);
+}
+
+.action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.actionCircle {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--highlight);
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+}
+
+@media (hover: hover) {
+  .action:hover .actionCircle {
+    background: var(--line);
+    box-shadow: inset 0 0 0 100px var(--press);
+  }
+}
+
+.action:active .actionCircle {
+  transform: scale(0.98);
+}
+
+.actionLabel {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  text-align: center;
+}
+
+/* the set's row rule: the well padded 8px, a row's tint rounded inside it,
+   the content 16px in */
+.list {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-s1);
+  border-radius: var(--radius-24);
+  background: var(--highlight);
+}
+
+.rowWrap {
+  position: relative;
+}
+
+.rowWrap + .rowWrap::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--space-s1);
+  right: var(--space-s1);
+  height: 1px;
+  background: var(--line);
+  transition: opacity var(--duration-fast) ease;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  width: 100%;
+  height: 52px;
+  padding: 0 var(--space-s1);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease;
+}
+
+.row:active {
+  background: var(--line);
+}
+
+.row:focus-visible {
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background: var(--hover);
+  }
+  .rowWrap:has(.row:hover)::before,
+  .rowWrap:has(.row:hover) + .rowWrap::before {
+    opacity: 0;
+  }
+}
+
+.rowIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-8);
+  color: var(--tone);
+  background: var(--tone-soft);
+}
+
+.rowIcon[data-tone="info"] {
+  --tone: var(--info);
+  --tone-soft: var(--info-soft);
+}
+
+.rowIcon[data-tone="positive"] {
+  --tone: var(--positive);
+  --tone-soft: var(--positive-soft);
+}
+
+.rowIcon[data-tone="warning"] {
+  --tone: var(--warning);
+  --tone-soft: var(--warning-soft);
+}
+
+.rowIcon[data-tone="accent"] {
+  --tone: var(--category-purple);
+  --tone-soft: color-mix(in srgb, var(--category-purple) 18%, transparent);
+}
+
+.rowIcon[data-tone="neutral"] {
+  --tone: var(--ink-2);
+  --tone-soft: var(--pill);
+}
+
+.rowLabel {
+  flex: 1;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+}
+
+.chevron {
+  flex: none;
+  color: var(--ink-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .search,
+  .actionCircle,
+  .row,
+  .rowWrap::before {
+    transition: none;
+  }
+  .tab:active,
+  .action:active .actionCircle {
+    transform: none;
+  }
+  .search:active {
+    scale: none;
+  }
+}

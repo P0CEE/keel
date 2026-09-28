@@ -1,0 +1,122 @@
+/* mint-pocs' App top bar: its page indicator and its swiping pages. */
+
+/* ---- Page indicator ---- */
+.pages {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+
+.measure {
+  position: absolute;
+  display: flex;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.measure > *,
+.name {
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+
+.tab {
+  display: grid;
+  flex: none;
+  place-items: center;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--radius-8);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pill);
+  transition: background-color var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .tab:hover .dot {
+    background-image: linear-gradient(var(--hover), var(--hover));
+  }
+}
+
+/* the pill: one thumb over the row, its left edge the row's centre plus x.
+   Its names share one cell, as wide as the longest; the cell is centred on
+   the pill (justify-content), not started at its left edge, or a short name
+   sits right of the pill's centre by half the difference. */
+.pill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  justify-content: center;
+  height: 24px;
+  margin: auto 0;
+  overflow: hidden;
+  border-radius: var(--radius-1000);
+  background: var(--pill);
+  pointer-events: none;
+}
+
+.name {
+  grid-area: 1 / 1;
+  color: var(--ink-2);
+}
+
+/* ---- Pages ---- */
+.viewport {
+  position: relative;
+  overflow-x: clip;
+}
+
+.track {
+  display: flex;
+  align-items: flex-start;
+  touch-action: pan-y;
+}
+
+.pane {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+}
+
+/* until the track is measured (and always on a desk), only the current page
+   is laid out */
+.viewport:not([data-placed]) .pane:not([data-current]) {
+  display: none;
+}
+
+/* a page beside the one shown is only ever seen mid-swipe: it never makes
+   the track taller than a screen */
+.viewport[data-placed] .pane:not([data-current]) {
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.viewport[data-placed] .pane {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pane img {
+  -webkit-user-drag: none;
+}
