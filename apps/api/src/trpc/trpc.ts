@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { newMemberDefaults } from "../lib/new-member";
 import { getCachedSession } from "../lib/session";
+import { SSE_OPTIONS } from "./sse";
 import { resolveScope } from "@keel/db";
 import { provisionMember } from "@keel/db/members";
 
@@ -37,7 +38,10 @@ export function createContext(_opts: unknown, c: HonoContext): Context {
   };
 }
 
-const t = initTRPC.context<Context>().create({ transformer: superjson });
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+  sse: SSE_OPTIONS,
+});
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
