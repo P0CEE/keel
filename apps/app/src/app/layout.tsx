@@ -10,9 +10,8 @@ import "./globals.css";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3173";
 
 // Wealthsimple Sans, as mint-pocs sets it (regular, medium, bold), so the
-// shell reads exactly as the reference while it is being ported. It is
-// proprietary: it must be replaced by a licensed face before production.
-// Exposed as --font-app, read by the tokens.
+// app reads exactly as the reference. Exposed as --font-app, read by the
+// tokens.
 const appFont = localFont({
   src: [
     {

@@ -16,8 +16,8 @@
 :root {
   color-scheme: light dark;
 
-  /* ---- Type. Wealthsimple Sans is proprietary: the app font comes from
-     next/font as --font-app. Sizes and leadings go in pairs. ---- */
+  /* ---- Type. The app font (Wealthsimple Sans) comes from next/font as
+     --font-app. Sizes and leadings go in pairs. ---- */
   --font-sans:
     var(--font-app, ui-sans-serif), -apple-system, "Segoe UI", Roboto,
     sans-serif;
