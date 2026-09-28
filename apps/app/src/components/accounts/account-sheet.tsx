@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import styles from "./accounts.module.css";
+import { BalanceHistory } from "./balance-history";
 import type { AccountView, ConnectionView } from "./overview-patch";
 import {
   useArchiveAccount,
@@ -112,6 +114,7 @@ function AccountDetails({
   const locale = useIntlLocale();
   const update = useUpdateAccount();
   const archive = useArchiveAccount();
+  const router = useRouter();
 
   const statusLine =
     account.manual && account.declared !== null
@@ -133,6 +136,14 @@ function AccountDetails({
             );
 
   const actions: AccountDrawerAction[] = [
+    {
+      id: "transactions",
+      label: t("transactions"),
+      onSelect: () => {
+        onClose();
+        router.push(`/transactions?accounts=${account.id}`);
+      },
+    },
     { id: "rename", label: t("rename"), onSelect: () => onMode("rename") },
     { id: "kind", label: t("change_kind"), onSelect: () => onMode("kind") },
     ...(account.manual
@@ -198,6 +209,7 @@ function AccountDetails({
         locale={locale}
         onClose={onClose}
       />
+      <BalanceHistory accountId={account.id} />
     </SheetBody>
   );
 }

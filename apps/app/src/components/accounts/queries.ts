@@ -7,6 +7,7 @@ import {
   type AccountsOverview,
   applyAccountPatch,
 } from "./overview-patch";
+import { syncStatus } from "@/realtime/sync-status";
 import { useTRPC } from "@/trpc/client";
 import { optimisticValueMutation } from "@/trpc/optimistic";
 
@@ -173,4 +174,28 @@ export function usePrefetchInstitutions() {
       ...trpc.institutions.search.queryOptions(institutionsInput(country, "")),
       staleTime: 60 * 60 * 1000,
     });
+}
+
+/**
+ * The refresh button: the connection's run shows at once (sync-status),
+ * then follows the realtime events; a refusal or a refresh within five
+ * minutes of the last one stops it and says so.
+ */
+export function useRefreshConnection(onRecent: () => void) {
+  const trpc = useTRPC();
+  return useMutation(
+    trpc.connections.refresh.mutationOptions({
+      onMutate: ({ connectionId }) => {
+        syncStatus.start(connectionId);
+      },
+      onSuccess: ({ queued }, { connectionId }) => {
+        if (queued) return;
+        syncStatus.stop(connectionId);
+        onRecent();
+      },
+      onError: (_error, { connectionId }) => {
+        syncStatus.stop(connectionId);
+      },
+    }),
+  );
 }

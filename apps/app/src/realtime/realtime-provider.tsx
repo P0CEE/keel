@@ -7,6 +7,7 @@ import { type ReactNode, useEffect, useState } from "react";
 import { createInvalidationBatcher } from "./batcher";
 import { clientId } from "./client-id";
 import { invalidations, invalidationsFor } from "./invalidations";
+import { syncStatus } from "./sync-status";
 import { useTRPC } from "@/trpc/client";
 
 const WINDOW_MS = 250;
@@ -40,6 +41,10 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   useSubscription(
     trpc.realtime.events.subscriptionOptions(undefined, {
       onData: ({ data }) => {
+        // Every tab follows a run, the one that pressed refresh included.
+        if (data.kind === "event" && data.event.name === "sync.progress") {
+          syncStatus.apply(data.event.payload);
+        }
         batcher.add(
           invalidationsFor(data, {
             table: invalidations,

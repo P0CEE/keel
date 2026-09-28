@@ -9,11 +9,13 @@ import { useSession } from "@/lib/auth-client";
 import { useScopedI18n } from "@/locales/client";
 import { RealtimeProvider } from "@/realtime/realtime-provider";
 import { PrivacyProvider } from "@keel/ui/finance/privacy";
+import { Toaster } from "@keel/ui/mint/toast";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const t = useScopedI18n("accounts");
+  const list = useScopedI18n("transactions");
 
   // Client-side guard: redirect once the session resolves to null (forged
   // cookie, or post-signOut). The proxy only checks cookie presence; the API
@@ -32,16 +34,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <RealtimeProvider>
       <PrivacyProvider maskLabel={t("masked")}>
-        <MemberData />
-        <AppShell
-          user={{
-            name: session?.user.name ?? session?.user.email ?? "",
-            email: session?.user.email ?? "",
-            avatarUrl: session?.user.image ?? null,
-          }}
-        >
-          {children}
-        </AppShell>
+        <Toaster dismissLabel={list("dismiss")}>
+          <MemberData />
+          <AppShell
+            user={{
+              name: session?.user.name ?? session?.user.email ?? "",
+              email: session?.user.email ?? "",
+              avatarUrl: session?.user.image ?? null,
+            }}
+          >
+            {children}
+          </AppShell>
+        </Toaster>
       </PrivacyProvider>
     </RealtimeProvider>
   );

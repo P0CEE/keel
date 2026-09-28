@@ -307,3 +307,18 @@ button.row:active::before {
   place-items: center;
   min-height: 240px;
 }
+
+/* The account sheet's balance curve, under the drawer, its ranges below. */
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+  margin-top: var(--space-s3);
+}
+
+.historyEmpty {
+  margin: var(--space-s3) 0 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}

@@ -552,7 +552,7 @@ export function AppShell({
               id: "add-transaction",
               label: t("add_transaction"),
               icon: <ActivityIcon size={24} />,
-              href: "/transactions",
+              href: "/transactions?new=1",
             },
             {
               id: "add-import",

@@ -1,0 +1,161 @@
+/* The transactions page: the heading and its action, the filters, the list. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s3);
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s2);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-bold);
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+  min-width: 0;
+}
+
+/* A row of chips scrolls sideways on a phone rather than wrap into a wall. */
+.chips {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(-1 * var(--space-s0-50));
+  padding-inline: var(--space-s0-50);
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chips > * {
+  flex: none;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-s1-50);
+  max-width: 560px;
+  padding-block: var(--space-s2);
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-semibold);
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+/* Where the next page is asked for, well before the scroll reaches it. */
+.more {
+  display: flex;
+  justify-content: center;
+  min-height: var(--space-s4);
+}
+
+/* The sheet of one transaction. */
+.sheetHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-s2);
+}
+
+.travel {
+  display: flex;
+  gap: var(--space-s0-50);
+}
+
+.sheetName {
+  margin: var(--space-s1-50) 0 0;
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.sheetAmount {
+  display: block;
+  margin-top: var(--space-s0-50);
+  font-size: var(--text-xlarge);
+  line-height: var(--leading-xlarge);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.sheetAmount[data-direction="in"] {
+  color: var(--positive);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  margin: var(--space-s2) 0 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: var(--space-s2);
+  padding-block: var(--space-s1);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.term {
+  color: var(--ink-2);
+}
+
+.value {
+  margin: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.locked {
+  margin: var(--space-s1) 0 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  padding-bottom: var(--space-s1);
+}
+
+/* A field without a floating label (the date): its label sits above it. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-50);
+}
+
+.fieldLabel {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+}

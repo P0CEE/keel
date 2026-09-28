@@ -4,10 +4,12 @@ import styles from "./accounts.module.css";
 import type { ConnectionView } from "./overview-patch";
 import {
   useReconnect,
+  useRefreshConnection,
   useRemoveConnection,
   useRestoreConnection,
 } from "./queries";
 import { useScopedI18n } from "@/locales/client";
+import { useSyncing } from "@/realtime/sync-status";
 import { formatShortDate } from "@keel/finance/dates";
 import { AccountsIcon, TrashIcon } from "@keel/ui/mint/icons";
 import {
@@ -18,6 +20,7 @@ import {
   MenuSeparator,
 } from "@keel/ui/mint/menu";
 import { MerchantLogo } from "@keel/ui/mint/merchant-logo";
+import { useToasts } from "@keel/ui/mint/toast";
 
 function expiryDay(connection: ConnectionView): string {
   return connection.consentExpiresAt.toISOString().slice(0, 10);
@@ -42,6 +45,10 @@ export function ConnectionsPanel({
   const reconnect = useReconnect();
   const remove = useRemoveConnection();
   const restore = useRestoreConnection();
+  const toasts = useToasts();
+  const refresh = useRefreshConnection(() =>
+    toasts.add({ title: status("refreshed"), type: "info" }),
+  );
 
   if (connections.length === 0) {
     return <p className={styles.empty}>{t("no_bank")}</p>;
@@ -86,16 +93,17 @@ export function ConnectionsPanel({
                 <span className={styles.name}>
                   {connection.institution.name}
                 </span>
-                <span
-                  className={styles.meta}
-                  data-tone={
-                    connection.attention === "none" ? undefined : "warning"
-                  }
+                <SyncLine
+                  connectionId={connection.id}
+                  syncing={status("refreshing", {
+                    bank: connection.institution.name,
+                  })}
+                  tone={connection.attention === "none" ? undefined : "warning"}
                 >
                   {connection.status === "removed"
                     ? line
                     : `${line} · ${count}`}
-                </span>
+                </SyncLine>
               </span>
               {connection.canManage ? (
                 <MenuRoot>
@@ -115,6 +123,15 @@ export function ConnectionsPanel({
                       </MenuItem>
                     ) : (
                       <>
+                        {connection.status === "active" ? (
+                          <MenuItem
+                            onClick={() =>
+                              refresh.mutate({ connectionId: connection.id })
+                            }
+                          >
+                            {status("refresh")}
+                          </MenuItem>
+                        ) : null}
                         <MenuItem
                           onClick={() =>
                             reconnect.mutate({ connectionId: connection.id })
@@ -150,5 +167,28 @@ export function ConnectionsPanel({
         );
       })}
     </ul>
+  );
+}
+
+/**
+ * The connection's status line; while its sync runs, the words say so
+ * (read out politely, since the member asked for it).
+ */
+function SyncLine({
+  connectionId,
+  syncing,
+  tone,
+  children,
+}: {
+  readonly connectionId: string;
+  readonly syncing: string;
+  readonly tone: "warning" | undefined;
+  readonly children: string;
+}) {
+  const running = useSyncing(connectionId);
+  return (
+    <span className={styles.meta} data-tone={tone} aria-live="polite">
+      {running ? syncing : children}
+    </span>
   );
 }

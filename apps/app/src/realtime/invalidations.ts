@@ -31,6 +31,21 @@ export const invalidations = {
     trpc.connections.offer.queryKey({ connectionId }),
   ],
   "accounts.changed": (_payload, trpc) => [trpc.accounts.overview.queryKey()],
+  // The run's own state is kept by `sync-status`; its end moves the
+  // connection's last sync.
+  "sync.progress": ({ phase }, trpc) =>
+    phase === "done" || phase === "failed"
+      ? [trpc.accounts.overview.queryKey()]
+      : [],
+  // Every cached page of every filter: a row may enter or leave any of them.
+  "transactions.changed": (_payload, trpc) => [
+    trpc.transactions.page.pathKey(),
+    trpc.transactions.get.pathKey(),
+  ],
+  "household.reconciled": ({ accountIds }, trpc) =>
+    accountIds.map((accountId) =>
+      trpc.accounts.balanceHistory.queryKey({ accountId }),
+    ),
 } satisfies InvalidationTable<AppEvents, TRPCKeys>;
 
 type TRPCKeys = TRPCOptionsProxy<AppRouter>;
