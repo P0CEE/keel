@@ -1,0 +1,238 @@
+/* mint-pocs' Dialog & sheet (src/demos/sheet/Sheet.tsx), rule for rule. The
+   dress is the Stock sheet's: the page's ground in light and bg.primary in
+   dark, a 24px radius, a lit hairline along the top edge, its deep shadow,
+   its grabber (36 x 5, muted) and its curve. Quicker than the Stock sheet,
+   with no cascade: a confirmation is opened again and again to be answered,
+   so the answer is on screen as soon as the panel is; leaving is quicker
+   than arriving. */
+
+/* ---- The scrim: it clears as the sheet is dragged down ---- */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-scrim);
+  min-height: 100dvh;
+  background: var(--scrim);
+  opacity: calc(1 - var(--drawer-swipe-progress, 0));
+  transition: opacity 250ms var(--ease-sheet);
+}
+
+.scrim:is([data-starting-style], [data-ending-style]) {
+  opacity: 0;
+}
+
+.scrim[data-ending-style] {
+  transition-duration: 150ms;
+}
+
+.scrim[data-swiping] {
+  transition-duration: 0ms;
+}
+
+/* ---- The viewport: the dialog in the middle; the sheet at the bottom edge,
+   on a phone ---- */
+.viewport {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-popup);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-s2);
+}
+
+.popup,
+.popup *,
+.popup *::before,
+.popup *::after {
+  box-sizing: border-box;
+}
+
+/* --sheet-max-height: the Sheet's maxHeight, the viewport when not given. */
+.popup {
+  --sheet-max-height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(440px, 100%);
+  max-height: min(100%, var(--sheet-max-height));
+  border-radius: var(--radius-24);
+  outline: none;
+  background: var(--sheet);
+  color: var(--ink);
+  box-shadow: var(--shadow-sheet);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    transform 250ms var(--ease-sheet),
+    opacity 250ms var(--ease-sheet);
+}
+
+/* the lit hairline, along the top edge */
+.popup::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--sheet-edge);
+}
+
+/* The dialog rises only 12px: centred, a long slide would read as the page
+   moving. */
+.popup:is([data-starting-style], [data-ending-style]) {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.popup[data-ending-style] {
+  transition-duration: 150ms;
+}
+
+.grabber {
+  display: none;
+}
+
+.content {
+  --inset: var(--space-s3);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--inset);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+}
+
+.description {
+  margin: var(--space-s1) 0 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+}
+
+/* A tall sheet: the content stops scrolling and its body does, edge to
+   edge, between the title and the actions. */
+.content:has(> .body) {
+  overflow: hidden;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-inline: calc(-1 * var(--inset));
+  padding-inline: var(--inset);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: auto;
+}
+
+* + .body {
+  margin-top: var(--space-s2);
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  gap: var(--space-s1-50);
+  margin-top: var(--space-s3);
+}
+
+.actions .action {
+  flex: 1 1 0;
+}
+
+/* ---- On a phone: the bottom sheet ---- */
+@media (max-width: 639px) {
+  .viewport {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  /* Under the sheet, 48px more of its colour (the bleed): pulled up past its
+     place, no page shows beneath it. */
+  .popup {
+    --bleed: 48px;
+    width: 100%;
+    max-height: min(
+      calc(100% - 48px),
+      calc(var(--sheet-max-height) + var(--bleed))
+    );
+    margin-bottom: calc(-1 * var(--bleed));
+    padding-bottom: var(--bleed);
+    border-radius: var(--radius-24) var(--radius-24) 0 0;
+    transform: translateY(var(--drawer-swipe-movement-y, 0px));
+    transition-duration: 400ms;
+  }
+
+  .scrim {
+    transition-duration: 400ms;
+  }
+
+  /* the sheet's slide says where it comes from and goes back */
+  .popup:is([data-starting-style], [data-ending-style]) {
+    opacity: 1;
+    transform: translateY(100%);
+  }
+
+  /* a flick leaves at once, a slow drag glides out */
+  .popup[data-ending-style],
+  .scrim[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength, 1) * 300ms);
+  }
+
+  .popup[data-swiping] {
+    transition-duration: 0ms;
+  }
+
+  .grabber {
+    display: grid;
+    flex: none;
+    place-items: center;
+    height: 20px;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  .grabber span {
+    width: 36px;
+    height: 5px;
+    border-radius: var(--radius-1000);
+    background: var(--ink-muted);
+  }
+
+  .content {
+    --inset: var(--space-s2);
+    padding: var(--space-s1) var(--inset)
+      max(var(--space-s2), env(safe-area-inset-bottom));
+  }
+
+  /* the answer on top, under the thumb; stacked, each takes the full width
+     at its own height */
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .actions .action {
+    flex: none;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* nothing slides: the dialog and the sheet fade. A dragged sheet still
+     follows the finger (the hand moves it, not an animation). */
+  .popup {
+    transition: opacity 250ms ease;
+  }
+
+  .popup:is([data-starting-style], [data-ending-style]) {
+    opacity: 0;
+    transform: none;
+  }
+}

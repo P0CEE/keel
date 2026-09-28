@@ -1,0 +1,286 @@
+/* mint-pocs' Menu (src/demos/menu/Menu.tsx), rule for rule. The geometry is
+   the Sidebar's menu, measured: default lines 40px (16 / 22, medium), their
+   20px icon 14px in and the label 12px after it, keys 14px from the right,
+   the popup 264px at least; small lines 36px (14 / 20) with 16px icons in a
+   popup of 180px at least. The dress is the Select's: frosted in light, the
+   opaque bg.primary in dark, 18px radius, the float shadow and its
+   hairline. */
+
+.layer {
+  display: contents;
+}
+
+.positioner {
+  z-index: var(--z-popup);
+}
+
+.popup,
+.popup *,
+.popup *::before,
+.popup *::after {
+  box-sizing: border-box;
+}
+
+.popup {
+  min-width: 264px;
+  max-width: min(90vw, 320px);
+  padding: var(--space-s1) 0;
+  border-radius: 18px;
+  outline: none;
+  color: var(--ink);
+  background-color: var(--popup);
+  backdrop-filter: blur(56px);
+  box-shadow: var(--shadow-float);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity var(--duration-instant) ease-out,
+    transform var(--duration-fast) var(--ease-overshoot);
+}
+
+/* It unfolds away from what opened it, on the side Base UI reports, and
+   rests on no transform, so its text is not rasterised soft. */
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  transform: perspective(800px) scale(0.96) translateY(-4px) rotateX(-4deg);
+}
+
+.popup[data-side="top"]:is([data-starting-style], [data-ending-style]) {
+  transform: perspective(800px) scale(0.96) translateY(4px) rotateX(4deg);
+}
+
+.popup:is([data-side="right"], [data-side="inline-end"]):is(
+    [data-starting-style],
+    [data-ending-style]
+  ) {
+  transform: perspective(800px) scale(0.96) translateX(-4px) rotateY(4deg);
+}
+
+.popup:is([data-side="left"], [data-side="inline-start"]):is(
+    [data-starting-style],
+    [data-ending-style]
+  ) {
+  transform: perspective(800px) scale(0.96) translateX(4px) rotateY(-4deg);
+}
+
+.popup[data-ending-style] {
+  transition:
+    opacity var(--duration-instant) ease-in,
+    transform var(--duration-instant) ease-in;
+}
+
+/* ---- Lines: 6px inside the popup, 12px radius, concentric with it ---- */
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  margin: 0 var(--space-s0-75);
+  padding: 9px 14px;
+  border-radius: var(--radius-12);
+  outline: none;
+  color: var(--ink);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  user-select: none;
+}
+
+.popup[data-size="small"] {
+  min-width: 180px;
+}
+
+.popup[data-size="small"] .item {
+  padding: var(--space-s1) 14px;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+/* One highlight, moved by Base UI with the pointer and the keys alike, with
+   no transition and no :hover paint on top; it is the focus too, so the
+   lines draw no ring. */
+.item[data-highlighted],
+.item[data-popup-open] {
+  background-color: var(--highlight);
+}
+
+.item:focus-visible {
+  outline: none;
+}
+
+.item[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.item[data-tone="negative"],
+.item[data-tone="negative"] .icon {
+  color: var(--negative);
+}
+
+/* Icons in ink-2 so the labels lead. */
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--ink-2);
+}
+
+.icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.popup[data-size="small"] .icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.glyph {
+  display: block;
+  flex: none;
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The set's key badge: 20px, bold 12, on the pill fill. */
+.kbd {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: var(--pill);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: var(--text-xsmall);
+  line-height: 1;
+  font-weight: var(--weight-bold);
+}
+
+.check {
+  display: grid;
+  color: var(--ink);
+}
+
+.chevron {
+  display: block;
+  flex: none;
+  color: var(--ink-3);
+}
+
+/* The Select's ring-and-dot. */
+.radio {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--line-heavy);
+  transition: border-color var(--duration-fast) ease;
+}
+
+.radio[data-checked] {
+  border-color: var(--ink-fill);
+  background-color: var(--ink-fill);
+}
+
+.radioDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--on-ink);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-pop);
+}
+
+.radio[data-checked] .radioDot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.separator {
+  height: 1px;
+  margin: var(--space-s1) var(--space-s2-50);
+  border: 0;
+  background: var(--line);
+}
+
+.popup[data-size="small"] .separator {
+  margin-block: var(--space-s0-50);
+}
+
+/* ---- The ··· button: Mint's ghost icon button, 32px ---- */
+.more {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-8);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .more:hover {
+    background: var(--pill);
+    color: var(--ink);
+  }
+}
+
+.more[data-popup-open] {
+  background: var(--pill);
+  color: var(--ink);
+}
+
+.more:active {
+  transform: scale(0.94);
+}
+
+.more:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* no scale or tilt, only the fade */
+  .popup {
+    transition: opacity var(--duration-instant) ease-out;
+  }
+  /* as specific as the per-side rules above, so it wins over them */
+  .popup[data-side]:is([data-starting-style], [data-ending-style]) {
+    transform: none;
+  }
+  .radioDot {
+    transition: opacity var(--duration-fast) ease;
+    transform: none;
+  }
+  .more:active {
+    transform: none;
+  }
+}

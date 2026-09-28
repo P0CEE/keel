@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { type KeyboardEvent, useRef, useState } from "react";
 
 import { fadeVariants, spring, swapVariants } from "../../mint/motion";
+import { PrivacyMask, usePrivacy } from "../privacy/privacy";
 import styles from "./cash-flow.module.css";
 import { barHeights, type FlowMonth, netChange, nextFocus } from "./scale";
 import { formatMonth } from "@keel/finance/dates";
@@ -32,7 +33,9 @@ export type CashFlowProps = {
  * Money in and out, month by month, as a pair of bars under the focused
  * month's net change. Hover a month, or walk the chart with the arrows: its
  * pair turns solid and the figures blur across to it. At rest, the last
- * (current) month.
+ * (current) month. Privacy mode masks the figures, on screen and in the
+ * months' accessible names; the bars keep their heights (proportions, not
+ * amounts).
  */
 export function CashFlow({
   months,
@@ -42,17 +45,19 @@ export function CashFlow({
   focus: focusProp,
 }: CashFlowProps) {
   const [hovered, setHovered] = useState<number | null>(null);
+  const { hidden, maskLabel } = usePrivacy();
   const focus = focusProp ?? hovered ?? months.length - 1;
   const month = months[focus];
   if (!month) return null;
   const money = (minor: number, sign: "always" | "never") =>
-    formatMoney(minor, currency, { locale, sign });
+    hidden ? maskLabel : formatMoney(minor, currency, { locale, sign });
   return (
     <section className={styles.root} aria-label={labels.name}>
       <div className={styles.head}>
         <span className={styles.title}>{labels.title}</span>
         <Swap
           value={money(netChange(month), "always")}
+          masked={hidden}
           className={styles.net}
         />
       </div>
@@ -70,13 +75,13 @@ export function CashFlow({
         <div data-kind="in">
           <dt>{labels.moneyIn}</dt>
           <dd>
-            <Swap value={money(month.inMinor, "never")} />
+            <Swap value={money(month.inMinor, "never")} masked={hidden} />
           </dd>
         </div>
         <div data-kind="out">
           <dt>{labels.moneyOut}</dt>
           <dd>
-            <Swap value={money(month.outMinor, "never")} />
+            <Swap value={money(month.outMinor, "never")} masked={hidden} />
           </dd>
         </div>
       </dl>
@@ -162,11 +167,14 @@ function Bars({ months, focus, onFocus, describe, label, name }: BarsProps) {
 }
 
 // A figure that blurs across to its new value, both kept in one grid cell.
+// Masked, the dots take the cell (the value is then the mask's label).
 function Swap({
   value,
+  masked,
   className,
 }: {
   readonly value: string;
+  readonly masked: boolean;
   readonly className?: string;
 }) {
   const reduce = useReducedMotion() ?? false;
@@ -176,8 +184,11 @@ function Swap({
       aria-live="polite"
     >
       <AnimatePresence initial={false}>
-        <motion.span key={value} {...(reduce ? fadeVariants : swapVariants)}>
-          {value}
+        <motion.span
+          key={masked ? "masked" : value}
+          {...(reduce ? fadeVariants : swapVariants)}
+        >
+          {masked ? <PrivacyMask label={value} /> : value}
         </motion.span>
       </AnimatePresence>
     </span>

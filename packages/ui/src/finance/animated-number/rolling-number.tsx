@@ -94,6 +94,8 @@ export type RollingNumberProps = {
  * down when it falls, 35ms apart from the left; separators cross-fade. The
  * plain text is rendered once for selection and screen readers; the
  * animated copy is hidden from them. Reduced motion renders the text alone.
+ * It knows nothing of money: wrap it in <Privacy> when it shows an amount
+ * (AnimatedAmount does).
  */
 export function RollingNumber({ text, separators }: RollingNumberProps) {
   const reduce = useReducedMotion() ?? false;

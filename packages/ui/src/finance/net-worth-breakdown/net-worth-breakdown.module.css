@@ -1,0 +1,265 @@
+/* mint-pocs' Net worth breakdown (src/demos/net-worth-breakdown/
+   NetWorthBreakdown.tsx), rule for rule: its values measured on the app's
+   capture, its palette read from the roles in tokens.css. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+/* ---- Avatars: the Avatar demo's crescent stack ---- */
+.avatars {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-s1);
+}
+
+.avatarItem {
+  display: inline-flex;
+  margin-left: -12px;
+  mask: radial-gradient(circle at 48px 50%, transparent 22.5px, black 23px);
+}
+
+.avatarItem:first-child {
+  margin-left: 0;
+}
+
+.avatarItem:last-child {
+  mask: none;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--part-color) 16%, var(--page));
+  color: var(--part-color);
+  font-size: var(--text-default);
+  line-height: 1;
+  font-weight: var(--weight-bold);
+}
+
+/* ---- Tabs: the Tabs demo's ---- */
+.tabList {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.tabList::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+}
+
+.tab {
+  flex: 1 1 0;
+  min-width: max-content;
+  white-space: nowrap;
+  padding: var(--space-s1-50) var(--space-s2);
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--ink-3);
+  transition: color var(--duration-fast) ease;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+
+@media (hover: hover) {
+  .tab:not([data-active]):hover {
+    color: var(--ink-2);
+  }
+}
+
+.tab[data-active] {
+  color: var(--ink);
+}
+
+.tab:focus-visible {
+  outline-offset: -2px;
+}
+
+.indicator {
+  position: absolute;
+  bottom: 0;
+  left: var(--active-tab-left);
+  width: var(--active-tab-width);
+  height: 2px;
+  background: var(--ink);
+  transition:
+    left var(--duration-moderate) ease,
+    width var(--duration-moderate) ease;
+}
+
+/* the card sits 20px under the tabs */
+.cardSlot {
+  margin-top: var(--space-s2-50);
+}
+
+/* ---- Card: the set's card role, edged by its border, the raised shadow ---- */
+.card {
+  box-sizing: border-box;
+  padding: var(--space-s2);
+  border-radius: var(--radius-16);
+  background: var(--card-bg);
+  box-shadow:
+    inset 0 0 0 1px var(--card-edge),
+    var(--shadow-raised);
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: var(--text-xxsmall);
+  line-height: var(--leading-xxsmall);
+  font-weight: var(--weight-medium);
+}
+
+.bar {
+  display: flex;
+  gap: 2px;
+  height: 64px;
+  margin-top: var(--space-s2);
+  border-radius: var(--radius-8);
+  overflow: hidden;
+}
+
+/* each part lit from the top by the set's gradient */
+.segment {
+  flex-basis: 0;
+  min-width: 0;
+  background: linear-gradient(
+    color-mix(in srgb, var(--part-color), white 18%),
+    var(--part-color)
+  );
+  cursor: default;
+}
+
+/* ---- List: the content on the column, its tint 12px out on either side ---- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: var(--space-s1-50) calc(-1 * var(--space-s1-50)) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-s0-50) var(--space-s1-50);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-instant) ease,
+    opacity var(--duration-moderate) var(--ease-standard);
+}
+
+.row:active {
+  transform: scale(0.98);
+}
+
+.row[data-state="active"] {
+  background: var(--hover);
+}
+
+.row[data-state="dim"] {
+  opacity: 0.4;
+}
+
+.row:focus-visible {
+  outline-offset: -2px;
+}
+
+.dot {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-right: var(--space-s1-50);
+  border-radius: 50%;
+  background: linear-gradient(
+    color-mix(in srgb, var(--part-color), white 18%),
+    var(--part-color)
+  );
+}
+
+/* a value swapped in place: the leaving and the arriving one share one cell */
+.swap {
+  display: grid;
+  min-width: 0;
+}
+
+.swap > * {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.name {
+  flex: 1;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+}
+
+.amount {
+  flex: none;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.amount > * {
+  justify-self: end;
+}
+
+.share {
+  flex: none;
+  margin: 0 var(--space-s1);
+  color: var(--ink-3);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.row[data-state="active"] .share {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    transition: none;
+  }
+  .row:active {
+    transform: none;
+  }
+}

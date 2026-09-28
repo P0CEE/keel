@@ -1,0 +1,349 @@
+/* mint-pocs' Success checkmark (src/demos/spinning-checkmark/
+   SpinningCheckmark.tsx), rule for rule. stroke-dasharray / dashoffset draw
+   the ring (circumference 301.6 for r=48) and the check (path length 48);
+   `perspective` on the root and `preserve-3d` on the wrap give the pop its
+   tilt. The curves are the source's own (its overshoot, 0.34 1.56 0.64 1,
+   is not Mint's pop): the drawing is kept whole. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  font-family: var(--font-sans);
+  perspective: 800px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ring {
+  display: block;
+  width: 120px;
+  height: 120px;
+  transform: rotate(-90deg);
+}
+
+.track {
+  fill: none;
+  stroke: var(--track);
+  stroke-width: 3.5;
+}
+
+.spinner {
+  fill: none;
+  stroke: var(--positive);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 240;
+  stroke-dashoffset: 180;
+  transform-origin: center;
+  animation: spinner 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.complete {
+  fill: none;
+  stroke: var(--positive);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 301.6;
+  stroke-dashoffset: 301.6;
+  opacity: 0;
+}
+
+.fill {
+  fill: var(--positive);
+  opacity: 0;
+  transform-origin: center;
+  transform: scale(0);
+}
+
+.check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0;
+}
+
+.checkPath {
+  fill: none;
+  stroke: var(--positive);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+}
+
+/* ink-3 while it works (the source's fg.muted was 2.2:1), full ink once
+   done; 16/22 medium, Mint's default size (the source set it at 17px) */
+.status {
+  min-height: 24px;
+  color: var(--ink-3);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.3px;
+  text-align: center;
+  filter: blur(0px);
+  opacity: 1;
+  transition: all 0.4s ease;
+}
+
+.status[data-phase="fading"] {
+  filter: blur(8px);
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+}
+
+.status[data-phase="done"] {
+  color: var(--ink);
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.root[data-completed] .spinner {
+  opacity: 0;
+}
+
+.root[data-completed] .wrap {
+  animation: pop3d 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.root[data-completed] .fill {
+  animation: fillIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s forwards;
+}
+
+.root[data-completed] .complete {
+  opacity: 1;
+  animation: drawCircle 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.root[data-completed] .checkPath {
+  animation: drawCheck 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.38s forwards;
+}
+
+.root[data-completed] .check {
+  animation: checkPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.36s both;
+}
+
+.root[data-completed] .glow {
+  animation: glowIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+}
+
+@keyframes drawCircle {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawCheck {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fillIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  60% {
+    opacity: 0.1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 0.07;
+    transform: scale(1);
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pop3d {
+  0% {
+    transform: scale(1) rotateX(0deg) rotateY(0deg);
+  }
+  22% {
+    transform: scale(1.15) rotateX(-8deg) rotateY(5deg);
+  }
+  48% {
+    transform: scale(0.95) rotateX(3deg) rotateY(-2deg);
+  }
+  72% {
+    transform: scale(1.03) rotateX(-1deg) rotateY(0.5deg);
+  }
+  100% {
+    transform: scale(1) rotateX(0deg) rotateY(0deg);
+  }
+}
+
+.glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--positive);
+  filter: blur(24px);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.5);
+  pointer-events: none;
+}
+
+@keyframes glowIn {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0.12;
+  }
+}
+
+.ripple,
+.ripple2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: none;
+}
+
+.ripple {
+  border: 2px solid color-mix(in srgb, var(--positive) 35%, transparent);
+}
+
+.ripple2 {
+  border: 1.5px solid color-mix(in srgb, var(--positive) 20%, transparent);
+}
+
+.root[data-completed] .ripple {
+  animation: rippleOut 1s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+}
+
+.root[data-completed] .ripple2 {
+  animation: rippleOut2 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+}
+
+@keyframes rippleOut {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+    filter: blur(0px);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+@keyframes rippleOut2 {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.35;
+    filter: blur(0px);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.4);
+    opacity: 0;
+    filter: blur(3px);
+  }
+}
+
+/* Reduced motion drops what moves and keeps the fades; the arc keeps
+   turning (it is progress). The fade keyframes hold each part where the
+   full ones end, without the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .root[data-completed] .wrap,
+  .root[data-completed] .ripple,
+  .root[data-completed] .ripple2 {
+    animation: none;
+  }
+  .root[data-completed] .fill {
+    animation-name: fadeFill;
+  }
+  .root[data-completed] .check {
+    animation-name: fadeCheck;
+  }
+  .root[data-completed] .glow {
+    animation-name: fadeGlow;
+  }
+  .status {
+    transition-property: opacity, color;
+  }
+  .status[data-phase="fading"] {
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes fadeFill {
+  from {
+    opacity: 0;
+    transform: none;
+  }
+  to {
+    opacity: 0.07;
+    transform: none;
+  }
+}
+
+@keyframes fadeCheck {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes fadeGlow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.6);
+  }
+  to {
+    opacity: 0.12;
+    transform: translate(-50%, -50%) scale(1.6);
+  }
+}

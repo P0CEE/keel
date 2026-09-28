@@ -1,0 +1,535 @@
+/* mint-pocs' Account details drawer (src/demos/account-details-drawer/
+   AccountDetailsDrawer.tsx), rule for rule: its values, its palette read from
+   the roles in tokens.css. The card is a material, drawn the same whatever
+   the appearance: a surface in the kind's categorical colour lit from the
+   top, white print, the frost and the glare. */
+
+.root {
+  box-sizing: border-box;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+.root *,
+.root *::before,
+.root *::after {
+  box-sizing: border-box;
+}
+
+/* The demo's own sheet: a gradient-filled box with 1px padding is its
+   gradient border; its shadow is the set's float. */
+.root[data-framed] {
+  width: 421px;
+  max-width: 100%;
+  padding: 1px;
+  border-radius: 32px;
+  background: var(--rim-sheet);
+  box-shadow: var(--shadow-float);
+}
+
+.root[data-framed] .sheet {
+  border-radius: 31px;
+  background: var(--sheet);
+}
+
+.sheet {
+  padding: 24px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Header ---- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* the two labels and the sizers share one grid cell */
+.toggle {
+  display: grid;
+  justify-items: start;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+  color: var(--ink);
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: var(--radius-4);
+  cursor: pointer;
+}
+
+.toggle > * {
+  grid-area: 1 / 1;
+}
+
+.toggleSizer {
+  visibility: hidden;
+}
+
+.lastFour {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-regular);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* the set's 32px ghost icon button */
+.close {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-8);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+}
+
+@media (hover: hover) {
+  .close:hover {
+    background: var(--hover);
+  }
+}
+
+.close:active {
+  transform: scale(0.94);
+  background: var(--pill);
+}
+
+/* ---- The card ---- */
+.cardStage {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.card {
+  perspective: 1200px;
+  cursor: pointer;
+}
+
+.cardTilt {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cardFlip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  box-shadow: var(--shadow-object);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+/* Reduced motion: the faces stack flat and cross-fade. */
+.cardFlip[data-reduced] .back {
+  transform: none;
+}
+
+/* The surface: the kind's colour lit from the top, with the set's grain. */
+.paint {
+  position: absolute;
+  inset: 0;
+  background:
+    var(--grain),
+    linear-gradient(
+      color-mix(in srgb, var(--kind-color), white 18%),
+      var(--kind-color)
+    );
+}
+
+/* The ice over an account hidden from the totals, revealed through the
+   frost mask the card computes. */
+.frost {
+  position: absolute;
+  inset: 0;
+  background: var(--grain), var(--frost);
+  pointer-events: none;
+}
+
+.glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* The print is laid out at the open size (371 x 238) and scaled down with
+   the card from its bottom-left corner. */
+.print {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 371px;
+  height: 238px;
+  padding: 20px 22px;
+  transform-origin: bottom left;
+  color: var(--on-accent);
+  filter: blur(0px);
+  transition: filter 0.9s var(--ease-sheet);
+}
+
+.print[data-frozen] {
+  filter: blur(0.5px);
+  transition: filter 1.8s var(--ease-sheet);
+}
+
+.printTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.institution {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.printTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+}
+
+.printRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.printHolder {
+  min-width: 0;
+}
+
+.printMeta {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* printed on the card: white whatever the page */
+.printLabel {
+  margin-bottom: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-xxsmall);
+  line-height: var(--leading-xxsmall);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--on-accent) 72%, transparent);
+}
+
+.printBalance {
+  display: block;
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.printValue,
+.printNumber {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.printNumber {
+  display: block;
+  white-space: normal;
+}
+
+/* ---- The settings, opening under the card ---- */
+.expand {
+  position: relative;
+  z-index: 1;
+  display: grid;
+}
+
+.expandInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.settings {
+  padding: 4px 24px;
+  border: 1px solid var(--line-heavy);
+  border-radius: 20px;
+  background: var(--field);
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.action {
+  width: 100%;
+  border: none;
+  background: none;
+  font-family: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.action[data-tone="negative"] {
+  color: var(--negative);
+}
+
+.action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (hover: hover) {
+  .action:not(:disabled):hover {
+    opacity: 0.7;
+  }
+}
+
+.actionIcon {
+  display: flex;
+  flex: none;
+}
+
+.settingLabel {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-regular);
+}
+
+.rule {
+  border-top: 1px solid var(--line-heavy);
+}
+
+.note {
+  margin: 12px 8px 0;
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-regular);
+  color: var(--ink-3);
+  text-align: center;
+}
+
+/* ---- Bank details ---- */
+.sectionGap {
+  margin-top: 28px;
+}
+
+.sectionTitle {
+  margin: 0 0 12px;
+  padding: 0 24px;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  color: var(--ink-3);
+}
+
+.panel {
+  padding: 3px 23px;
+  border: 1px solid var(--card-edge);
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow-raised);
+}
+
+/* A value too long for the line (an IBAN in a narrow sheet) drops under
+   its label whole, still at the end, rather than breaking mid-number. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 16px 0;
+}
+
+.row[data-divider] {
+  border-bottom: 1px solid var(--line-heavy);
+}
+
+.rowValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.label {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-regular);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.value {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.value[data-tone="warning"] {
+  color: var(--warning);
+}
+
+.labelWithButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---- The rolling IBAN: groups of four, each character and its dot in one
+   grid cell ---- */
+.iban {
+  display: inline-block;
+}
+
+.groups {
+  display: inline-flex;
+  column-gap: 0.3em;
+}
+
+/* on the card, a long IBAN wraps between its groups */
+.printNumber .groups {
+  flex-wrap: wrap;
+}
+
+.group {
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.char {
+  display: inline-grid;
+  place-items: center;
+  min-width: 0.57em;
+}
+
+.char > * {
+  grid-area: 1 / 1;
+}
+
+/* The set's 32px ghost icon button around a 16px glyph; the negative margin
+   leaves a 20px footprint, so the rows keep their height. */
+.iconButton {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-8);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+}
+
+.iconButton > * {
+  grid-area: 1 / 1;
+  display: flex;
+}
+
+.eye {
+  color: var(--ink-3);
+}
+
+@media (hover: hover) {
+  .iconButton:hover {
+    background: var(--hover);
+  }
+}
+
+.iconButton:active {
+  transform: scale(0.94);
+  background: var(--pill);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconButton,
+  .close {
+    transition: none;
+  }
+  .iconButton:active,
+  .close:active {
+    transform: none;
+  }
+}

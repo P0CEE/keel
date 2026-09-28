@@ -57,6 +57,10 @@
     "./finance/category-colors": "./src/finance/category-tag/category-colors.ts",
     "./finance/transaction-list": "./src/finance/transaction-list/transaction-list.tsx",
     "./finance/cash-flow": "./src/finance/cash-flow/cash-flow.tsx",
+    "./finance/privacy": "./src/finance/privacy/privacy.tsx",
+    "./finance/privacy-balance": "./src/finance/privacy-balance/privacy-balance.tsx",
+    "./finance/net-worth-breakdown": "./src/finance/net-worth-breakdown/net-worth-breakdown.tsx",
+    "./finance/account-drawer": "./src/finance/account-drawer/account-drawer.tsx",
     "./mint/quick-search": "./src/mint/quick-search/quick-search.tsx",
     "./mint/button": "./src/mint/button/button.tsx",
     "./mint/text-field": "./src/mint/text-field/text-field.tsx",
@@ -64,7 +68,12 @@
     "./mint/switch": "./src/mint/switch/switch.tsx",
     "./mint/radio": "./src/mint/radio/radio.tsx",
     "./mint/segmented-control": "./src/mint/segmented-control/segmented-control.tsx",
-    "./mint/card": "./src/mint/card/card.tsx"
+    "./mint/card": "./src/mint/card/card.tsx",
+    "./mint/sheet": "./src/mint/sheet/sheet.tsx",
+    "./mint/menu": "./src/mint/menu/menu.tsx",
+    "./mint/callout": "./src/mint/callout/callout.tsx",
+    "./mint/amount-input": "./src/mint/amount-input/amount-input.tsx",
+    "./mint/spinning-checkmark": "./src/mint/spinning-checkmark/spinning-checkmark.tsx"
   },
   "scripts": {
     "lint": "oxlint .",

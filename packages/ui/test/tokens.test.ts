@@ -11,9 +11,20 @@ const SRC = join(import.meta.dir, "../src");
 const APP = join(import.meta.dir, "../../../apps/app/src");
 const TOKENS = join(SRC, "mint/tokens.css");
 
-// Provided from outside the stylesheet: next/font, and Base UI's positioners
-// (the popup's origin, and the trigger's width a select's list lines up with).
-const EXTERNAL = new Set(["font-app", "transform-origin", "anchor-width"]);
+// Provided from outside the stylesheet: next/font, Base UI's positioners
+// (the popup's origin, and the trigger's width a select's list lines up
+// with), and Base UI's drawer swipe (how far, how far along, how hard).
+const EXTERNAL = new Set([
+  "font-app",
+  "transform-origin",
+  "anchor-width",
+  "drawer-swipe-movement-y",
+  "drawer-swipe-progress",
+  "drawer-swipe-strength",
+  // Base UI's tabs: the active tab's place, which the indicator slides to
+  "active-tab-left",
+  "active-tab-width",
+]);
 
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {

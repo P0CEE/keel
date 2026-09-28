@@ -1,0 +1,30 @@
+/* mint-pocs' Privacy (src/demos/privacy/PrivacyDemo.tsx), rule for rule: the
+   masked figure's dots, painted with the veil roles. */
+
+.masked {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Light: dark dots with a white halo. Dark: light dots, no halo. */
+.dots {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.halo {
+  fill: var(--veil-halo);
+}
+
+.top {
+  stop-color: var(--veil-top);
+}
+
+.bottom {
+  stop-color: var(--veil-bottom);
+}
+
+.edge {
+  stroke: var(--veil-edge);
+  stroke-width: 1;
+}

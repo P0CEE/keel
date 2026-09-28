@@ -1,0 +1,174 @@
+/* mint-pocs' Amount input (src/demos/amount-input/AmountInputDemo.tsx), rule
+   for rule: its values, its palette read from the roles in tokens.css. */
+
+.field,
+.field *,
+.field *::before,
+.field *::after {
+  box-sizing: border-box;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The 52px text-field box, the same surface Mint's select field wears. */
+.surface {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1);
+  width: 100%;
+  height: 52px;
+  padding: 0 var(--space-s1-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-12);
+  outline: none;
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+  cursor: text;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+}
+
+/* Focus is a 2px full-ink stroke: the inset shadow doubles the 1px border
+   without shifting layout. Refused, the stroke is negative, focused or not. */
+.surface:has(.input:focus) {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.surface[data-invalid],
+.surface[data-invalid]:has(.input:focus) {
+  border-color: var(--line-negative);
+  box-shadow: inset 0 0 0 1px var(--line-negative);
+}
+
+@media (hover: hover) {
+  .surface:hover:not(:has(.input:focus), [data-disabled], [data-invalid]) {
+    border-color: var(--line-hover);
+  }
+}
+
+.surface[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.surface[data-disabled] .input {
+  cursor: not-allowed;
+}
+
+/* Resting, the label is placeholder-like (tertiary); pinned small it is the
+   field's real label, so it steps up to secondary for contrast at 12px. It
+   scales the 14px face (12 / 14), so the glyphs travel rather than swap. */
+.label {
+  position: absolute;
+  left: var(--space-s1-50);
+  top: 50%;
+  transform: translateY(-50%);
+  transform-origin: top left;
+  font-size: var(--text-small);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-bold);
+  color: var(--ink-3);
+  pointer-events: none;
+  transition:
+    transform 300ms cubic-bezier(0.65, 0, 0.35, 1),
+    top 300ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.label[data-floated] {
+  top: var(--space-s1);
+  transform: scale3d(calc(12 / 14), calc(12 / 14), 1);
+  color: var(--ink-2);
+}
+
+/* Floated, the row is pushed down so the value clears the pinned label; the
+   padding lives here rather than on the surface so the label keeps its own
+   box. */
+.row {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 2px;
+  height: 100%;
+  padding: 0;
+}
+
+.row[data-floated] {
+  padding: var(--space-s3) 0 var(--space-s1);
+}
+
+/* The currency: regular and tertiary, the typed value medium. */
+.affix {
+  flex-shrink: 0;
+  font-size: var(--text-small);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  caret-color: var(--ink);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--weight-medium);
+  line-height: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+  font-weight: var(--weight-regular);
+}
+
+/* Under 16px, iOS zooms into the field it focuses (the text field's rule). */
+@media (any-pointer: coarse) {
+  .input,
+  .affix {
+    font-size: var(--text-default);
+  }
+}
+
+.message:empty {
+  margin-top: calc(-1 * var(--space-s1));
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding-left: var(--space-s1-50);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-2);
+}
+
+[data-invalid] + .message .note {
+  color: var(--negative);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .label {
+    transition: none;
+  }
+}

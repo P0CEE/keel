@@ -1,0 +1,217 @@
+/* mint-pocs' Privacy mode (src/demos/privacy-mode/PrivacyMode.tsx), rule for
+   rule: its values, its palette read from the roles in tokens.css (the glass
+   material of the buttons demo's light tint: --glass and its rim, halo and
+   shadow). */
+
+.root {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px 0;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+.root[data-compact] {
+  padding: 12px 0;
+}
+
+.root[data-stretch] {
+  min-width: min(560px, 100%);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.balance {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-xlarge);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-xlarge);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.change {
+  margin: 8px 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-medium);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-medium);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.change[data-direction="down"] {
+  color: var(--negative);
+}
+
+.change[data-direction="up"] {
+  color: var(--positive);
+}
+
+.root[data-compact] .balance {
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  letter-spacing: -0.02em;
+}
+
+.root[data-compact] .change {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.amount {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.cell {
+  position: relative;
+  display: inline-block;
+  width: 0.92ch;
+  text-align: center;
+  line-height: 1;
+}
+
+.glyph {
+  display: inline-block;
+}
+
+.bead {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dot {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.wash {
+  fill: var(--highlight);
+}
+
+.shadeTop {
+  stop-color: var(--highlight);
+}
+
+.shadeBottom {
+  stop-color: transparent;
+}
+
+.halo {
+  fill: var(--glass-halo);
+}
+
+.ring {
+  stroke: var(--line-hover);
+}
+
+/* The ink fades to muted on the digits' wave (each character sets its
+   transition-delay). */
+.punct {
+  display: inline-block;
+  white-space: pre;
+  color: var(--ink);
+  transition: color 420ms ease;
+}
+
+.punct[data-hidden] {
+  color: var(--ink-muted);
+}
+
+/* ---- The glass eye ---- */
+.toggleAnchor {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  margin-left: 16px;
+  transform: translateY(-50%);
+}
+
+.togglePop {
+  display: flex;
+}
+
+.toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 200px;
+  background: var(--glass);
+  box-shadow: var(--shadow-glass);
+  color: var(--ink);
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+}
+
+@media (hover: hover) {
+  .toggle:hover {
+    background: var(--glass-hover);
+  }
+}
+
+.toggle:active {
+  transform: scale(0.94);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* the 1px gradient border: an overlay masked to its edge (border-image
+   cannot follow a border-radius) */
+.toggleEdge {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--rim-glass);
+  mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* One grid cell: the leaving eye and the arriving one overlap in place. */
+.icon {
+  display: grid;
+  width: 16px;
+  height: 16px;
+}
+
+.iconSwap {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle:active {
+    transform: none;
+  }
+}

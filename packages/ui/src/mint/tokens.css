@@ -25,12 +25,21 @@
   --leading-xxlarge: 48px;
   --text-xlarge: 32px;
   --leading-xlarge: 38px;
+  /* a hero balance in a tight space, the account card's balance */
+  --text-large: 25px;
+  --leading-large: 30px;
+  /* a dialog's title (the Sheet's) */
+  --text-medium: 18px;
+  --leading-medium: 28px;
   --text-default: 16px;
   --leading-default: 22px;
   --text-small: 14px;
   --leading-small: 20px;
   --text-xsmall: 12px;
   --leading-xsmall: 16px;
+  /* an eyebrow over a card, the account card's printed labels */
+  --text-xxsmall: 10.5px;
+  --leading-xxsmall: 14px;
   --weight-regular: 400;
   --weight-medium: 500;
   /* Mint's semibold, for balances: the face ships 400, 500 and 700 only, so
@@ -89,6 +98,9 @@
   /* ---- Grounds and fills ---- */
   --page: light-dark(#f2f2f2, #0d0d0d);
   --card-bg: light-dark(#f9f9f9, #1c1c1c);
+  /* the card role's edge (component.card.border.primary): a white hairline
+     in light, a faint one in dark (the breakdown card, the drawer's panel) */
+  --card-edge: light-dark(#ffffff, #ffffff24);
   /* a control resting on the ground: the rail's dock and pills, the avatar */
   --dock-fill: light-dark(#ffffff, #ffffff14);
   --dock-edge: light-dark(transparent, #ffffff24);
@@ -96,6 +108,17 @@
   --bar: light-dark(#ffffff, #272727);
   --popup: light-dark(rgba(250, 250, 250, 0.82), #181716);
   --scrim: light-dark(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.5));
+  /* the Stock sheet's surface, the dialog and bottom sheet (the Sheet): the
+     page's ground in light, bg.primary in dark */
+  --sheet: light-dark(#f2f2f2, #181716);
+  /* its gradient rim, when a drawer brings its own sheet (the Account
+     drawer framed): white in light, a faint white in dark */
+  --rim-sheet: linear-gradient(
+    270deg,
+    light-dark(#ffffff, rgba(255, 255, 255, 0.1)) 0%,
+    transparent 24.61%,
+    light-dark(#ffffff, rgba(255, 255, 255, 0.1)) 100%
+  );
   /* the search palette over the page: frosted in light, a raised grey in dark,
      so its field can sit a step deeper; the page behind only dims lightly */
   --palette: light-dark(rgba(250, 250, 250, 0.82), #272727);
@@ -140,6 +163,8 @@
   --highlight: light-dark(#0000000d, #ffffff1a);
   --hover: light-dark(#0000000d, #ffffff14);
   --press: light-dark(#0000000a, #ffffff0a);
+  /* the faint track a progress ring turns on (the Spinning checkmark's) */
+  --track: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.08));
   --pill: light-dark(#00000014, #ffffff1a);
   --current: light-dark(#00000014, #ffffff14);
   /* a skeleton's fill while its content loads (bg.secondary): it inverts,
@@ -173,12 +198,20 @@
   /* accent.positive.strong is 3.3:1 on the page; this green is 4.6:1 */
   --positive: light-dark(#357941, #6dc382);
   --positive-soft: light-dark(#4096521a, #6dc38233);
+  /* the positive ink on its soft tint (the Callout's, the Tag's accent):
+     dataviz green 08, since --positive is under 4.5:1 on the tint */
+  --on-positive-soft: light-dark(#2a5e32, #8dd19f);
   /* a declined transaction's status: Mint's snackbar negative ink */
   --negative: light-dark(#c02416, #f27868);
+  /* a negative message's tint (accent.negative.soft, the Callout's) */
+  --negative-soft: light-dark(#c0241614, #ed4f3c33);
   --info: light-dark(#305faa, #9cb7ed);
   --info-soft: light-dark(#305faa26, #a9bce533);
   --warning: light-dark(#7e6812, #d4b316);
   --warning-soft: light-dark(#dac96733, #eece2d33);
+  /* the warning ink on its soft tint (the Callout's): dataviz yellow 09 in
+     light, where --warning is 4.47:1 on the tint; warning.strong in dark */
+  --on-warning-soft: light-dark(#5c4b0f, #d4b316);
   /* Mint's accent.highlight (a violet) and dataviz green 06 on the marketing
      grass: the Nav drawer's accent and grass row tones */
   --accent-strong: light-dark(#564997, #927ac7);
@@ -201,6 +234,42 @@
   --category-green: #409652;
   --category-green-deep: light-dark(#357941, #6dc382);
   --category-green-light: light-dark(#4db565, #409652);
+
+  /* ---- Privacy: the masked figure's dots (the veil) and the privacy
+     balance's glass eye ---- */
+  /* light: dark dots on a white halo; dark: light dots, no halo */
+  --veil-halo: light-dark(rgba(255, 255, 255, 0.5), transparent);
+  --veil-top: light-dark(rgba(0, 0, 0, 0.13), rgba(255, 255, 255, 0.05));
+  --veil-bottom: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.18));
+  --veil-edge: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.15));
+  /* the glass material (the buttons demo's light tint): a frosted white disc,
+     thinner under the pointer, its gradient rim and soft shadow, and the
+     halo it leaves under a privacy bead */
+  --glass: light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08));
+  --glass-hover: light-dark(
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.14)
+  );
+  --glass-halo: light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
+  --rim-glass: linear-gradient(
+    270deg,
+    light-dark(#ffffff, rgba(255, 255, 255, 0.45)) 0%,
+    light-dark(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.08)) 24.61%,
+    light-dark(#ffffff, rgba(255, 255, 255, 0.25)) 100%
+  );
+  --shadow-glass: 0 9px 32px light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.2));
+
+  /* ---- The account card: a material, drawn the same in both appearances
+     ---- */
+  /* the light catching it as it tilts */
+  --glare: rgba(255, 255, 255, 0.1);
+  /* the ice over an account hidden from the totals: a cold slate, deep
+     enough for the white print to stay legible under it */
+  --frost: linear-gradient(160deg, #b7c1cb 0%, #8a97a4 55%, #75828f 100%);
+  /* an object lying over the page, lit from above (the drawer's card) */
+  --shadow-object:
+    0 116px 114px rgba(0, 0, 0, 0.12), 0 58.7px 49.7px rgba(0, 0, 0, 0.081),
+    0 23.2px 18.5px rgba(0, 0, 0, 0.06), 0 5.1px 6.6px rgba(0, 0, 0, 0.039);
 
   /* ---- Edges: 1px gradient frames, masked down to a ring where used.
      light-dark() cannot pick a whole gradient, so each stop is a pair. ---- */
@@ -301,6 +370,15 @@
   /* popups, menus, tooltips, open panels */
   --shadow-float:
     0 0 0 1px var(--line), 0 12px 40px light-dark(#0000001f, #00000080);
+  /* the dialog and bottom sheet (the Sheet): the Stock sheet's deep shadow,
+     and its lit hairline along the top edge, drawn inside the panel */
+  --shadow-sheet:
+    0 24px 64px light-dark(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.6)),
+    0 1px 4px light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.3));
+  --sheet-edge:
+    inset 0 1px 0
+      light-dark(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.08)),
+    inset 0 0 0 1px light-dark(transparent, rgba(255, 255, 255, 0.04));
   /* under the Button's primary, secondary and negative fills */
   --shadow-primary: 0 8px 16px
     light-dark(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.5));

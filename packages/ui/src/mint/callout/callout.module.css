@@ -1,0 +1,184 @@
+/* mint-pocs' Callout (src/demos/callout/Callout.tsx), rule for rule. The
+   colours are the Tag's accents: the soft tint behind, the strong ink on it
+   (green.08 and yellow.09 in light, where the strong one is under 4.5:1 on
+   its tint). The column is the same tint laid twice, so it is the tone,
+   deeper, never a new colour; its hover lays a third. */
+
+.callout,
+.callout *,
+.callout *::before,
+.callout *::after {
+  box-sizing: border-box;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The column is 56px, the text 16px from the edge and 16px from the column;
+   the radius is 16, the column's inner corners square: it reads as the
+   callout's own end, not a button laid on it. */
+.callout {
+  position: relative;
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-16);
+  overflow: hidden;
+  background-color: var(--tint);
+  color: var(--tone);
+  font-family: var(--font-sans);
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color var(--duration-moderate) ease,
+    color var(--duration-moderate) ease,
+    transform var(--duration-instant) ease;
+}
+
+.callout[data-tone="info"] {
+  --tint: var(--info-soft);
+  --tone: var(--info);
+}
+
+.callout[data-tone="positive"] {
+  --tint: var(--positive-soft);
+  --tone: var(--on-positive-soft);
+}
+
+.callout[data-tone="warning"] {
+  --tint: var(--warning-soft);
+  --tone: var(--on-warning-soft);
+}
+
+.callout[data-tone="negative"] {
+  --tint: var(--negative-soft);
+  --tone: var(--negative);
+}
+
+/* The whole callout is the target when it acts (a chevron alone would be a
+   20px target on a 56px column). */
+.hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The ring goes round the callout: the box clips, so it is drawn on the
+   box, not the button. */
+.hit:focus-visible {
+  outline: none;
+}
+
+.callout:has(.hit:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.callout:has(.hit:active) {
+  transform: scale(0.98);
+}
+
+.body {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* The texts cross-fade in one cell: nothing leaves the flow. */
+.swap {
+  display: grid;
+}
+
+.swapItem {
+  grid-area: 1 / 1;
+  display: block;
+}
+
+/* The lead bold, the rest regular, both in the tone's ink at the small size:
+   one colour per message, the weight doing the hierarchy. */
+.text {
+  display: block;
+  padding: var(--space-s2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-regular);
+}
+
+.title {
+  font-weight: var(--weight-bold);
+}
+
+/* The column: the same tint laid twice, square where it meets the text. */
+.column {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  background-color: var(--tint);
+  transition: background-color var(--duration-moderate) ease;
+}
+
+.column::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--tint);
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) ease,
+    background-color var(--duration-moderate) ease;
+}
+
+.icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.icon svg {
+  display: block;
+  transition: translate var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .callout:has(.hit:hover) .column::before {
+    opacity: 1;
+  }
+  .callout:has(.hit:hover) .icon svg {
+    translate: 2px 0;
+  }
+}
+
+/* Reduced motion: the colours and the text only fade, the height changes at
+   once, nothing presses in. */
+@media (prefers-reduced-motion: reduce) {
+  .callout,
+  .icon svg {
+    transition:
+      background-color var(--duration-moderate) ease,
+      color var(--duration-moderate) ease;
+  }
+  .callout:has(.hit:active) {
+    transform: none;
+  }
+  .callout:has(.hit:hover) .icon svg {
+    translate: none;
+  }
+}

@@ -5,6 +5,7 @@ import { type ReactNode, useId } from "react";
 import { RepeatIcon } from "../../mint/icons/icons";
 import { MerchantLogo } from "../../mint/logo/merchant-logo";
 import { CategoryTag } from "../category-tag/category-tag";
+import { Privacy, usePrivacy } from "../privacy/privacy";
 import { dayNet, groupByDay } from "./group-by-day";
 import styles from "./transaction-list.module.css";
 import { formatDayLabel } from "@keel/finance/dates";
@@ -99,9 +100,9 @@ function Day({ name, items, locale, labels, onSelect }: DayProps) {
           {name}
         </h3>
         {net ? (
-          <span className={styles.dayNet}>
+          <Privacy className={styles.dayNet}>
             {formatMoney(net.minor, net.currency, { locale, sign: "always" })}
-          </span>
+          </Privacy>
         ) : null}
       </div>
       <ul className={styles.rows}>
@@ -129,7 +130,8 @@ export type TransactionRowProps = {
 
 /**
  * One transaction: who, its rhythm, what it was, the account, the signed
- * amount, and its status when it is not simply booked.
+ * amount, and its status when it is not simply booked. Privacy mode masks
+ * the amount, in the row's name too.
  */
 export function TransactionRow({
   item,
@@ -137,6 +139,7 @@ export function TransactionRow({
   labels,
   onSelect,
 }: TransactionRowProps) {
+  const { hidden, maskLabel } = usePrivacy();
   const amount = formatMoney(item.amountMinor, item.currency, {
     locale,
     sign: "always",
@@ -147,7 +150,7 @@ export function TransactionRow({
     item.label,
     item.recurrence?.toLowerCase(),
     categoryLabel,
-    amount,
+    hidden ? maskLabel : amount,
     status?.toLowerCase(),
   ]
     .filter(Boolean)
@@ -182,12 +185,12 @@ export function TransactionRow({
         {item.accountLabel}
       </span>
       <span className={styles.end}>
-        <span
+        <Privacy
           className={styles.amount}
           data-direction={item.amountMinor > 0 ? "in" : "out"}
         >
           {amount}
-        </span>
+        </Privacy>
         {status ? <span className={styles.status}>{status}</span> : null}
       </span>
     </>
