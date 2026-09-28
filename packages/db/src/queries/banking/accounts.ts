@@ -23,6 +23,8 @@ export type AccountPatch = Partial<
     | "providerAccountRef"
     | "ownerId"
     | "isPrivate"
+    | "historyDirtyFrom"
+    | "syncedAt"
   >
 >;
 

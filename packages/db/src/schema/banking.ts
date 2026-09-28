@@ -198,6 +198,12 @@ export const bankAccounts = pgTable(
     declaredOn: date("declared_on"),
     // A display preference (card mirrors), not privacy.
     hidden: boolean("hidden").notNull().default(false),
+    // The balance history must be rebuilt from this day on (ADR 0011);
+    // null when it is up to date. Set by the write, cleared by reconcile.
+    historyDirtyFrom: date("history_dirty_from"),
+    // The last time the bank answered for this account; null until its
+    // first sync, which then asks for its whole history.
+    syncedAt: timestamp("synced_at", { withTimezone: true }),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -209,6 +215,9 @@ export const bankAccounts = pgTable(
   },
   (table) => [
     index("bank_accounts_household_idx").on(table.householdId),
+    // What a transaction's composite foreign key points at: an account of
+    // the transaction's own household, whatever row-level security sees.
+    uniqueIndex("bank_accounts_household_key").on(table.id, table.householdId),
     // How a reconnection finds its accounts again (ramnn had no uniqueness).
     uniqueIndex("bank_accounts_connection_stable_ref_key")
       .on(table.connectionId, table.stableRef)

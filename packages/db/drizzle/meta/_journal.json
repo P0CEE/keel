@@ -71,6 +71,20 @@
       "when": 1790605961308,
       "tag": "0009_connections_to_purge",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790631788227,
+      "tag": "0010_transactions",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790631809400,
+      "tag": "0011_sync_scans",
+      "breakpoints": true
     }
   ]
 }
