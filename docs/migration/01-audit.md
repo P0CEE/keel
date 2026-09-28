@@ -679,8 +679,21 @@ deviennent des tests de non-régression dans keel.
 
 Noms de tables et colonnes de ramnn au 2026-09-24 ; à ajuster si besoin.
 
-État : pas encore exécutées. Le proxy TCP de la base Railway n'est pas
-joignable depuis le sandbox de l'agent. Les résultats seront ajoutés ici.
+État : exécutées le 2026-09-28 depuis l'intérieur de Railway (`railway ssh`,
+transaction en lecture seule), le proxy public de la base ne répondant pas.
+Résultats :
+
+| Mesure                                         | Valeur                                                     | Ce que ça confirme                                                      |
+| ---------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Utilisateurs / avec une banque                 | 10 / 3                                                     | Peu d'utilisateurs, ETL simple                                          |
+| Transactions par utilisateur actif et par mois | médiane 69, 90e centile 129                                | Coûts IA très bas (étude IA)                                            |
+| Jambes de virement interne appariées           | **0 sur 3 244**                                            | L'appariement par IBAN ne se déclenche jamais (section 16, ADR 0009)    |
+| Séries récurrentes détectées puis rejetées     | **31 sur 67 (46 %)** ; 15 séries actives jamais confirmées | Le détecteur se trompe presque une fois sur deux (section 17, ADR 0017) |
+| Budgets / utilisateurs avec budgets            | 16 / 4                                                     | Fonction utilisée, gardée                                               |
+| Revues mensuelles envoyées / notées            | 3 / 0                                                      | Gardée, mais la note n'est pas utilisée                                 |
+| Seuils de solde                                | 2                                                          | Faible usage, gardé (coût faible)                                       |
+| Homes personnalisées                           | 2 sur 10                                                   | La home refaite garde le défaut adaptatif                               |
+| Sources de catégorie                           | LLM 51 %, mappings 36 %                                    | Les mappings sont le levier principal                                   |
 
 ```sql
 -- Revue mensuelle : envois, notes, narratives gardées

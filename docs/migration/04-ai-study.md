@@ -6,8 +6,8 @@
 - Mesures : banc de test exécuté le 2026-09-28 via la Vercel AI Gateway
   (`ai@7`, `generateText` + `Output.object`) et l'API Gemini directe.
 - Statut : recommandation validée (gpt-6-luna avec repli Gemini, pas
-  d'exigence de traitement en UE). À confirmer sur l'échantillon réel de la
-  prod (section 3.4), qui n'a pas encore pu être extrait.
+  d'exigence de traitement en UE), confrontée à l'échantillon réel de la prod
+  (sections 3.4 et 3.5).
 
 ## 1. Inventaire des besoins
 
@@ -134,21 +134,68 @@ juge de revue (« cette catégorie est-elle juste ? », question booléenne sur
 une seule option, donc beaucoup moins de tokens), quand le service sera
 stable.
 
-### 3.4 Échantillon réel de la prod : en attente
+### 3.4 Échantillon réel de la prod
 
-Script prêt (`export-sample.ts`, lecture seule forcée) : transactions
-catégorisées **par une personne** (correction manuelle ou merchant mapping),
-feuilles système uniquement, noms des utilisateurs masqués partout,
-contreparties « personne » remplacées, numéros longs masqués, montants
-arrondis, au plus 400 lignes par utilisateur, un libellé récurrent compté une
-fois. Il n'a pas pu tourner : le sandbox de l'agent ne joint pas la base
-Railway, et la commande doit être lancée dans un terminal ordinaire.
+Extrait le 2026-09-28 depuis l'intérieur de Railway (`railway ssh` sur le
+service API, une transaction en lecture seule, anonymisation faite dans le
+conteneur). Le proxy TCP public de la base ne répond pas, ce qui interdisait
+toute extraction depuis un poste.
 
-Quand il sera disponible : rejouer les quatre modèles de tête (gpt-6-luna,
-gemini-3.8-flash, gemma-4-31b, gemini-3.1-flash-lite) avec l'échelle complète
-(mappings, dictionnaires, historique) devant, mesurer la part de lignes qui
-atteint réellement le modèle, et mettre à jour cette section et la
-recommandation si le classement change.
+**Contenu** : 55 transactions distinctes, étiquetées par une personne, chez
+3 utilisateurs : 45 corrections manuelles et 10 lignes de merchant mapping.
+C'est un **jeu de cas difficiles par construction**. Une correction manuelle
+est presque toujours un cas où la catégorisation automatique s'était trompée,
+ou une préférence personnelle.
+
+| Modèle                         | Réponses | Précision quand il répond : feuille | Précision quand il répond : catégorie |
+| ------------------------------ | -------- | ----------------------------------- | ------------------------------------- |
+| `google/gemini-3.8-flash`      | 49/55    | **30,6 %**                          | **59,2 %**                            |
+| `google/gemini-3.5-flash`      | 49/55    | 30,6 %                              | 55,1 %                                |
+| `google/gemini-3.1-flash-lite` | 51/55    | 25,5 %                              | 49,0 %                                |
+| `anthropic/claude-haiku-4.5`   | 52/55    | 23,1 %                              | 51,9 %                                |
+| `openai/gpt-5.4-nano`          | 48/55    | 18,8 %                              | 39,6 %                                |
+| `openai/gpt-6-luna`            | 47/55    | 17,0 %                              | 51,1 %                                |
+| `mistral/mistral-small`        | 54/55    | 13,0 %                              | 44,4 %                                |
+
+Quand `gpt-6-luna` et `gemini-3.1-flash-lite` sont d'accord (26 lignes), ils
+ont raison à 23 % seulement : l'accord entre modèles ne signale pas les
+réponses fiables.
+
+**Ce que révèlent les erreurs** : la bonne réponse dépend d'un savoir que seul
+le foyer possède. L'assurance MMA couvre la voiture, pas le logement ; un
+virement à « Sandrine G » est un cadeau ; un prêt finance des travaux ; un
+prélèvement de la DGFiP est une facture d'eau. Aucun libellé ne contient cette
+information, donc aucun modèle ne peut la deviner. Sur 55 lignes, l'écart
+entre le meilleur modèle et `gpt-6-luna` (7 réponses justes) n'est pas
+significatif. Il penche dans le même sens que le golden set : les modèles qui
+raisonnent (Gemini Flash) s'en sortent un peu mieux sur l'ambigu, pour 34 fois
+le prix.
+
+**Enseignements pour le produit** :
+
+1. **Le levier est la boucle d'apprentissage, pas le modèle.** En prod,
+   36 % des transactions sont déjà catégorisées par des règles créées par les
+   utilisateurs, contre 51 % par le LLM. Chaque correction doit proposer, en
+   un clic, de devenir un merchant mapping (rule prompt). Les mappings passent
+   avant le modèle (ADR 0007).
+2. **Mieux vaut s'abstenir que deviner.** Tous les modèles répondent à 85 à
+   98 % de ces lignes impossibles. Le prompt doit exiger une abstention sur
+   une ligne de carte sans marchand identifiable (ville seule), et
+   l'abstention envoie la ligne dans « à revoir » (section 4.2).
+3. **L'eval se nourrit de l'usage.** Dans keel, chaque correction manuelle est
+   enregistrée avec la proposition du modèle qu'elle remplace. Le jeu de cas
+   difficiles grossit tout seul, et chaque changement de modèle ou de prompt
+   est rejoué dessus avant d'être déployé.
+
+### 3.5 Volumes réels de la prod
+
+| Mesure                                                      | Valeur                                                                                                 |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Utilisateurs / avec une banque connectée                    | 10 / 3                                                                                                 |
+| Transactions (toutes)                                       | 3 244, du 2023-05-05 au 2026-09-26                                                                     |
+| Transactions par utilisateur actif et par mois, sur 12 mois | médiane **69**, 90e centile 129, maximum 189                                                           |
+| Sources de catégorie                                        | LLM 51 %, merchant mappings 36 %, inconnue 6 %, dictionnaires et historique 4 %, kNN 2 %, manuelle 2 % |
+| Merchant mappings                                           | 16 conditions dans 12 règles                                                                           |
 
 ## 4. Recommandation
 
@@ -182,17 +229,16 @@ JEV pourra plus tard remplacer ces règles par une probabilité calibrée.
 
 ### 4.3 Coût mensuel par foyer
 
-Hypothèse haute : 400 transactions par mois, toutes envoyées au modèle
-(aucune couche déterministe) : 400 × 0,023 $ / 1 000 = **0,009 $ par foyer et
-par mois**. Avec l'échelle déterministe et le dédoublonnage par marchand,
-seule une fraction des lignes atteint le modèle : le coût réel sera plus bas.
+Volume mesuré en prod (section 3.5) : 69 transactions par mois en médiane,
+129 au 90e centile. Même si toutes allaient au modèle, le coût serait de
+129 × 0,023 $ / 1 000 = **0,003 $ par foyer et par mois** au 90e centile.
+Avec les mappings, les dictionnaires, l'historique et le dédoublonnage par
+marchand, seule une partie des lignes atteint le modèle.
 
-- Import initial de 730 jours (quelques milliers de lignes) : environ 0,1 à
-  0,2 $ par foyer, une fois.
-- Narrative de la revue : un appel par membre et par mois, moins de 150 $ par
-  an pour 10 000 foyers selon l'estimation de l'agent de recherche.
-- Pour 10 000 foyers : de l'ordre de 1 000 $ par an tout compris, contre
-  plusieurs milliers avec le modèle de ramnn.
+- Import initial (en prod, l'historique va jusqu'à 3 ans et demi) : moins de
+  0,1 $ par foyer, une fois.
+- Narrative de la revue : un appel par membre et par mois, négligeable.
+- Pour 10 000 foyers : quelques centaines de dollars par an tout compris.
 
 ### 4.4 Cache et batch
 
@@ -240,8 +286,9 @@ Consultées le 2026-09-28 ; date de la page quand elle en affiche une.
 
 1. Étude validée : `openai/gpt-6-luna` pour la catégorisation, repli
    `google/gemini-3.1-flash-lite`, pas d'exigence de traitement en UE, pas
-   d'embeddings, JEV différé. Mise à jour prévue quand l'échantillon réel de
-   la prod sera disponible.
+   d'embeddings, JEV différé. L'échantillon réel (section 3.4) ne remet pas
+   le choix en cause : sur les cas personnels, aucun modèle ne dépasse 31 %,
+   et le levier est la boucle d'apprentissage.
 2. Le catalog passe de `ai ^6` à `ai ^7`.
 3. Le modèle de la narrative de revue sera choisi en relisant trois revues
    réelles, au moment de construire la revue mensuelle.
