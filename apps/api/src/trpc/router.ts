@@ -1,5 +1,10 @@
 import { aiRouter } from "./routers/ai";
 import { authRouter } from "./routers/auth";
+import {
+  accountsRouter,
+  connectionsRouter,
+  institutionsRouter,
+} from "./routers/banking";
 import { healthRouter } from "./routers/health";
 import { householdRouter } from "./routers/household";
 import { realtimeRouter } from "./routers/realtime";
@@ -14,6 +19,9 @@ export const appRouter = router({
   realtime: realtimeRouter,
   household: householdRouter,
   settings: settingsRouter,
+  institutions: institutionsRouter,
+  connections: connectionsRouter,
+  accounts: accountsRouter,
 });
 
 /** End-to-end type consumed by `@keel/app` for type-safe clients. */

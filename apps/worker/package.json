@@ -11,8 +11,10 @@
     "lint": "oxlint ."
   },
   "dependencies": {
+    "@keel/banking": "workspace:*",
     "@keel/db": "workspace:*",
     "@keel/jobs": "workspace:*",
+    "@keel/realtime": "workspace:*",
     "bullmq": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",

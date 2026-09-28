@@ -15,6 +15,14 @@ const envSchema = z.object({
   WORKER_CONCURRENCY_BANK_SYNC: concurrency(2),
   WORKER_CONCURRENCY_BANK_PIPELINE: concurrency(4),
   WORKER_CONCURRENCY_DEFAULT: concurrency(5),
+  // The same aggregator settings as the API (apps/api/.env.example).
+  BANKING_PROVIDER: z.enum(["fake", "enable_banking"]).default("fake"),
+  ENABLEBANKING_APPLICATION_ID: z.string().min(1).optional(),
+  ENABLE_BANKING_KEY_CONTENT: z.string().min(1).optional(),
+  ENABLEBANKING_REDIRECT_URL: z
+    .string()
+    .url()
+    .default("http://localhost:3001/v1/bank/callback"),
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),

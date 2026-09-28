@@ -4,8 +4,12 @@ import superjson from "superjson";
 import { z } from "zod";
 
 import { newMemberDefaults } from "../lib/new-member";
+import { psuFromRequest } from "../lib/psu";
 import { getCachedSession } from "../lib/session";
+import { getClientIp } from "../middleware/rate-limit";
 import { SSE_OPTIONS } from "./sse";
+import type { PsuContext } from "@keel/bank-providers";
+import { type BankingErrorCode, isBankingError } from "@keel/banking";
 import { resolveScope } from "@keel/db";
 import { provisionMember } from "@keel/db/members";
 
@@ -22,6 +26,11 @@ export type Context = {
    * writes cause so that tab can skip them (its optimistic update is done).
    */
   clientId: string | null;
+  /**
+   * The member's request as their bank must see it on the calls they start
+   * themselves (consent, account list); undefined when it cannot be told.
+   */
+  psu: PsuContext | undefined;
 };
 
 const clientIdSchema = z.uuid();
@@ -35,6 +44,7 @@ export function createContext(_opts: unknown, c: HonoContext): Context {
   return {
     headers: c.req.raw.headers,
     clientId: clientId.success ? clientId.data : null,
+    psu: psuFromRequest(c.req.raw.headers, getClientIp(c)),
   };
 }
 
@@ -85,4 +95,30 @@ export const scopedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
       }),
     ));
   return next({ ctx: { ...ctx, scope } });
+});
+
+const BANKING_CODES: Readonly<Record<BankingErrorCode, TRPCError["code"]>> = {
+  not_found: "NOT_FOUND",
+  forbidden: "FORBIDDEN",
+  conflict: "CONFLICT",
+  invalid: "BAD_REQUEST",
+  expired: "PRECONDITION_FAILED",
+  provider: "BAD_GATEWAY",
+};
+
+/**
+ * A scoped procedure that calls `@keel/banking`: a refused command
+ * (`BankingError`) becomes the matching tRPC error, with its message, so the
+ * app can tell "not yours" from "the bank failed".
+ */
+export const bankingProcedure = scopedProcedure.use(async ({ next }) => {
+  const result = await next();
+  if (!result.ok && isBankingError(result.error.cause)) {
+    throw new TRPCError({
+      code: BANKING_CODES[result.error.cause.code],
+      message: result.error.cause.message,
+      cause: result.error.cause,
+    });
+  }
+  return result;
 });

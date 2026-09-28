@@ -10,6 +10,8 @@ const env = {
   WORKER_CONCURRENCY_BANK_SYNC: 2,
   WORKER_CONCURRENCY_BANK_PIPELINE: 4,
   WORKER_CONCURRENCY_DEFAULT: 5,
+  BANKING_PROVIDER: "fake" as const,
+  ENABLEBANKING_REDIRECT_URL: "http://localhost:3001/v1/bank/callback",
   NODE_ENV: "test" as const,
 };
 

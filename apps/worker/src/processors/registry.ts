@@ -1,4 +1,9 @@
 import type { logger } from "../logger";
+import {
+  purgeConnectionsJob,
+  refreshFxRatesJob,
+  refreshInstitutionsJob,
+} from "./banking";
 import { purgeSessions } from "./purge-sessions";
 import type { JobName, JobPayload } from "@keel/jobs";
 
@@ -20,6 +25,9 @@ export type JobProcessor<N extends JobName = JobName> = (
  */
 const processors: { readonly [N in JobName]: JobProcessor<N> } = {
   "auth.purge-sessions": purgeSessions,
+  "bank.institutions-refresh": refreshInstitutionsJob,
+  "bank.purge": purgeConnectionsJob,
+  "fx.refresh-rates": refreshFxRatesJob,
 };
 
 export function getProcessor<N extends JobName>(name: N): JobProcessor<N> {

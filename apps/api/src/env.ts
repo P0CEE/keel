@@ -22,6 +22,18 @@ const envSchema = z.object({
   // No default: the process must fail to start without an explicit secret.
   // A shared default would let anyone forge webhook signatures.
   WEBHOOK_SECRET: z.string().min(16),
+  // The aggregator new connections go through (ADR 0005): the scenario
+  // fake by default, so the app runs without a bank. Enable Banking needs
+  // the application id and its private key (PEM, or its base64).
+  BANKING_PROVIDER: z.enum(["fake", "enable_banking"]).default("fake"),
+  ENABLEBANKING_APPLICATION_ID: z.string().min(1).optional(),
+  ENABLE_BANKING_KEY_CONTENT: z.string().min(1).optional(),
+  // Where the bank sends the member back: this API's callback. It must be
+  // allowed in the Enable Banking application's settings.
+  ENABLEBANKING_REDIRECT_URL: z
+    .string()
+    .url()
+    .default("http://localhost:3001/v1/bank/callback"),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
@@ -34,7 +46,29 @@ const rawEnv = Object.fromEntries(
   Object.entries(process.env).filter(([, value]) => value !== ""),
 );
 
-const parsed = envSchema.safeParse(rawEnv);
+const parsed = envSchema
+  .superRefine((value, context) => {
+    if (
+      value.BANKING_PROVIDER === "enable_banking" &&
+      (value.ENABLEBANKING_APPLICATION_ID === undefined ||
+        value.ENABLE_BANKING_KEY_CONTENT === undefined)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["BANKING_PROVIDER"],
+        message:
+          "enable_banking needs ENABLEBANKING_APPLICATION_ID and ENABLE_BANKING_KEY_CONTENT",
+      });
+    }
+    if (value.NODE_ENV === "production" && value.BANKING_PROVIDER === "fake") {
+      context.addIssue({
+        code: "custom",
+        path: ["BANKING_PROVIDER"],
+        message: "The fake bank is for development and tests only",
+      });
+    }
+  })
+  .safeParse(rawEnv);
 
 if (!parsed.success) {
   const issues = parsed.error.issues

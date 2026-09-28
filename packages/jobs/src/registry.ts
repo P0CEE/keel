@@ -25,6 +25,35 @@ export const jobs = {
     queue: "default",
     schema: z.object({}).strict(),
   },
+  // Weekly, and on a worker's first boot: the banks the picker lists. One
+  // aggregator call, hence the bank-sync lane.
+  "bank.institutions-refresh": {
+    queue: "bank-sync",
+    schema: z
+      .object({
+        country: z
+          .string()
+          .regex(/^[A-Z]{2}$/)
+          .optional(),
+      })
+      .strict(),
+  },
+  // Daily: connections removed more than 30 days ago are revoked at the
+  // aggregator, then deleted with their accounts.
+  "bank.purge": {
+    queue: "default",
+    schema: z.object({}).strict(),
+  },
+  // Daily, after the ECB publishes (about 16:00 CET). `from` backfills
+  // history; by default the last 90 days are refreshed.
+  "fx.refresh-rates": {
+    queue: "default",
+    schema: z
+      .object({
+        from: z.iso.date().optional(),
+      })
+      .strict(),
+  },
 } as const satisfies Record<string, JobDefinition>;
 
 export type JobName = keyof typeof jobs;

@@ -1,5 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 
+import { bankCallbackRouter } from "./routes/bank-callback";
 import { healthRouter } from "./routes/health";
 import { webhooksRouter } from "./routes/webhooks";
 
@@ -16,3 +17,4 @@ export const restApp = new OpenAPIHono();
 
 restApp.route("/", healthRouter);
 restApp.route("/", webhooksRouter);
+restApp.route("/", bankCallbackRouter);

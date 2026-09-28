@@ -13,6 +13,18 @@ export const eventSchemas = {
   "household.updated": z.object({}).strict(),
   /** A member's own settings changed; sent with `privateTo` that member. */
   "member.settings-updated": z.object({}).strict(),
+  /**
+   * A bank connection was made, renewed, removed, restored or purged, or its
+   * status changed: the accounts page and its reconnection banner refetch.
+   */
+  "connection.changed": z.object({ connectionId: z.uuid() }).strict(),
+  /**
+   * Accounts were added or edited (name, kind, balance, archive). Sent with
+   * `privateTo` when they are private to one member.
+   */
+  "accounts.changed": z
+    .object({ accountIds: z.array(z.uuid()).min(1).max(200) })
+    .strict(),
 } as const satisfies EventSchemas;
 
 export type EventSchemas = Readonly<Record<string, z.ZodType>>;

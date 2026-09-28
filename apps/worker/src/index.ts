@@ -2,11 +2,12 @@ import { type Job, Worker } from "bullmq";
 import { Hono } from "hono";
 import { Redis } from "ioredis";
 
+import { closeBanking } from "./banking";
 import { env } from "./env";
 import { lanes } from "./lanes";
 import { logger } from "./logger";
 import { getProcessor } from "./processors/registry";
-import { registerSchedules } from "./scheduler";
+import { registerSchedules, seedReferenceData } from "./scheduler";
 import { closePool } from "@keel/db";
 import {
   closeQueues,
@@ -60,6 +61,7 @@ const workers = queueNames.map((queue) => {
 // processing jobs.
 try {
   await registerSchedules();
+  await seedReferenceData();
   logger.info("schedules registered");
 } catch (err) {
   logger.error("failed to register schedules", {
@@ -117,6 +119,7 @@ async function shutdown(signal: string): Promise<void> {
   try {
     await Promise.all(workers.map((worker) => worker.close()));
     await closeQueues();
+    await closeBanking();
     await closePool();
     healthRedis.disconnect();
     await server.stop();
