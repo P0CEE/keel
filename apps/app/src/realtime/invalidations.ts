@@ -26,6 +26,11 @@ export type InvalidationTable<S extends EventSchemas, K> = {
 export const invalidations = {
   "household.updated": (_payload, trpc) => [trpc.household.get.queryKey()],
   "member.settings-updated": (_payload, trpc) => [trpc.settings.get.queryKey()],
+  "connection.changed": ({ connectionId }, trpc) => [
+    trpc.accounts.overview.queryKey(),
+    trpc.connections.offer.queryKey({ connectionId }),
+  ],
+  "accounts.changed": (_payload, trpc) => [trpc.accounts.overview.queryKey()],
 } satisfies InvalidationTable<AppEvents, TRPCKeys>;
 
 type TRPCKeys = TRPCOptionsProxy<AppRouter>;

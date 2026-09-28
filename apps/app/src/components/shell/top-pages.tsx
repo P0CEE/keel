@@ -1,5 +1,6 @@
 "use client";
 
+import { AccountsView } from "@/components/accounts/accounts-view";
 import { HomeView } from "@/components/home/home-view";
 import { Upcoming } from "@/components/upcoming/upcoming";
 
@@ -16,5 +17,6 @@ export function TopPage({
   readonly title: string;
 }) {
   if (id === "home") return <HomeView />;
+  if (id === "accounts") return <AccountsView />;
   return <Upcoming title={title} />;
 }

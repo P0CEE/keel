@@ -26,7 +26,8 @@ function buildCsp(nonce: string): string {
     }`,
     "style-src 'self' 'unsafe-inline'",
     `connect-src 'self' ${apiOrigin} https://*.sentry.io`,
-    "img-src 'self' data: blob:",
+    // Bank logos come from the aggregator's brand catalogue.
+    "img-src 'self' data: blob: https://enablebanking.com",
     "font-src 'self'",
     "frame-ancestors 'none'",
     "form-action 'self'",

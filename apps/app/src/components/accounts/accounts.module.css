@@ -1,0 +1,309 @@
+/* The accounts page: the home's grid, a main column and the banks beside it. */
+.page {
+  display: grid;
+  gap: var(--space-s5);
+}
+
+@media (min-width: 1180px) {
+  .page {
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+    column-gap: 64px;
+    align-items: start;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s5);
+  min-width: 0;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+  min-width: 0;
+}
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+}
+
+.partial {
+  margin: var(--space-s1) 0 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+}
+
+/* A group's heading: its kind, then its total at the right. */
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s2);
+  padding-bottom: var(--space-s0-50);
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+
+.groupTotal {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The banks: mint-pocs' cards-inset composition. The card's column is the
+   demo's (8px apart), its title the demo's 18 / 28 bold. */
+.banks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+}
+
+.banksTitle {
+  margin: 0;
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+  text-wrap: balance;
+}
+
+/* the button inside the well, 12px under the card */
+.buttonRow {
+  display: flex;
+  padding-top: var(--space-s1-50);
+}
+
+.empty,
+.status {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.status {
+  padding-bottom: var(--space-s1);
+  color: var(--ink-2);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-s2);
+  max-width: 560px;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-semibold);
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s1);
+}
+
+/* Rows: the transaction list's, a logo, two lines, the figure at the end. */
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+}
+
+.item + .item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  transition: opacity var(--duration-fast) ease;
+}
+
+.row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-s1-50);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-s1) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  text-align: left;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* a label row (a switch at its end) has no logo */
+label.row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  cursor: pointer;
+}
+
+.row[data-disabled] {
+  cursor: default;
+}
+
+button.row {
+  cursor: pointer;
+}
+
+button.row:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(-1 * var(--space-s1));
+  z-index: -1;
+  border-radius: var(--radius-12);
+  background: var(--hover);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  button.row:not(:disabled):hover::before,
+  label.row:not([data-disabled]):hover::before {
+    opacity: 1;
+  }
+  .item:has(.row:hover)::before,
+  .item:has(.row:hover) + .item::before {
+    opacity: 0;
+  }
+}
+
+button.row:active::before {
+  opacity: 1;
+  background: var(--pill);
+}
+
+.row:focus-visible::before {
+  opacity: 1;
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-50);
+  min-width: 0;
+}
+
+.name,
+.meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: var(--weight-medium);
+}
+
+.meta {
+  color: var(--ink-3);
+}
+
+.meta[data-tone="warning"] {
+  color: var(--warning);
+}
+
+.end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-s0-50);
+}
+
+.amount {
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* a row left out of the totals reads quieter */
+.row[data-hidden] .name,
+.row[data-hidden] .amount {
+  color: var(--ink-3);
+}
+
+.badge {
+  padding: 0 var(--space-s1);
+  border-radius: var(--radius-1000);
+  background: var(--pill);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* A connection: the bank, its consent line, and its menu. */
+.connection {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-s1-50);
+  min-height: 56px;
+}
+
+.pickerFields {
+  display: grid;
+  gap: var(--space-s1-50);
+  padding-bottom: var(--space-s2);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  padding-bottom: var(--space-s1);
+}
+
+.checkmark {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+}

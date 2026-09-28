@@ -564,7 +564,7 @@ export function AppShell({
               id: "add-bank",
               label: t("add_bank"),
               icon: <AccountsIcon size={24} />,
-              href: "/accounts",
+              href: "/accounts?connect=bank",
             },
           ],
           rows: [],
