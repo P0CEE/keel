@@ -18,7 +18,7 @@ import {
 import type { LinkComponent, NavItem } from "../app-rail/nav";
 import { useEscape } from "../hooks/use-escape";
 import { useSize } from "../hooks/use-size";
-import { ChevronRightIcon, SearchIcon } from "../icons/icons";
+import { ChevronSmallIcon, SearchLineIcon } from "../icons/icons";
 import { ease, morph, spring } from "../motion";
 import {
   BAR_HEIGHT,
@@ -33,7 +33,8 @@ export type DrawerAction = {
   readonly id: string;
   readonly label: string;
   readonly icon: ReactNode;
-  readonly tone?: "info" | "positive" | "warning" | "accent" | "neutral";
+  /** A row's tint (quick actions have none). */
+  readonly tone?: "warning" | "positive" | "info" | "grass" | "accent";
   readonly href?: string;
   readonly onSelect?: () => void;
 };
@@ -275,17 +276,11 @@ export function MobileTabBar({
                   {action.rows.map((entry) => {
                     const inner = (
                       <>
-                        <span
-                          className={styles.rowIcon}
-                          data-tone={entry.tone ?? "neutral"}
-                        >
+                        <span className={styles.rowIcon} data-tone={entry.tone}>
                           {entry.icon}
                         </span>
                         <span className={styles.rowLabel}>{entry.label}</span>
-                        <ChevronRightIcon
-                          className={styles.chevron}
-                          size={14}
-                        />
+                        <ChevronSmallIcon className={styles.chevron} />
                       </>
                     );
                     return (
@@ -340,7 +335,7 @@ export function MobileTabBar({
               }
         }
       >
-        <SearchIcon size={22} />
+        <SearchLineIcon />
       </motion.button>
     </div>
   );

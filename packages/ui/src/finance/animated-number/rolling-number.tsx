@@ -77,9 +77,11 @@ const separatorVariants: Variants = {
     opacity: 0,
     filter: "blur(1.5px)",
     userSelect: "none",
-    transition: { duration: 0.18 },
+    transition: { duration: 0.18, ease: "easeOut" },
   },
 };
+
+const separatorTransition: Transition = { duration: 0.18, ease: "easeOut" };
 
 export type RollingNumberProps = {
   /** The formatted value ("−1 234,56 €"). */
@@ -156,7 +158,7 @@ export function RollingNumber({ text, separators }: RollingNumberProps) {
                   exit="exit"
                   transition={
                     slot.separator
-                      ? { duration: 0.18 }
+                      ? separatorTransition
                       : {
                           ...spring.roll,
                           delay: delays.get(slot.key) ?? 0,

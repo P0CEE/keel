@@ -23,8 +23,10 @@
   outline-offset: 2px;
 }
 
-/* at no weight beyond the root, so each control's own colour wins */
-.root :where(button, a) {
+/* :where() keeps the reset at no weight, so each control's own colour wins;
+   the links are keel's (its pages are real links, the demo's are buttons) */
+:where(.root) button,
+:where(.root) a {
   font-family: inherit;
   color: inherit;
   text-decoration: none;
@@ -54,7 +56,6 @@
   flex: none;
   margin-bottom: 30px;
   color: var(--ink);
-  border-radius: var(--radius-4);
 }
 
 /* Ramnn's R, 24px tall (its viewBox is 36.52 x 44.62) */
@@ -164,7 +165,6 @@
 }
 
 .dock {
-  --overlap: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -252,6 +252,7 @@
 
 /* the stack: the Avatar stack's crescent gap, turned vertical */
 .stack {
+  --overlap: 8px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -259,7 +260,7 @@
 }
 
 @media (hover: hover) {
-  .dock:not([data-quiet]):hover {
+  .dock:not([data-quiet]):hover .stack {
     --overlap: 2px;
   }
 }
@@ -394,6 +395,7 @@
   font-size: var(--text-small);
   line-height: var(--leading-small);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* the hover tint is a layer of its own that only fades: nothing in the
@@ -639,8 +641,6 @@
 
 .menuName {
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
   font-size: var(--text-default);
   line-height: var(--leading-default);
   font-weight: var(--weight-bold);

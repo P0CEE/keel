@@ -12,18 +12,19 @@ export type NavigationLabels = {
 
 /**
  * The pages the rail lists, with Mint's icons and their filled twins for the
- * current page, as mint-pocs' Sidebar draws them. Budgets, recurring series
- * and analysis join the list with their features.
+ * current page, as mint-pocs' Sidebar draws them (20px; the phone tab bar
+ * asks for 24). Budgets, recurring series and analysis join the list with
+ * their features.
  */
-export function navigation(labels: NavigationLabels): NavItem[] {
+export function navigation(labels: NavigationLabels, iconSize = 20): NavItem[] {
   return [
     {
       id: "home",
       href: "/",
       label: labels.home,
       hint: labels.homeHint,
-      icon: <HomeIcon />,
-      activeIcon: <HomeIcon filled />,
+      icon: <HomeIcon size={iconSize} />,
+      activeIcon: <HomeIcon size={iconSize} filled />,
       shortcut: "h",
     },
     {
@@ -31,8 +32,8 @@ export function navigation(labels: NavigationLabels): NavItem[] {
       href: "/accounts",
       label: labels.accounts,
       hint: labels.accountsHint,
-      icon: <AccountsIcon />,
-      activeIcon: <AccountsIcon filled />,
+      icon: <AccountsIcon size={iconSize} />,
+      activeIcon: <AccountsIcon size={iconSize} filled />,
       shortcut: "a",
       match: "prefix",
     },
@@ -41,8 +42,8 @@ export function navigation(labels: NavigationLabels): NavItem[] {
       href: "/transactions",
       label: labels.transactions,
       hint: labels.transactionsHint,
-      icon: <ActivityIcon />,
-      activeIcon: <ActivityIcon filled />,
+      icon: <ActivityIcon size={iconSize} />,
+      activeIcon: <ActivityIcon size={iconSize} filled />,
       shortcut: "y",
       match: "prefix",
     },

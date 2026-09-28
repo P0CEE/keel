@@ -31,6 +31,7 @@
 /* ---- The bar, which is also the drawer ---- */
 .shell {
   position: absolute;
+  z-index: 2;
   overflow: hidden;
   pointer-events: auto;
   background: var(--bar);
@@ -79,6 +80,7 @@
 
 .search {
   position: absolute;
+  z-index: 1;
   right: 24px;
   bottom: 24px;
   display: grid;
@@ -190,7 +192,6 @@
 .actionLabel {
   font-size: var(--text-small);
   line-height: var(--leading-small);
-  text-align: center;
 }
 
 /* the set's row rule: the well padded 8px, a row's tint rounded inside it,
@@ -266,9 +267,9 @@
   background: var(--tone-soft);
 }
 
-.rowIcon[data-tone="info"] {
-  --tone: var(--info);
-  --tone-soft: var(--info-soft);
+.rowIcon[data-tone="warning"] {
+  --tone: var(--warning);
+  --tone-soft: var(--warning-soft);
 }
 
 .rowIcon[data-tone="positive"] {
@@ -276,19 +277,19 @@
   --tone-soft: var(--positive-soft);
 }
 
-.rowIcon[data-tone="warning"] {
-  --tone: var(--warning);
-  --tone-soft: var(--warning-soft);
+.rowIcon[data-tone="info"] {
+  --tone: var(--info);
+  --tone-soft: var(--info-soft);
+}
+
+.rowIcon[data-tone="grass"] {
+  --tone: var(--grass);
+  --tone-soft: var(--grass-soft);
 }
 
 .rowIcon[data-tone="accent"] {
-  --tone: var(--category-purple);
-  --tone-soft: color-mix(in srgb, var(--category-purple) 18%, transparent);
-}
-
-.rowIcon[data-tone="neutral"] {
-  --tone: var(--ink-2);
-  --tone-soft: var(--pill);
+  --tone: var(--accent-strong);
+  --tone-soft: var(--accent-soft);
 }
 
 .rowLabel {

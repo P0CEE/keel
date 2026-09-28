@@ -40,12 +40,12 @@ export function ShortcutsDialog({
           className={popup.dialog}
           initialFocus={popupRef}
         >
-          <div className={popup.dialogHead}>
+          <header className={popup.dialogHead}>
             <Dialog.Title className={popup.dialogTitle}>{title}</Dialog.Title>
             <Dialog.Close className={popup.close} aria-label={closeLabel}>
               <CloseIcon />
             </Dialog.Close>
-          </div>
+          </header>
           <div className={styles.groups}>
             {groupShortcuts(shortcuts).map((group) => (
               <section key={group.title}>

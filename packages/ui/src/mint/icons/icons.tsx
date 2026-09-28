@@ -326,3 +326,76 @@ export function SystemIcon(props: IconProps) {
     </Line>
   );
 }
+
+/** Profile: a person in a circle, the phone top bar's (mint-pocs' App top bar). */
+export function ProfileIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="10" r="3" />
+      <path
+        d="M6.5 18.6C7.7 16.5 9.7 15.3 12 15.3C14.3 15.3 16.3 16.5 17.5 18.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** Search, drawn: the phone tab bar's round search (mint-pocs' Nav drawer). */
+export function SearchLineIcon({ size = 24, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle
+        cx="11"
+        cy="11"
+        r="6.75"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M16 16l4 4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** A small drawn chevron: a drawer row that leads on (mint-pocs' Nav drawer). */
+export function ChevronSmallIcon({ size = 14, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M6.5 4L10.5 8L6.5 12"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

@@ -81,8 +81,11 @@
   height: 52px;
   padding: 0 var(--space-s2);
   border-radius: var(--radius-16);
+  /* No shadow, as mint-pocs renders it: its light-dark() of two shadows is
+     invalid in the browser (light-dark() takes colours only), so the demo's
+     field shows none; Lightning CSS would compile that same line into a
+     working shadow here. */
   background: var(--panel);
-  box-shadow: light-dark(var(--shadow-raised), inset 0 0 0 1px var(--line));
   color: var(--ink);
   cursor: text;
 }
@@ -151,8 +154,8 @@
     transparent
   );
   transition:
-    --fade-top var(--duration-moderate) ease,
-    --fade-bottom var(--duration-moderate) ease;
+    --fade-top var(--duration-moderate) var(--ease-standard),
+    --fade-bottom var(--duration-moderate) var(--ease-standard);
 }
 
 .list[data-more-above] {

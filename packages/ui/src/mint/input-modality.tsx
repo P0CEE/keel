@@ -12,18 +12,20 @@ import { useEffect } from "react";
 export function InputModality(): null {
   useEffect(() => {
     const html = document.documentElement;
-    const pointer = () => {
-      html.dataset.input = "pointer";
+    const set = (modality: "pointer" | "keyboard") => {
+      if (html.dataset.input !== modality) html.dataset.input = modality;
     };
+    const pointer = () => set("pointer");
+    // Shift alone is not a keyboard move (it starts a Shift+click), as in Mint
     const keyboard = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
-      html.dataset.input = "keyboard";
+      if (event.key !== "Shift") set("keyboard");
     };
-    document.addEventListener("pointerdown", pointer, true);
-    document.addEventListener("keydown", keyboard, true);
+    window.addEventListener("pointerdown", pointer, true);
+    window.addEventListener("keydown", keyboard, true);
     return () => {
-      document.removeEventListener("pointerdown", pointer, true);
-      document.removeEventListener("keydown", keyboard, true);
+      window.removeEventListener("pointerdown", pointer, true);
+      window.removeEventListener("keydown", keyboard, true);
       delete html.dataset.input;
     };
   }, []);

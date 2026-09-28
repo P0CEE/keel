@@ -1,11 +1,12 @@
-.plain,
-.ticker {
+.plain {
+  font: inherit;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 .ticker {
   display: inline-block;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* the number as one selectable, readable string, at zero size */

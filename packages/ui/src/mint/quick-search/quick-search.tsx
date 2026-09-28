@@ -97,8 +97,8 @@ export function QuickSearch({
             items={items}
             labels={labels}
             onPick={(item) => {
-              onOpenChange(false);
               item.onSelect();
+              onOpenChange(false);
             }}
           />
         </Dialog.Popup>
@@ -144,11 +144,15 @@ function Palette({
     if (!box || !row) return;
     const b = box.getBoundingClientRect();
     const r = row.getBoundingClientRect();
+    // rects are in screen px, scrollTop in the list's own: divide out any
+    // scale around it; the scroll padding keeps the row clear of the fade
+    const ratio = b.height / box.offsetHeight;
+    const scale = Number.isFinite(ratio) && ratio > 0 ? ratio : 1;
     const parsed = Number.parseFloat(getComputedStyle(box).scrollPaddingTop);
-    const pad = Number.isFinite(parsed) ? parsed : 0;
-    if (r.top < b.top + pad) box.scrollTop -= b.top + pad - r.top;
+    const pad = (Number.isFinite(parsed) ? parsed : 0) * scale;
+    if (r.top < b.top + pad) box.scrollTop -= (b.top + pad - r.top) / scale;
     else if (r.bottom > b.bottom - pad)
-      box.scrollTop += r.bottom - (b.bottom - pad);
+      box.scrollTop += (r.bottom - (b.bottom - pad)) / scale;
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 

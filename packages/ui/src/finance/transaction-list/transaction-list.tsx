@@ -4,7 +4,6 @@ import { type ReactNode, useId } from "react";
 
 import { RepeatIcon } from "../../mint/icons/icons";
 import { MerchantLogo } from "../../mint/logo/merchant-logo";
-import type { CategoryColor } from "../category-tag/category-colors";
 import { CategoryTag } from "../category-tag/category-tag";
 import { dayNet, groupByDay } from "./group-by-day";
 import styles from "./transaction-list.module.css";
@@ -24,8 +23,9 @@ export type TransactionListItem = {
   readonly category: {
     readonly label: string;
     readonly icon: ReactNode;
-    readonly color: CategoryColor;
   } | null;
+  /** Said beside the amount when it is not simply booked. */
+  readonly status?: TransactionStatus | null;
   /** The logo URL stitched into the row by the API. */
   readonly logoUrl?: string | null;
   /** Money between the household's own accounts. */
@@ -34,9 +34,13 @@ export type TransactionListItem = {
   readonly recurrence?: string | null;
 };
 
+export type TransactionStatus = "pending" | "declined";
+
 export type TransactionListLabels = {
   /** The tag of a transaction still to categorize ("À catégoriser"). */
   readonly uncategorized: string;
+  /** The words said beside the amount ("En attente", "Refusée"). */
+  readonly status: Readonly<Record<TransactionStatus, string>>;
 };
 
 export type TransactionListProps = {
@@ -123,7 +127,10 @@ export type TransactionRowProps = {
   readonly onSelect?: (item: TransactionListItem) => void;
 };
 
-/** One transaction: who, its rhythm, what it was, the account, the signed amount. */
+/**
+ * One transaction: who, its rhythm, what it was, the account, the signed
+ * amount, and its status when it is not simply booked.
+ */
 export function TransactionRow({
   item,
   locale,
@@ -135,20 +142,18 @@ export function TransactionRow({
     sign: "always",
   });
   const categoryLabel = item.category?.label ?? labels.uncategorized;
+  const status = item.status ? labels.status[item.status] : null;
   const name = [
     item.label,
     item.recurrence?.toLowerCase(),
     categoryLabel,
     amount,
+    status?.toLowerCase(),
   ]
     .filter(Boolean)
     .join(", ");
   const tag = (
-    <CategoryTag
-      label={categoryLabel}
-      icon={item.category?.icon}
-      color={item.category?.color}
-    />
+    <CategoryTag label={categoryLabel} icon={item.category?.icon} aria-hidden />
   );
   const content = (
     <>
@@ -162,7 +167,7 @@ export function TransactionRow({
           <span className={styles.merchant}>{item.label}</span>
           {item.recurrence ? (
             <span className={styles.recurrence}>
-              <RepeatIcon />
+              <RepeatIcon className={styles.repeatIcon} />
               {item.recurrence}
             </span>
           ) : null}
@@ -176,13 +181,14 @@ export function TransactionRow({
       <span className={`${styles.column} ${styles.account}`}>
         {item.accountLabel}
       </span>
-      <span
-        className={styles.amount}
-        data-direction={
-          item.amountMinor > 0 ? "in" : item.amountMinor < 0 ? "out" : "zero"
-        }
-      >
-        {amount}
+      <span className={styles.end}>
+        <span
+          className={styles.amount}
+          data-direction={item.amountMinor > 0 ? "in" : "out"}
+        >
+          {amount}
+        </span>
+        {status ? <span className={styles.status}>{status}</span> : null}
       </span>
     </>
   );
@@ -190,13 +196,19 @@ export function TransactionRow({
     <button
       type="button"
       className={styles.row}
+      data-status={item.status ?? undefined}
       aria-label={name}
       onClick={() => onSelect(item)}
     >
       {content}
     </button>
   ) : (
-    <div className={styles.row} role="group" aria-label={name}>
+    <div
+      className={styles.row}
+      data-status={item.status ?? undefined}
+      role="group"
+      aria-label={name}
+    >
       {content}
     </div>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import { RollingNumber } from "./rolling-number";
-import { formatMoneyParts, type SignDisplay } from "@keel/finance/money";
+import { localeSeparators } from "./slots";
+import { formatMoney, type SignDisplay } from "@keel/finance/money";
 
 export type AnimatedAmountProps = {
   readonly minor: number;
@@ -17,22 +18,6 @@ export function AnimatedAmount({
   locale,
   sign,
 }: AnimatedAmountProps) {
-  const parts = formatMoneyParts(minor, currency, { locale, sign });
-  const text = parts.map((part) => part.value).join("");
-  const separators = {
-    decimal: parts.find((part) => part.type === "decimal")?.value ?? ",",
-    group:
-      parts.find((part) => part.type === "group")?.value ?? groupOf(locale),
-  };
-  return <RollingNumber text={text} separators={separators} />;
-}
-
-// The group separator of a locale, for amounts too small to show one yet:
-// it must still be known so a later 1 000 keys its cell right.
-function groupOf(locale: string): string {
-  return (
-    new Intl.NumberFormat(locale)
-      .formatToParts(1_000_000)
-      .find((part) => part.type === "group")?.value ?? " "
-  );
+  const text = formatMoney(minor, currency, { locale, sign });
+  return <RollingNumber text={text} separators={localeSeparators(locale)} />;
 }

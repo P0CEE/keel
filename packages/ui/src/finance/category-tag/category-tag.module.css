@@ -1,14 +1,14 @@
+/* the Tag's neutral accent, its icon 8px in */
 .tag {
   display: inline-flex;
   flex: none;
   align-items: center;
   gap: var(--space-s0-50);
   max-width: 100%;
-  min-width: 0;
   padding: var(--space-s0-50) var(--space-s1-50) var(--space-s0-50)
     var(--space-s1);
   border-radius: var(--radius-1000);
-  background: color-mix(in srgb, var(--tag-color) 16%, transparent);
+  background: var(--highlight);
   color: var(--ink-2);
   font-size: var(--text-xsmall);
   line-height: var(--leading-xsmall);
@@ -17,21 +17,7 @@
   white-space: nowrap;
 }
 
-.tag[data-neutral] {
-  background: var(--highlight);
-}
-
-.icon {
-  display: grid;
+.tag > svg {
   flex: none;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  color: var(--tag-color, var(--ink-3));
-}
-
-.label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: block;
 }

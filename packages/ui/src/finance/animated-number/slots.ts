@@ -16,6 +16,25 @@ export type Slot = {
 
 export type Direction = "up" | "down";
 
+// Each locale's separators, read once off a probe number: the ticker must tell
+// a group separator from a decimal one even when the amount shows neither yet.
+const separatorsByLocale = new Map<string, Separators>();
+
+export function localeSeparators(locale: string): Separators {
+  const known = separatorsByLocale.get(locale);
+  if (known) return known;
+  const probe = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).formatToParts(12345.6);
+  const separators = {
+    decimal: probe.find((part) => part.type === "decimal")?.value ?? ".",
+    group: probe.find((part) => part.type === "group")?.value ?? ",",
+  };
+  separatorsByLocale.set(locale, separators);
+  return separators;
+}
+
 export function splitSlots(
   text: string,
   { decimal, group }: Separators,
@@ -30,7 +49,7 @@ export function splitSlots(
     if (char === group && index < end) {
       const following = chars
         .slice(index + 1, end)
-        .filter((c) => /\d/.test(c)).length;
+        .filter((c) => c !== group).length;
       const position = `group-${following}`;
       return { char, key: position, position, separator: true };
     }

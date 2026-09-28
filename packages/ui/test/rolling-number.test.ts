@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   cascadeDelays,
   directionOf,
+  localeSeparators,
   readValue,
   relativeChange,
   shouldReshuffle,
@@ -29,6 +30,11 @@ describe("splitSlots", () => {
     expect(slots[2]?.key).toBe("int-1-2");
   });
 
+  test("a group separator is keyed by the characters that follow it", () => {
+    const slots = splitSlots("$12,847.32", { decimal: ".", group: "," });
+    expect(slots.find((slot) => slot.char === ",")?.position).toBe("group-3");
+  });
+
   test("a group separator keeps its cell as the number grows", () => {
     const before = splitSlots("1 234,56", FR).find(
       (slot) => slot.separator && slot.char !== ",",
@@ -37,6 +43,22 @@ describe("splitSlots", () => {
       (slot) => slot.separator && slot.char !== ",",
     );
     expect(before?.position).toBe(after?.position);
+  });
+});
+
+describe("localeSeparators", () => {
+  test("reads the locale's decimal and group separators", () => {
+    expect(localeSeparators("en-US")).toEqual({ decimal: ".", group: "," });
+    expect(localeSeparators("fr-FR")).toEqual({
+      decimal: ",",
+      group: " ",
+    });
+  });
+
+  test("a whole amount still knows its decimal separator", () => {
+    // "¥1,234" has no decimal part: its comma must stay a group separator
+    const slots = splitSlots("¥1,234", localeSeparators("en-US"));
+    expect(slots.find((slot) => slot.char === ",")?.position).toBe("group-3");
   });
 });
 

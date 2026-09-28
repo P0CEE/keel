@@ -1,0 +1,139 @@
+/* mint-pocs' Profile menu, the menu only: the Select's dress, frosted in
+   light, bg.primary in dark. Portalled to <body>, so it carries the font the
+   demo's root gave it. */
+.positioner {
+  z-index: var(--z-popup);
+}
+
+.menu {
+  width: 252px;
+  padding: var(--space-s1) 0;
+  border-radius: 18px;
+  outline: none;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--popup);
+  backdrop-filter: blur(56px);
+  box-shadow: var(--shadow-float);
+  transform-origin: var(--transform-origin);
+  /* at rest on no transform: a 3D layer would rasterise the text soft */
+  transform: none;
+  transition:
+    opacity var(--duration-instant) ease-out,
+    transform var(--duration-fast) var(--ease-overshoot);
+}
+
+.menu[data-starting-style],
+.menu[data-ending-style] {
+  opacity: 0;
+  transform: perspective(800px) scale(0.96) translateY(-4px) rotateX(-4deg);
+}
+
+.menu[data-ending-style] {
+  transition:
+    opacity var(--duration-instant) ease-in,
+    transform var(--duration-instant) ease-in;
+}
+
+/* a line's icon (mint-pocs' .pm-icon) */
+.item > svg {
+  display: block;
+  flex: none;
+}
+
+/* the head and the lines share one geometry: 40px, the glyph 18px in, the
+   text 6px after it */
+.head,
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s0-75);
+  margin: 0 var(--space-s0-75);
+  padding: 9px var(--space-s1-50);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+}
+
+.name {
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item {
+  border-radius: var(--radius-12);
+  outline: none;
+  cursor: pointer;
+  font-weight: var(--weight-regular);
+  user-select: none;
+}
+
+.label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* one highlight, moved by Base UI with the pointer and the keys alike; it is
+   the focus too */
+.item[data-highlighted] {
+  background-color: var(--highlight);
+}
+
+.separator {
+  height: 1px;
+  margin: var(--space-s1) var(--space-s2-50);
+  border: 0;
+  background: var(--line);
+}
+
+/* the set's badge on the pill fill, a step above the highlight */
+.kbd {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: var(--pill);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: var(--text-xsmall);
+  line-height: 1;
+  font-weight: var(--weight-bold);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--pill);
+  box-shadow: inset 0 0 0 1px var(--line);
+  /* Mint's text.xxsmall, used nowhere else */
+  font-size: 10.5px;
+  line-height: 1;
+  font-weight: var(--weight-bold);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* no scale or tilt, only the fade */
+  .menu {
+    transition: opacity var(--duration-instant) ease-out;
+  }
+  .menu[data-starting-style],
+  .menu[data-ending-style] {
+    transform: none;
+  }
+}

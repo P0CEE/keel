@@ -5,10 +5,8 @@ import { useState } from "react";
 import styles from "./home-view.module.css";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { addDays, todayIn } from "@keel/finance/dates";
-import { Amount } from "@keel/ui/finance/amount";
 import { AnimatedAmount } from "@keel/ui/finance/animated-amount";
 import { CashFlow } from "@keel/ui/finance/cash-flow";
-import type { CategoryColor } from "@keel/ui/finance/category-colors";
 import {
   CategoryGlyph,
   type CategoryGlyphName,
@@ -21,19 +19,25 @@ import {
 
 // Sample data for looking at the foundation, and only here: no feature reads it.
 const glyph = (name: CategoryGlyphName) => <CategoryGlyph name={name} />;
-const CATEGORIES: {
-  label: string;
-  icon: React.ReactNode;
-  color: CategoryColor;
-}[] = [
-  { label: "Logement", icon: glyph("housing"), color: "blue" },
-  { label: "Alimentation", icon: glyph("dining"), color: "purple" },
-  { label: "Loisirs", icon: glyph("entertainment"), color: "pink" },
-  { label: "Transports", icon: glyph("transport"), color: "yellow" },
-  { label: "Shopping", icon: glyph("shopping"), color: "orange" },
-  { label: "Santé", icon: glyph("health"), color: "mauve" },
-  { label: "Revenus", icon: glyph("income"), color: "green" },
+const CATEGORIES: { label: string; icon: React.ReactNode }[] = [
+  { label: "Logement", icon: glyph("housing") },
+  { label: "Alimentation", icon: glyph("dining") },
+  { label: "Loisirs", icon: glyph("entertainment") },
+  { label: "Transports", icon: glyph("transport") },
+  { label: "Shopping", icon: glyph("shopping") },
+  { label: "Santé", icon: glyph("health") },
+  { label: "Revenus", icon: glyph("income") },
 ];
+
+// mint-pocs' balance move: a few hundred euros either way (whole euros, so
+// only the integer digits roll), bounced back inside a band so the number
+// keeps its five integer digits and its width.
+function nextBalance(current: number): number {
+  const step = (1 + Math.floor(Math.random() * 999)) * 100;
+  const signed = Math.random() < 0.5 ? -step : step;
+  const next = current + signed;
+  return next < 1_040_000 || next > 1_940_000 ? current - signed : next;
+}
 
 function category(label: string) {
   return CATEGORIES.find((entry) => entry.label === label) ?? null;
@@ -49,6 +53,17 @@ function sampleTransactions(today: string): TransactionListItem[] {
       currency: "EUR",
       accountLabel: "Compte courant",
       category: category("Alimentation"),
+      status: "pending",
+    },
+    {
+      id: "1b",
+      label: "Uber",
+      day: today,
+      amountMinor: -1_850,
+      currency: "EUR",
+      accountLabel: "Carte ··· 4821",
+      category: category("Transports"),
+      status: "declined",
     },
     {
       id: "2",
@@ -86,7 +101,7 @@ function sampleTransactions(today: string): TransactionListItem[] {
       amountMinor: -30_000,
       currency: "EUR",
       accountLabel: "Compte courant",
-      category: null,
+      category: { label: "Virement", icon: glyph("transfer") },
       transfer: true,
     },
     {
@@ -140,27 +155,25 @@ export function HomeView() {
     <div className={styles.page}>
       <div className={styles.main}>
         <section className={styles.hero}>
+          <span className={styles.label}>{t("balance")}</span>
           <button
             type="button"
             className={styles.balance}
             aria-label={t("reroll")}
-            onClick={() =>
-              setBalance(
-                (value) => value + Math.round((Math.random() - 0.5) * 60_000),
-              )
-            }
+            onClick={() => setBalance(nextBalance)}
           >
             <AnimatedAmount minor={balance} currency="EUR" locale={locale} />
           </button>
-          <span className={styles.change}>
-            <Amount
-              minor={45_850}
-              currency="EUR"
-              locale={locale}
-              sign="always"
-              tone
-            />{" "}
-            {t("this_month")}
+          <span className={styles.changeRow}>
+            <span className={styles.change}>
+              <AnimatedAmount
+                minor={45_850}
+                currency="EUR"
+                locale={locale}
+                sign="always"
+              />
+            </span>
+            <span className={styles.period}>{t("this_month")}</span>
           </span>
         </section>
 
@@ -170,6 +183,7 @@ export function HomeView() {
             currency="EUR"
             locale={locale}
             labels={{
+              name: t("cash_flow_name"),
               title: t("cash_flow"),
               moneyIn: t("money_in"),
               moneyOut: t("money_out"),
@@ -186,7 +200,6 @@ export function HomeView() {
                 key={entry.label}
                 label={entry.label}
                 icon={entry.icon}
-                color={entry.color}
               />
             ))}
             <CategoryTag
@@ -204,7 +217,10 @@ export function HomeView() {
             items={sampleTransactions(today)}
             today={today}
             locale={locale}
-            labels={{ uncategorized: t("uncategorized") }}
+            labels={{
+              uncategorized: t("uncategorized"),
+              status: { pending: t("pending"), declined: t("declined") },
+            }}
             onSelect={() => {}}
           />
         </div>

@@ -20,6 +20,7 @@ import {
   DocumentsIcon,
   LogOutIcon,
   MoonIcon,
+  PaletteIcon,
   ShortcutsIcon,
   SunIcon,
   SystemIcon,
@@ -27,11 +28,12 @@ import {
 import { MobileTabBar } from "@keel/ui/mint/mobile-tab-bar";
 import { currentItemId, type LinkComponent } from "@keel/ui/mint/nav";
 import { PageIndicator } from "@keel/ui/mint/page-indicator";
-import { type Appearance, ProfileMenu } from "@keel/ui/mint/profile-menu";
+import { ProfileMenu } from "@keel/ui/mint/profile-menu";
 import { QuickSearch, type SearchItem } from "@keel/ui/mint/quick-search";
 import { assertUniqueKeys, type Shortcut } from "@keel/ui/mint/shortcuts";
 import { ShortcutsDialog } from "@keel/ui/mint/shortcuts-dialog";
 import { Sidebar } from "@keel/ui/mint/sidebar";
+import type { Appearance } from "@keel/ui/mint/sidebar-profile";
 import { SwipePager, usePagerMotion } from "@keel/ui/mint/swipe-pager";
 import { useShortcuts } from "@keel/ui/mint/use-shortcuts";
 
@@ -109,18 +111,19 @@ export function AppShell({
   const [railProfileOpen, setRailProfileOpen] = useState(false);
   const [phoneProfileOpen, setPhoneProfileOpen] = useState(false);
 
-  const items = useMemo(
-    () =>
-      navigation({
-        home: t("home"),
-        homeHint: t("home_hint"),
-        accounts: t("accounts"),
-        accountsHint: t("accounts_hint"),
-        transactions: t("transactions"),
-        transactionsHint: t("transactions_hint"),
-      }),
-    [t],
-  );
+  // The same pages twice: the rail's icons are 20px, the phone tab bar's
+  // 24px, as mint-pocs' Nav drawer draws its tabs.
+  const [items, tabItems] = useMemo(() => {
+    const labels = {
+      home: t("home"),
+      homeHint: t("home_hint"),
+      accounts: t("accounts"),
+      accountsHint: t("accounts_hint"),
+      transactions: t("transactions"),
+      transactionsHint: t("transactions_hint"),
+    };
+    return [navigation(labels), navigation(labels, 24)];
+  }, [t]);
   const currentId = currentItemId(pathname, items);
   const phone = usePhone();
 
@@ -167,9 +170,12 @@ export function AppShell({
       console.error("sign-out failed", error);
     });
   };
-  const openProfile = () => {
+  // P toggles the visible profile menu, as the rail's avatar does
+  const toggleProfile = () => {
     const desk = window.matchMedia(DESK).matches;
+    const wasOpen = desk ? railProfileOpen : phoneProfileOpen;
     closeAll();
+    if (wasOpen) return;
     if (desk) setRailProfileOpen(true);
     else setPhoneProfileOpen(true);
   };
@@ -230,7 +236,7 @@ export function AppShell({
       key: "p",
       label: t("profile"),
       group: t("group_controls"),
-      run: openProfile,
+      run: toggleProfile,
     },
     {
       id: "shortcuts",
@@ -238,8 +244,9 @@ export function AppShell({
       label: t("shortcuts"),
       group: t("group_controls"),
       run: () => {
+        const next = !keysOpen;
         closeAll();
-        setKeysOpen(true);
+        setKeysOpen(next);
       },
     },
     {
@@ -350,13 +357,12 @@ export function AppShell({
         <Sidebar
           label={t("navigation")}
           logo={<RamnnR />}
-          home={{ href: "/", label: t("home") }}
           items={items}
           currentId={currentId}
           pressed={pressed}
           search={{
             label: t("search"),
-            hint: t("search"),
+            hint: t("search_hint"),
             shortcut: keyOf("search"),
             onSelect: () => {
               closeAll();
@@ -416,10 +422,41 @@ export function AppShell({
           }
           end={
             <ProfileMenu
-              {...profileProps}
-              side="bottom"
+              name={user.name}
+              initials={initialsOf(user.name)}
+              photo={user.avatarUrl}
+              label={t("profile")}
               open={phoneProfileOpen}
               onOpenChange={setPhoneProfileOpen}
+              // mint-pocs' Profile menu, the lines keel has: Appearance is a
+              // line like the others and switches the appearance, as L does
+              groups={[
+                [
+                  {
+                    id: "shortcuts",
+                    label: t("shortcuts"),
+                    icon: <ShortcutsIcon />,
+                    key: keyOf("shortcuts"),
+                    onSelect: () => setKeysOpen(true),
+                  },
+                  {
+                    id: "appearance",
+                    label: t("appearance"),
+                    icon: <PaletteIcon />,
+                    key: keyOf("appearance"),
+                    onSelect: toggleAppearance,
+                  },
+                ],
+                [
+                  {
+                    id: "logout",
+                    label: t("sign_out"),
+                    icon: <LogOutIcon />,
+                    key: keyOf("logout"),
+                    onSelect: logout,
+                  },
+                ],
+              ]}
             />
           }
         />
@@ -445,7 +482,7 @@ export function AppShell({
       </div>
       <MobileTabBar
         label={t("navigation")}
-        items={items}
+        items={tabItems}
         currentId={currentId}
         action={{
           label: t("add"),
@@ -456,21 +493,18 @@ export function AppShell({
               id: "add-transaction",
               label: t("add_transaction"),
               icon: <ActivityIcon size={24} />,
-              tone: "accent",
               href: "/transactions",
             },
             {
               id: "add-import",
               label: t("add_import"),
               icon: <DocumentsIcon size={24} />,
-              tone: "info",
               href: "/transactions",
             },
             {
               id: "add-bank",
               label: t("add_bank"),
               icon: <AccountsIcon size={24} />,
-              tone: "positive",
               href: "/accounts",
             },
           ],

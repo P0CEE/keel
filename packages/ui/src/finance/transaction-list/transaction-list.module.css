@@ -117,7 +117,7 @@ button.row:active::before {
   opacity: 0;
 }
 
-/* Narrow: the merchant over its tag and account, the amount at the right. */
+/* Narrow: the merchant over its tag and account, the amount over its status. */
 .who {
   display: flex;
   flex-direction: column;
@@ -160,22 +160,53 @@ button.row:active::before {
   white-space: nowrap;
 }
 
+.repeatIcon {
+  flex: none;
+  display: block;
+}
+
 .column {
   display: none;
   min-width: 0;
 }
 
+.end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-s0-50);
+}
+
 .amount {
-  align-self: start;
-  padding-top: 2px;
   font-weight: var(--weight-medium);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  text-align: right;
 }
 
 .amount[data-direction="in"] {
   color: var(--positive);
+}
+
+/* struck through, so a declined amount reads without colour */
+.row[data-status="declined"] .amount {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+
+/* the status sits level with the tag under it: the tag's 24px */
+.status {
+  line-height: 24px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.row[data-status="declined"] .status {
+  color: var(--negative);
+}
+
+.end:not(:has(.status))::after {
+  content: "";
+  height: 24px;
 }
 
 /* Wide: one line in columns that line up from row to row, every track a
@@ -193,15 +224,15 @@ button.row:active::before {
   .column {
     display: block;
   }
-  .amount {
-    align-self: center;
-    padding-top: 0;
+  .end {
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: var(--space-s1-50);
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .row::before,
-  .item + .item::before {
-    transition: none;
+  .status {
+    line-height: inherit;
+  }
+  .end:not(:has(.status))::after {
+    display: none;
   }
 }

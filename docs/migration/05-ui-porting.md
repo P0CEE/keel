@@ -67,14 +67,14 @@ d'abord l'apparence du système.
 | `card`                                      | `--card-bg` (renommé : `--card` appartient au thème shadcn)                                                    |
 | `line`, `line-heavy`                        | `--line`, `--line-heavy`                                                                                       |
 | `highlight`, `hover`, `pill`                | `--highlight`, `--hover`, `--pill`                                                                             |
-| `positive` et `positive-soft`               | `--positive`, `--positive-soft` (`negative` reviendra avec son premier usage)                                  |
+| `positive` et `positive-soft`, `negative`   | `--positive`, `--positive-soft`, `--negative` (le statut « Refusée » d'une transaction)                        |
 | `info`, `warning` et leurs `-soft`          | `--info`, `--warning`, `--info-soft`, `--warning-soft`                                                         |
 | `dock-fill`, `dock-edge`                    | `--dock-fill`, `--dock-edge`                                                                                   |
 | la barre du téléphone (`--nd-bar`)          | `--bar`                                                                                                        |
 | le carré courant du rail                    | `--current`                                                                                                    |
 | le soleil du rail (`--sb-sun`)              | `--sun`                                                                                                        |
 | popups, scrim                               | `--popup`, `--scrim`                                                                                           |
-| ombres `raised`, `dock`, `float`            | `--shadow-raised`, `--shadow-dock`, `--shadow-float`                                                           |
+| ombres `raised`, `dock`, `float`            | `--shadow-dock`, `--shadow-float` (`--shadow-raised` reviendra avec son premier usage)                         |
 | palette catégorielle (`dataviz-category-*`) | `--category-blue`, `-purple`, `-pink`, `-yellow`, `-orange`, `-mauve`, `-green`, `-green-deep`, `-green-light` |
 | tout `--component-*`                        | **interdit** : trouver le rôle, ou en créer un                                                                 |
 
@@ -106,19 +106,21 @@ Valeurs de Mint gardées telles quelles : `ink-3` reste `fg.secondary` en clair
 | `mint/shortcuts`, `use-shortcuts`, `shortcuts-dialog` | Sidebar (`COMMANDS`)                     | Une table, lue en capture ; règles de touches testées                                                                                                                                          |
 | `mint/avatar`, `merchant-logo`, `icon-button`         | Sidebar, Transactions, SecurityLogo      | Repli sur initiales, décodage des images en cache                                                                                                                                              |
 | `mint/sidebar`, `sidebar-dock`, `sidebar-profile`     | Sidebar (fichier entier)                 | Transposé règle par règle : rail de 96 px, carré courant partagé, dock avec point, compte et pile en croissant qui grandit en panneau, menu profil. Popups dans une couche à la racine du rail |
-| `mint/nav`, `mint/profile-menu`                       | Sidebar                                  | Page courante tirée de l'URL ; menu profil de la barre du téléphone                                                                                                                            |
+| `mint/nav`                                            | Sidebar                                  | Page courante tirée de l'URL                                                                                                                                                                   |
+| `mint/profile-menu`                                   | AppTopBar (bouton), ProfileMenu (menu)   | Le bouton profil de 32 px de la barre du téléphone ouvre le menu de ProfileMenu, transposé : 252 px, lignes de 40 px, touches affichées qui choisissent leur ligne. Règle des touches testée   |
 | `mint/mobile-tab-bar`                                 | NavDrawerMorph                           | Un seul élément morphe de la pilule au tiroir                                                                                                                                                  |
 | `mint/app-top-bar`, `page-indicator`, `swipe-pager`   | AppTopBar                                | Barre du téléphone, indicateur pilule et points, pages balayées sur SNAP (un quart de largeur ou un geste vif). Géométrie pure testée                                                          |
 
 ### `@keel/ui/finance`
 
-| Export                              | Porté depuis                          | Notes                                                                                             |
-| ----------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `category-tag`, `category-colors`   | Tag, Transactions, spending breakdown | Lavis de la couleur, glyphe dans la couleur, nom en encre ; neutre pour « À catégoriser »         |
-| `amount`                            | Transactions (`signed`)               | Chiffres tabulaires                                                                               |
-| `rolling-number`, `animated-amount` | AnimatedNumber (`RollingTicker`)      | Logique de cases extraite et testée ; séparateurs de la locale (espace fine en français)          |
-| `transaction-list`                  | Transactions                          | Jours du foyer, multi-devises (pas de net du jour quand les devises diffèrent), container queries |
-| `cash-flow`                         | CashFlow                              | Barres HTML sur TRAIL, bleu et orange de la palette, roving tabindex                              |
+| Export                              | Porté depuis                          | Notes                                                                                                                           |
+| ----------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `category-tag`, `category-colors`   | Tag, Transactions, spending breakdown | L'accent neutre du Tag, icône à 8 px du bord, comme la démo ; la couleur reste aux graphiques                                   |
+| `category-glyphs`                   | Transactions, Icon picker             | Logement et santé : Home et Health de l'Icon picker ; « À catégoriser » dessiné sur la même grille                              |
+| `amount`                            | Transactions (`signed`)               | Chiffres tabulaires                                                                                                             |
+| `rolling-number`, `animated-amount` | AnimatedNumber (`RollingTicker`)      | Logique de cases extraite et testée ; séparateurs lus sur la locale (espace fine en français)                                   |
+| `transaction-list`                  | Transactions                          | Jours du foyer, multi-devises (pas de net du jour quand les devises diffèrent), statut en attente ou refusée, container queries |
+| `cash-flow`                         | CashFlow                              | Barres HTML sur TRAIL, bleu et orange de la palette, roving tabindex                                                            |
 
 ### Dans l'app
 
@@ -145,17 +147,17 @@ Valeurs de Mint gardées telles quelles : `ink-3` reste `fg.secondary` en clair
 mint-pocs montait tout en client seulement (`client:only`), dans des maquettes
 de téléphone. Ce qui change :
 
-| Sujet                    | mint-pocs                                    | keel                                                                                                               |
-| ------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Écran du téléphone       | Maquette 360×600                             | Calque fixe sur le viewport, dans les zones sûres (`env(safe-area-inset-*)`)                                       |
-| Liens                    | `<button onClick>`                           | Composant de lien injecté (`linkComponent`, Next `Link` dans l'app) : vrais liens, préchargement Next, clic milieu |
-| Page courante            | État local                                   | `currentItemId(pathname)` : exacte, ou préfixe le plus long                                                        |
-| Apparence                | Le rail écrivait sur `<html>`                | `next-themes` (`setTheme`), une seule source                                                                       |
-| Palette des popups       | Couche de portail à la racine de chaque démo | Gardée pour le Sidebar (police et palette héritées, rien n'entre dans le flux du rail) ; `<body>` ailleurs         |
-| Bascule mobile / desktop | Aucune                                       | Media query CSS pour la mise en page ; `matchMedia` seulement pour activer le glissement, après le montage         |
-| Pages balayées           | Quatre pages dans une maquette               | Les routes du haut, montées par la coque ; un glissement navigue (`router.push`) et la piste suit tout de suite    |
-| Menu profil              | Un                                           | Un par surface (rail, barre du haut), états séparés ; la touche P ouvre celui visible                              |
-| Textes                   | Anglais en dur                               | Props de libellés, traduites par next-international                                                                |
+| Sujet                    | mint-pocs                                    | keel                                                                                                                                                                                                         |
+| ------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Écran du téléphone       | Maquette 360×600                             | Le cadre de l'app sur téléphone, à la hauteur du viewport : dégradé de l'écran, barre en haut (dans la zone sûre), pages qui défilent chacune sous la barre ; la tab bar en calque fixe dans les zones sûres |
+| Liens                    | `<button onClick>`                           | Composant de lien injecté (`linkComponent`, Next `Link` dans l'app) : vrais liens, préchargement Next, clic milieu                                                                                           |
+| Page courante            | État local                                   | `currentItemId(pathname)` : exacte, ou préfixe le plus long                                                                                                                                                  |
+| Apparence                | Le rail écrivait sur `<html>`                | `next-themes` (`setTheme`), une seule source                                                                                                                                                                 |
+| Palette des popups       | Couche de portail à la racine de chaque démo | Gardée pour le Sidebar (police et palette héritées, rien n'entre dans le flux du rail) ; `<body>` ailleurs                                                                                                   |
+| Bascule mobile / desktop | Aucune                                       | Media query CSS pour la mise en page ; `matchMedia` seulement pour activer le glissement, après le montage                                                                                                   |
+| Pages balayées           | Quatre pages dans une maquette               | Les routes du haut, montées par la coque ; un glissement navigue (`router.push`) et la piste suit tout de suite                                                                                              |
+| Menu profil              | Un                                           | Un par surface (rail, barre du haut), états séparés ; la touche P ouvre celui visible                                                                                                                        |
+| Textes                   | Anglais en dur                               | Props de libellés, traduites par next-international                                                                                                                                                          |
 
 ## 5. Recette pour porter le composant suivant
 

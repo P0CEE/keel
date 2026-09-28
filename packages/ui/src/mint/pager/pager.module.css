@@ -81,7 +81,11 @@
   color: var(--ink-2);
 }
 
-/* ---- Pages ---- */
+/* ---- Pages ----
+   mint-pocs' .at-viewport, .at-track and .at-page. On a phone the viewport
+   fills the screen under the bar and each page is as tall as it; a page
+   longer than the screen scrolls inside itself (the demo's pages fit, so it
+   clips them). On a desk the pager is off and the page flows. */
 .viewport {
   position: relative;
   overflow-x: clip;
@@ -99,17 +103,36 @@
   min-width: 0;
 }
 
+@media (max-width: 767px) {
+  .viewport {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .track {
+    height: 100%;
+  }
+
+  .pane {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
 /* until the track is measured (and always on a desk), only the current page
    is laid out */
 .viewport:not([data-placed]) .pane:not([data-current]) {
   display: none;
 }
 
-/* a page beside the one shown is only ever seen mid-swipe: it never makes
-   the track taller than a screen */
-.viewport[data-placed] .pane:not([data-current]) {
-  max-height: 100dvh;
-  overflow: hidden;
+.viewport[data-placed] .track {
+  cursor: grab;
+}
+
+.viewport[data-placed] .track:active {
+  cursor: grabbing;
 }
 
 .viewport[data-placed] .pane {
@@ -119,4 +142,5 @@
 
 .pane img {
   -webkit-user-drag: none;
+  user-select: none;
 }

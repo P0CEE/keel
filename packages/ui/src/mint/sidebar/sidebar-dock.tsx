@@ -9,7 +9,6 @@ import {
 } from "motion/react";
 import {
   type ReactNode,
-  type RefObject,
   useEffect,
   useEffectEvent,
   useId,
@@ -22,6 +21,7 @@ import type { LinkComponent } from "../app-rail/nav";
 import { useSize } from "../hooks/use-size";
 import { MerchantLogo } from "../logo/merchant-logo";
 import { ease } from "../motion";
+import { keyLabel } from "../shortcuts/shortcuts";
 import { useSidebarLayer } from "./sidebar-popup";
 import styles from "./sidebar.module.css";
 
@@ -49,6 +49,8 @@ export type SidebarDockProps = {
   readonly describe: (count: number) => string;
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
+  /** The panel's width: what the viewport leaves right of the rail (the Sidebar measures it). */
+  readonly panelWidth: number;
   readonly linkComponent?: LinkComponent;
 };
 
@@ -93,25 +95,6 @@ const inside: Variants = {
   },
 };
 
-// The width left to the right of an element in the viewport, kept current.
-function useRoom(ref: RefObject<HTMLElement | null>): number {
-  const [room, setRoom] = useState(560);
-  useLayoutEffect(() => {
-    const read = () => {
-      if (ref.current)
-        setRoom(
-          Math.round(
-            window.innerWidth - ref.current.getBoundingClientRect().left,
-          ),
-        );
-    };
-    read();
-    window.addEventListener("resize", read);
-    return () => window.removeEventListener("resize", read);
-  }, [ref]);
-  return room;
-}
-
 /**
  * The Order dock of mint-pocs' Sidebar, carrying what waits for the member
  * (transactions to categorize, a series to confirm, a bank to reconnect): a
@@ -122,15 +105,15 @@ function useRoom(ref: RefObject<HTMLElement | null>): number {
 export function SidebarDock({
   items,
   title,
+  shortcut,
   describe,
   open,
   onOpenChange,
+  panelWidth,
   linkComponent,
 }: SidebarDockProps) {
   const reduce = useReducedMotion() ?? false;
   const dock = useRef<HTMLButtonElement>(null);
-  const anchor = useRef<HTMLDivElement>(null);
-  const room = useRoom(anchor);
   const [from, setFrom] = useState({ width: 40, height: 115 });
   // while the panel is there, the dock shows only its content, above the panel's glass
   const [panelShown, setPanelShown] = useState(false);
@@ -164,7 +147,7 @@ export function SidebarDock({
   }, [open]);
 
   return (
-    <div ref={anchor} className={styles.dockAnchor}>
+    <div className={styles.dockAnchor}>
       <button
         ref={dock}
         type="button"
@@ -176,6 +159,7 @@ export function SidebarDock({
         aria-label={describe(items.length)}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-keyshortcuts={shortcut ? keyLabel(shortcut) : undefined}
         onClick={() => {
           measureDock();
           onOpenChange(true);
@@ -209,7 +193,7 @@ export function SidebarDock({
             items={items}
             title={title}
             from={from}
-            width={Math.max(Math.min(560, room - 16), 280)}
+            width={panelWidth}
             reduce={reduce}
             onClose={close}
             linkComponent={linkComponent}

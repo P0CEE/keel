@@ -19,17 +19,23 @@ export function groupByDay<T extends { readonly day: string }>(
 }
 
 /**
- * A day's net, when it can be said in one currency. Amounts in different
- * currencies never add up: the heading then shows no net rather than a wrong one.
+ * A day's net, declined transactions left out, when it can be said in one
+ * currency. Amounts in different currencies never add up: the heading then
+ * shows no net rather than a wrong one.
  */
 export function dayNet(
-  items: readonly { readonly amountMinor: number; readonly currency: string }[],
+  items: readonly {
+    readonly amountMinor: number;
+    readonly currency: string;
+    readonly status?: "pending" | "declined" | null;
+  }[],
 ): { readonly minor: number; readonly currency: string } | null {
-  const [first] = items;
-  if (!first || items.some((item) => item.currency !== first.currency))
+  const counted = items.filter((item) => item.status !== "declined");
+  const first = counted[0] ?? items[0];
+  if (!first || counted.some((item) => item.currency !== first.currency))
     return null;
   return {
-    minor: items.reduce((sum, item) => sum + item.amountMinor, 0),
+    minor: counted.reduce((sum, item) => sum + item.amountMinor, 0),
     currency: first.currency,
   };
 }

@@ -44,7 +44,7 @@ export function MerchantLogo({
     <span
       className={styles.logo}
       data-lettermark={showImage ? undefined : true}
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}
+      style={{ width: size, height: size }}
       aria-hidden
     >
       {showImage ? (

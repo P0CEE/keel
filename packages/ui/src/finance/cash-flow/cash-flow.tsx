@@ -10,6 +10,8 @@ import { formatMonth } from "@keel/finance/dates";
 import { formatMoney } from "@keel/finance/money";
 
 export type CashFlowLabels = {
+  /** The section's accessible name ("Entrées et sorties"). */
+  readonly name: string;
   readonly title: string;
   readonly moneyIn: string;
   readonly moneyOut: string;
@@ -22,6 +24,8 @@ export type CashFlowProps = {
   readonly currency: string;
   readonly locale: string;
   readonly labels: CashFlowLabels;
+  /** A month held in focus from outside; otherwise the pointer or the keyboard. */
+  readonly focus?: number;
 };
 
 /**
@@ -30,15 +34,21 @@ export type CashFlowProps = {
  * pair turns solid and the figures blur across to it. At rest, the last
  * (current) month.
  */
-export function CashFlow({ months, currency, locale, labels }: CashFlowProps) {
+export function CashFlow({
+  months,
+  currency,
+  locale,
+  labels,
+  focus: focusProp,
+}: CashFlowProps) {
   const [hovered, setHovered] = useState<number | null>(null);
-  const focus = hovered ?? months.length - 1;
+  const focus = focusProp ?? hovered ?? months.length - 1;
   const month = months[focus];
   if (!month) return null;
   const money = (minor: number, sign: "always" | "never") =>
     formatMoney(minor, currency, { locale, sign });
   return (
-    <section className={styles.root} aria-label={labels.chart}>
+    <section className={styles.root} aria-label={labels.name}>
       <div className={styles.head}>
         <span className={styles.title}>{labels.title}</span>
         <Swap

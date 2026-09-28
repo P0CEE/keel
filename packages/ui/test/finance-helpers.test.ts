@@ -69,6 +69,19 @@ describe("transaction list grouping", () => {
     });
   });
 
+  test("a declined transaction is left out of the day's net", () => {
+    expect(
+      dayNet([
+        { amountMinor: -635, currency: "EUR", status: "pending" },
+        { amountMinor: -1850, currency: "EUR", status: "declined" },
+        { amountMinor: 245_000, currency: "EUR" },
+      ]),
+    ).toEqual({ minor: 244_365, currency: "EUR" });
+    expect(
+      dayNet([{ amountMinor: -1850, currency: "EUR", status: "declined" }]),
+    ).toEqual({ minor: 0, currency: "EUR" });
+  });
+
   test("no net when a day mixes currencies", () => {
     expect(
       dayNet([

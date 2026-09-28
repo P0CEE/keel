@@ -1,15 +1,18 @@
+/* mint-pocs' App top bar, class for class. The phone screen it heads is the
+   viewport (the shell's frame on a phone), so its top padding also clears
+   the safe area. */
 .bar {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-shell);
-  /* mint-pocs' App top bar: 20px over it; 16px from the screen's edges,
-     the pages' gutter, so the mark and the content share one edge */
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   padding: calc(env(safe-area-inset-top, 0px) + var(--space-s2-50))
-    var(--space-s2) var(--space-s1);
-  background: color-mix(in srgb, var(--page) 86%, transparent);
-  backdrop-filter: blur(20px) saturate(1.4);
+    var(--space-s1-50) 0;
   font-family: var(--font-sans);
   color: var(--ink);
+  -webkit-font-smoothing: antialiased;
 }
 
 @media (min-width: 768px) {
@@ -18,25 +21,62 @@
   }
 }
 
-.row {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  min-height: 32px;
-}
-
-.start,
-.end {
+.side {
   display: flex;
   align-items: center;
   gap: var(--space-s0-50);
 }
 
-.end {
+.side[data-end] {
   justify-content: flex-end;
 }
 
+/* the middle cell, kept when a page has no indicator so the end side stays
+   in the last column */
 .title {
   display: flex;
   justify-content: center;
+}
+
+/* Mint's Button, transparent and icon-only: a 32px round, the hover wash,
+   the pill fill and 0.94 on press */
+.iconButton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-1000);
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-image var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+}
+
+@media (hover: hover) {
+  .iconButton:hover {
+    background-image: linear-gradient(var(--hover), var(--hover));
+  }
+}
+
+.iconButton:active {
+  transform: scale(0.94);
+  background-image: linear-gradient(var(--pill), var(--pill));
+}
+
+.iconButton:focus-visible {
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconButton:active {
+    transform: none;
+  }
 }

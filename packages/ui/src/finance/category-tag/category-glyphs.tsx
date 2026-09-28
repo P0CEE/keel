@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 
-// The categories' icons, mint-pocs' Transactions set: drawn on the Icon
-// picker's grid (24, round strokes, 2.25 at 16px). Housing, health and
-// "to categorize" are drawn to the same grid, as mint-pocs has none.
+// The categories' icons, mint-pocs' Transactions set: the Icon picker's own
+// (a 24 grid, round strokes), drawn at 16px with a 2.25 stroke so they hold
+// the tag's 12px bold text. Housing and health are the Icon picker's Home and
+// Health; "to categorize" is drawn to the same grid, as mint-pocs has none.
 
 export type CategoryGlyphName =
   | "dining"
@@ -60,15 +61,14 @@ const ART: Record<CategoryGlyphName, ReactNode> = {
   travel: (
     <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2Z" />
   ),
-  // the rail's house outline, its door open at the foot
   housing: (
-    <path d="M4 10.4c0-.6.27-1.17.74-1.55l6-4.9a2 2 0 0 1 2.52 0l6 4.9c.47.38.74.95.74 1.55V18a2 2 0 0 1-2 2h-3.25v-4.25a1.75 1.75 0 0 0-3.5 0V20H6a2 2 0 0 1-2-2v-7.6Z" />
+    <>
+      <path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8.5Z" />
+      <path d="M10 11.5v2M14 11.5v2M9 13.5h6v1.2a3 3 0 0 1-6 0v-1.2ZM12 17.7v2.8" />
+    </>
   ),
   health: (
-    <>
-      <path d="M12 20s-7.5-4.4-7.5-10.1A4.4 4.4 0 0 1 12 7a4.4 4.4 0 0 1 7.5 2.9C19.5 15.6 12 20 12 20Z" />
-      <path d="M8.5 12.5h2l1-2 1.5 4 1-2h1.5" />
-    </>
+    <path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z" />
   ),
   uncategorized: (
     <>

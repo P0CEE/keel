@@ -44,7 +44,7 @@
     "./mint/sidebar": "./src/mint/sidebar/sidebar.tsx",
     "./mint/sidebar-dock": "./src/mint/sidebar/sidebar-dock.tsx",
     "./mint/sidebar-profile": "./src/mint/sidebar/sidebar-profile.tsx",
-    "./mint/profile-menu": "./src/mint/app-rail/profile-menu.tsx",
+    "./mint/profile-menu": "./src/mint/app-top-bar/profile-menu.tsx",
     "./mint/mobile-tab-bar": "./src/mint/mobile-tab-bar/mobile-tab-bar.tsx",
     "./mint/page-indicator": "./src/mint/pager/page-indicator.tsx",
     "./mint/swipe-pager": "./src/mint/pager/swipe-pager.tsx",

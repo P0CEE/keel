@@ -36,16 +36,34 @@
   min-width: 0;
 }
 
-/* On a phone, the pages swipe edge to edge, each inside its own 16px
-   gutter, and keep room under them for the floating tab bar. */
 .main {
   flex: 1;
   width: 100%;
-  padding: var(--space-s3) 0 calc(var(--space-s5) * 3);
 }
 
-.gutter {
-  padding-inline: var(--space-s2);
+/* On a phone the frame is mint-pocs' phone screen (App top bar, Nav drawer)
+   laid on the viewport: its lit gradient, the bar at the top, the pages
+   filling the rest, each scrolling on its own under the bar. A page is
+   mint-pocs' .at-page: 56px under the bar, 16px from the edges; its foot
+   keeps room for the floating tab bar. */
+@media (max-width: 767px) {
+  .frame {
+    height: 100dvh;
+    overflow: hidden;
+    background: linear-gradient(165deg, var(--page) 20%, var(--card-bg) 80%);
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .gutter {
+    padding: 56px var(--space-s2)
+      calc(var(--space-s5) * 3 + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* On a desk, the page grows with the window as the reference does: the
