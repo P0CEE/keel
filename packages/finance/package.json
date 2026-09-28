@@ -5,9 +5,11 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
-    "./money": "./src/money.ts",
+    "./accounts": "./src/accounts.ts",
+    "./currencies": "./src/currencies.ts",
     "./dates": "./src/dates.ts",
-    "./currencies": "./src/currencies.ts"
+    "./fx": "./src/fx.ts",
+    "./money": "./src/money.ts"
   },
   "scripts": {
     "lint": "oxlint .",
