@@ -188,15 +188,17 @@ export function createEnableBanking(
           },
           transactionsPageSchema,
         );
-      const transactions = await fetchWindow(
+      const parts = await fetchWindow(
         fetchPage,
         window,
         todayIn(BANK_TIME_ZONE, now()),
       );
-      return transactions.flatMap((transaction): ArrivingRow[] => {
-        const row = toArrivingRow(transaction);
-        return row === null ? [] : [row];
-      });
+      return parts.flatMap((transactions, part) =>
+        transactions.flatMap((transaction): ArrivingRow[] => {
+          const row = toArrivingRow(transaction, part);
+          return row === null ? [] : [row];
+        }),
+      );
     },
   };
 }

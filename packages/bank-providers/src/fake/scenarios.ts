@@ -1,5 +1,6 @@
 import type { ProviderErrorKind } from "../errors";
 import type { ArrivingRow, ConsentStatus, PsuType } from "../port";
+import { demoHistory } from "./history";
 import type { AccountKind } from "@keel/finance/accounts";
 
 /** A failure every data call on a scenario's accounts answers with. */
@@ -172,15 +173,8 @@ const BANQUE_DEMO: FakeScenario = {
           counterpartyIban: ENERGY_IBAN,
           bankCode: SEPA_DEBIT,
         },
-        {
-          daysAgo: 40,
-          amountMinor: 285_000,
-          labelLines: ["VIR SEPA ACME SAS", "SALAIRE MENSUEL"],
-          providerRef: "BD-CUR-0008",
-          counterpartyName: "ACME SAS",
-          counterpartyIban: EMPLOYER_IBAN,
-          bankCode: SEPA_CREDIT,
-        },
+        // The two years before: what the list and the balance curve show.
+        ...demoHistory(23),
       ],
     },
     {

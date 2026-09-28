@@ -237,6 +237,22 @@ describe("the default bank", () => {
     expect(full.every((row) => row.amountMinor !== 0)).toBe(true);
   });
 
+  test("a sync days later finds the same rows, as a real bank's", async () => {
+    let now = NOW;
+    const provider = fake({ now: () => now });
+    const consent = await connect(provider, "Banque Démo");
+    const current = consent.accounts[0];
+    if (current === undefined) throw new Error("no account");
+
+    const first = await provider.fetchTransactions(current, "full");
+    now = new Date(NOW.getTime() + 3 * 86_400_000);
+    const later = await provider.fetchTransactions(current, "full");
+    const recent = await provider.fetchTransactions(current, "incremental");
+
+    expect(later).toEqual(first);
+    expect(recent.every((row) => row.bookedOn >= "2026-09-26")).toBe(true);
+  });
+
   test("has the rows a French current account shows", async () => {
     const provider = fake();
     const consent = await connect(provider, "Banque Démo");

@@ -104,7 +104,7 @@ async function guarded(
 async function fetchFull(
   fetchPage: PageFetcher,
   today: Day,
-): Promise<readonly Transaction[]> {
+): Promise<readonly (readonly Transaction[])[]> {
   const recent = await guarded(fetchPage, {
     strategy: "default",
     transaction_status: "BOOK",
@@ -117,24 +117,30 @@ async function fetchFull(
     date_from: addDays(today, -HISTORY_WINDOW_DAYS),
   });
   if ("error" in recent && "error" in history) throw recent.error;
-  // Overlap between the halves is expected; settlement removes it.
+  // Overlap between the halves is expected; settlement removes it, which is
+  // why each half stays a part of its own.
   return [
-    ...("rows" in recent ? recent.rows : []),
-    ...("rows" in history ? history.rows : []),
+    "rows" in recent ? recent.rows : [],
+    "rows" in history ? history.rows : [],
   ];
 }
 
-/** The rows of one window, in the bank's order; `today` is the bank's day. */
-export function fetchWindow(
+/**
+ * The rows of one window in the bank's order, one part per query (the live
+ * one first); `today` is the bank's day.
+ */
+export async function fetchWindow(
   fetchPage: PageFetcher,
   window: FetchWindow,
   today: Day,
-): Promise<readonly Transaction[]> {
+): Promise<readonly (readonly Transaction[])[]> {
   if (window === "full") return fetchFull(fetchPage, today);
-  return fetchAllPages(fetchPage, {
-    strategy: "default",
-    transaction_status: "BOOK",
-    date_from: addDays(today, -INCREMENTAL_WINDOW_DAYS),
-    date_to: today,
-  });
+  return [
+    await fetchAllPages(fetchPage, {
+      strategy: "default",
+      transaction_status: "BOOK",
+      date_from: addDays(today, -INCREMENTAL_WINDOW_DAYS),
+      date_to: today,
+    }),
+  ];
 }

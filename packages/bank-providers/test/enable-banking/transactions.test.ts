@@ -172,7 +172,10 @@ describe("windows", () => {
 
     const rows = await fetch("full");
 
-    expect(rows.map((row) => row.providerRef)).toEqual(["live", "cached"]);
+    expect(rows.map((row) => [row.providerRef, row.part])).toEqual([
+      ["live", 0],
+      ["cached", 1],
+    ]);
   });
 
   test("still reaches back two years: both windows are merged", async () => {
@@ -268,6 +271,7 @@ describe("rows", () => {
     const [card, salary] = await fetch("incremental");
 
     expect(card).toEqual({
+      part: 0,
       providerRef: "20260926-0001",
       bookedOn: "2026-09-26",
       valueOn: "2026-09-25",

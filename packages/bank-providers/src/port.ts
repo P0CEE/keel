@@ -109,6 +109,12 @@ export type ProviderAccount = ConsentAccount & {
  * transaction is never zero.
  */
 export type ArrivingRow = {
+  /**
+   * Which query of the fetch returned the row, the live one being 0. The
+   * two halves of a full fetch overlap: settlement counts identical rows
+   * within a part, so a row both return is one row, not two.
+   */
+  readonly part: number;
   /** `entry_reference` only: the one identifier the bank keeps stable. */
   readonly providerRef: string | null;
   readonly bookedOn: Day;

@@ -12,7 +12,10 @@ import type { Transaction } from "./schemas";
  * date or a card acceptor out of the label, the method and card-mirror
  * detection are bank quirks the domain handles, whoever the aggregator is.
  */
-export function toArrivingRow(transaction: Transaction): ArrivingRow | null {
+export function toArrivingRow(
+  transaction: Transaction,
+  part = 0,
+): ArrivingRow | null {
   const bookedOn = toDay(transaction.booking_date);
   const valueOn = toDay(transaction.value_date);
   const transactionOn = toDay(transaction.transaction_date);
@@ -37,6 +40,7 @@ export function toArrivingRow(transaction: Transaction): ArrivingRow | null {
     : transaction.creditor_account;
 
   return {
+    part,
     providerRef: nonBlank(transaction.entry_reference),
     bookedOn: day,
     valueOn,

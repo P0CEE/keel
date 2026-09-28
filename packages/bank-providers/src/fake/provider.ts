@@ -107,6 +107,7 @@ function toRow(
   const operatedOn = addDays(bookedOn, -(transaction.settlementLagDays ?? 0));
   const ddmm = `${operatedOn.slice(8, 10)}${operatedOn.slice(5, 7)}`;
   return {
+    part: 0,
     providerRef: transaction.providerRef,
     bookedOn,
     valueOn: bookedOn,
@@ -170,6 +171,8 @@ export function createFakeProvider(
   function readable(accountRef: string): {
     readonly scenario: FakeScenario;
     readonly account: FakeAccount;
+    /** The day the consent was given: what the rows are dated from. */
+    readonly issuedOn: string;
   } {
     const parsed = parseAccountRef(accountRef);
     const scenario = parsed === null ? undefined : byCode(parsed.session.code);
@@ -203,7 +206,11 @@ export function createFakeProvider(
           : { retryAfterSeconds: scenario.failure.retryAfterSeconds }),
       });
     }
-    return { scenario, account };
+    return {
+      scenario,
+      account,
+      issuedOn: todayIn(DEFAULT_TIME_ZONE, new Date(parsed.session.issuedAt)),
+    };
   }
 
   const today = () => todayIn(DEFAULT_TIME_ZONE, now());
@@ -313,16 +320,16 @@ export function createFakeProvider(
 
     fetchTransactions(ref, window) {
       return settle(() => {
-        const { scenario, account } = readable(ref.accountRef);
-        const day = today();
-        // The bank's order: the most recent first.
+        const { scenario, account, issuedOn } = readable(ref.accountRef);
+        // Rows are dated from the consent's day, not from today: a real
+        // bank's rows never move, so a sync the next day must find the same
+        // ones (the fake would otherwise duplicate every unreferenced row
+        // each day of local development).
+        const since = addDays(today(), -INCREMENTAL_DAYS);
         return account.transactions
-          .filter(
-            (transaction) =>
-              window === "full" || transaction.daysAgo <= INCREMENTAL_DAYS,
-          )
           .toSorted((a, b) => a.daysAgo - b.daysAgo)
-          .map((transaction) => toRow(scenario, account, transaction, day));
+          .map((transaction) => toRow(scenario, account, transaction, issuedOn))
+          .filter((row) => window === "full" || row.bookedOn >= since);
       });
     },
   };
