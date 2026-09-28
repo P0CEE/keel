@@ -156,6 +156,9 @@ export function timeZoneLabel(
     formatter(locale, { timeZone: zone, timeZoneName: "longOffset" })
       .formatToParts(now)
       .find((part) => part.type === "timeZoneName")?.value ?? "";
-  const utc = offset === "GMT" ? "UTC" : offset.replace("GMT", "UTC");
+  // ICU writes a zero offset as "GMT" or "GMT+00:00" depending on its version.
+  const utc = /^GMT(\+00:00)?$/.test(offset)
+    ? "UTC"
+    : offset.replace("GMT", "UTC");
   return `${city} · ${utc.replace("-", "−")}`;
 }
