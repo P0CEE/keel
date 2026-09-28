@@ -18,9 +18,11 @@ import {
   ActivityIcon,
   AddIcon,
   DocumentsIcon,
+  HouseholdIcon,
   LogOutIcon,
   MoonIcon,
   PaletteIcon,
+  SettingsIcon,
   ShortcutsIcon,
   SunIcon,
   SystemIcon,
@@ -250,6 +252,16 @@ export function AppShell({
       },
     },
     {
+      id: "household",
+      key: "n",
+      label: t("household"),
+      group: t("group_go"),
+      run: () => {
+        closeAll();
+        router.push("/household");
+      },
+    },
+    {
       id: "logout",
       key: "q",
       label: t("sign_out"),
@@ -273,6 +285,21 @@ export function AppShell({
       meta: item.shortcut?.toUpperCase(),
       onSelect: () => router.push(item.href),
     })),
+    {
+      id: "page-household",
+      label: t("household"),
+      detail: t("search_page"),
+      icon: <HouseholdIcon />,
+      meta: "N",
+      onSelect: () => router.push("/household"),
+    },
+    {
+      id: "page-settings",
+      label: t("settings"),
+      detail: t("search_page"),
+      icon: <SettingsIcon />,
+      onSelect: () => router.push("/settings"),
+    },
     {
       id: "light",
       label: t("light"),
@@ -323,6 +350,17 @@ export function AppShell({
     label: t("profile"),
     shortcut: keyOf("profile"),
     pressed: pressed === "profile",
+    // mint-pocs' Profile menu: Household first, then Shortcuts, Appearance
+    // and Settings, then signing out.
+    pages: [
+      {
+        id: "household",
+        label: t("household"),
+        icon: <HouseholdIcon />,
+        shortcut: keyOf("household"),
+        onSelect: () => router.push("/household"),
+      },
+    ],
     entries: [
       {
         id: "shortcuts",
@@ -330,6 +368,12 @@ export function AppShell({
         icon: <ShortcutsIcon />,
         shortcut: keyOf("shortcuts"),
         onSelect: () => setKeysOpen(true),
+      },
+      {
+        id: "settings",
+        label: t("settings"),
+        icon: <SettingsIcon />,
+        onSelect: () => router.push("/settings"),
       },
     ],
     appearance: {
@@ -433,6 +477,15 @@ export function AppShell({
               groups={[
                 [
                   {
+                    id: "household",
+                    label: t("household"),
+                    icon: <HouseholdIcon />,
+                    key: keyOf("household"),
+                    onSelect: () => router.push("/household"),
+                  },
+                ],
+                [
+                  {
                     id: "shortcuts",
                     label: t("shortcuts"),
                     icon: <ShortcutsIcon />,
@@ -445,6 +498,12 @@ export function AppShell({
                     icon: <PaletteIcon />,
                     key: keyOf("appearance"),
                     onSelect: toggleAppearance,
+                  },
+                  {
+                    id: "settings",
+                    label: t("settings"),
+                    icon: <SettingsIcon />,
+                    onSelect: () => router.push("/settings"),
                   },
                 ],
                 [

@@ -35,6 +35,7 @@
   "devDependencies": {
     "@keel/tsconfig": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
+    "@trpc/server": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

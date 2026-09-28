@@ -1,0 +1,64 @@
+/* Settings and Household: a title, then sections, each a heading and a line
+   of help over an elevated card that holds its controls. One column, as
+   wide as a form reads well. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s5);
+  width: 100%;
+  max-width: 640px;
+  padding-bottom: var(--space-s5);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xlarge);
+  line-height: var(--leading-xlarge);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.02em;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-50);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+}
+
+.help {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+}
+
+/* A segmented control spans its card. */
+.segments {
+  display: flex;
+  flex-direction: column;
+}
+
+.note {
+  margin: 0;
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-3);
+}

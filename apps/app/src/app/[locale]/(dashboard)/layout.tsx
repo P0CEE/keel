@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
 
+import { MemberData } from "@/components/settings/member-data";
 import { AppShell } from "@/components/shell/app-shell";
 import { useSession } from "@/lib/auth-client";
 import { RealtimeProvider } from "@/realtime/realtime-provider";
@@ -26,6 +27,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <RealtimeProvider>
+      <MemberData />
       <AppShell
         user={{
           name: session?.user.name ?? session?.user.email ?? "",

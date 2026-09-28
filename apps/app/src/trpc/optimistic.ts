@@ -46,3 +46,42 @@ export function optimisticListMutation<TItem, TVars>(
     },
   };
 }
+
+/** Snapshot handed back from `onMutate` so `onError` can restore the value. */
+type OptimisticValueContext<T> = {
+  previous: T | undefined;
+};
+
+/**
+ * The same cycle for one cached value (a settings object, a household):
+ * patch it at once, restore the snapshot on error, revalidate on settle.
+ * `apply` returns the next value, or undefined to leave the cache alone.
+ */
+export function optimisticValueMutation<T, TVars>(
+  queryClient: QueryClient,
+  key: QueryKey,
+  apply: (current: T, vars: TVars) => T,
+) {
+  return {
+    onMutate: async (vars: TVars): Promise<OptimisticValueContext<T>> => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<T>(key);
+      if (previous !== undefined) {
+        queryClient.setQueryData<T>(key, apply(previous, vars));
+      }
+      return { previous };
+    },
+    onError: (
+      _error: unknown,
+      _vars: TVars,
+      context: OptimisticValueContext<T> | undefined,
+    ) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(key, context.previous);
+      }
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: key });
+    },
+  };
+}

@@ -1,7 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, test } from "bun:test";
 
-import { optimisticListMutation } from "../src/trpc/optimistic";
+import {
+  optimisticListMutation,
+  optimisticValueMutation,
+} from "../src/trpc/optimistic";
 
 type Item = { id: string; done: boolean };
 
@@ -58,5 +61,52 @@ describe("optimisticListMutation", () => {
 
     expect(context.previous).toBeUndefined();
     expect(client.getQueryData(KEY)).toEqual([{ id: "new", done: false }]);
+  });
+});
+
+describe("optimisticValueMutation", () => {
+  type Settings = { locale: string; currency: string | null };
+  const SETTINGS = ["settings"] as const;
+
+  test("patches the cached value at once", async () => {
+    const client = new QueryClient();
+    client.setQueryData<Settings>(SETTINGS, { locale: "en", currency: null });
+    const handlers = optimisticValueMutation<Settings, Partial<Settings>>(
+      client,
+      SETTINGS,
+      (current, patch) => ({ ...current, ...patch }),
+    );
+    await handlers.onMutate({ locale: "fr" });
+    expect(client.getQueryData(SETTINGS)).toEqual({
+      locale: "fr",
+      currency: null,
+    });
+  });
+
+  test("restores the snapshot when the write fails", async () => {
+    const client = new QueryClient();
+    client.setQueryData<Settings>(SETTINGS, { locale: "en", currency: null });
+    const handlers = optimisticValueMutation<Settings, Partial<Settings>>(
+      client,
+      SETTINGS,
+      (current, patch) => ({ ...current, ...patch }),
+    );
+    const context = await handlers.onMutate({ currency: "USD" });
+    handlers.onError(new Error("refused"), { currency: "USD" }, context);
+    expect(client.getQueryData(SETTINGS)).toEqual({
+      locale: "en",
+      currency: null,
+    });
+  });
+
+  test("leaves an empty cache empty", async () => {
+    const client = new QueryClient();
+    const handlers = optimisticValueMutation<Settings, Partial<Settings>>(
+      client,
+      SETTINGS,
+      (current, patch) => ({ ...current, ...patch }),
+    );
+    await handlers.onMutate({ locale: "fr" });
+    expect(client.getQueryData(SETTINGS)).toBeUndefined();
   });
 });

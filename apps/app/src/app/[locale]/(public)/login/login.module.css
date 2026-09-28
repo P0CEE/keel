@@ -1,0 +1,180 @@
+/* The sign-in: on a desk, the photograph fills three fifths inside a 16px
+   frame and the way in sits centred in the rest; on a phone, only the way
+   in, the name at the top left. */
+.page {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--page);
+  color: var(--ink);
+}
+
+.visual {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .visual {
+    position: relative;
+    display: block;
+    flex: 3;
+    margin: var(--space-s2);
+    overflow: hidden;
+    border-radius: var(--radius-24);
+  }
+}
+
+.photo {
+  object-fit: cover;
+}
+
+.caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-s1-50);
+  padding: var(--space-s5);
+  background: var(--photo-scrim);
+  color: var(--on-accent);
+}
+
+.brand {
+  margin: 0;
+  font-size: 64px;
+  line-height: 1;
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.03em;
+}
+
+.tagline {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  opacity: 0.8;
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex: 2;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-s3);
+}
+
+.mobileBrand {
+  position: absolute;
+  top: var(--space-s3);
+  left: var(--space-s3);
+  margin: 0;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .mobileBrand {
+    display: none;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 var(--space-s1-50);
+  font-size: var(--text-xlarge);
+  line-height: var(--leading-xlarge);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: var(--text-xxlarge);
+    line-height: var(--leading-xxlarge);
+  }
+}
+
+.subtitle {
+  margin: 0 0 var(--space-s5);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  color: var(--ink-2);
+}
+
+/* The button, and the mark of the way used last time on its corner. */
+.action {
+  position: relative;
+  width: 100%;
+}
+
+.lastUsed {
+  position: absolute;
+  top: calc(-1 * var(--space-s1));
+  right: calc(-1 * var(--space-s1));
+  padding: var(--space-s0-25) var(--space-s1);
+  border-radius: var(--radius-1000);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-float);
+  color: var(--ink-2);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-medium);
+  pointer-events: none;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  width: 100%;
+  margin: var(--space-s3) 0;
+  color: var(--ink-3);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-medium);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line-heavy);
+}
+
+.terms {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+}
+
+.terms a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .terms a:hover {
+    color: var(--ink);
+  }
+}
+
+.terms a:focus-visible {
+  border-radius: var(--radius-4);
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

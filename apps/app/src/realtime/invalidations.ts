@@ -1,5 +1,7 @@
 import type { QueryKey } from "@tanstack/react-query";
+import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
+import type { AppRouter } from "@keel/api";
 import type {
   AppEvents,
   Delivery,
@@ -21,7 +23,12 @@ export type InvalidationTable<S extends EventSchemas, K> = {
 };
 
 /** The app's table: one row per event of the registry, added lot by lot. */
-export const invalidations = {} satisfies InvalidationTable<AppEvents, unknown>;
+export const invalidations = {
+  "household.updated": (_payload, trpc) => [trpc.household.get.queryKey()],
+  "member.settings-updated": (_payload, trpc) => [trpc.settings.get.queryKey()],
+} satisfies InvalidationTable<AppEvents, TRPCKeys>;
+
+type TRPCKeys = TRPCOptionsProxy<AppRouter>;
 
 /** What one delivery invalidates: some keys, nothing, or everything. */
 export function invalidationsFor<S extends EventSchemas, K>(
