@@ -190,19 +190,19 @@ et les invariants.
 
 Chaque module a une interface courte et se teste sans Postgres ni Redis.
 
-| Module           | Interface                                                                                                            | Remplace dans ramnn                                                                  |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `money`          | `Money`, `parseMinor(text, currency)`, `formatParts(money, locale)`, `sumByCurrency`, `convert(money, rate)`         | `financial-math.ts`, conversions dispersées                                          |
-| `fx`             | `rateOn(rates, from, to, day)`, `toDisplay(buckets, currency, rates)`                                                | `utils/fx.ts`, gel USD canonique                                                     |
-| `labels`         | `labelTokens(label)`, `merchantKey(lines)`, `purchaseDate(lines, bookedOn)`, `cardAcceptor(lines)`, `LABELS_VERSION` | 5 normaliseurs (revue, candidat 7)                                                   |
-| `settlement`     | `settle(stored, arriving) -> Verdict[]` : insert, promote, skip                                                      | `transaction-settlement.ts` et sa ré-application dans les tâches                     |
-| `categorization` | `ladder(rows, context) -> { decided, forModel }`, `finalize(forModel, modelOutput)`, `mayOverwrite(current, next)`   | `categorizer.ts`, `category-source.ts`, gardes SQL                                   |
-| `transfers`      | `recognize(rows, accounts) -> { counterpartAccountId, peerId }[]`                                                    | `internal-transfers.ts`, `transfer-detection.ts`, reconnaissance des comptes manuels |
-| `flow`           | `flowOf(tx, account, counterpart, nature)`, `decompose(buckets) -> Cashflow`                                         | `cashflow-scope.ts` et ses trois variantes                                           |
-| `recurring`      | `detect(history, series) -> SeriesChange[]`, `identityOf(tx)`, `nextDue(series)`, `statusOf(series, today)`          | `recurring-detection.ts` et les 7 calculs d'échéance                                 |
-| `budgets`        | `budgetOverview(budgets, spend, taxonomy) -> BudgetTree`                                                             | `budget-rollup.ts`, `budget-overview.ts`, règle anti double compte x4                |
-| `balances`       | `reconstruct(anchor, bookedRows, fromDay) -> DailyBalance[]`, `manualBalance(declared, legs, day)`                   | Snapshots JSONB, `manual-account-balance.ts`                                         |
-| `review`         | `buildMonthlyReview(facts, calendarDay) -> { verdicts, tone }`                                                       | Comportement gardé (ADR 0015)                                                        |
+| Module           | Interface                                                                                                                                                    | Remplace dans ramnn                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `money`          | `Money`, `parseMinor(text, currency)`, `formatParts(money, locale)`, `sumByCurrency`, `convert(money, rate)`                                                 | `financial-math.ts`, conversions dispersées                                          |
+| `fx`             | `rateOn(rates, from, to, day)`, `toDisplay(buckets, currency, rates)`                                                                                        | `utils/fx.ts`, gel USD canonique                                                     |
+| `labels`         | `labelTokens(label)`, `merchantKey(lines)`, `purchaseDate(lines, bookedOn)`, `cardAcceptor(lines)`, `LABELS_VERSION`                                         | 5 normaliseurs (revue, candidat 7)                                                   |
+| `settlement`     | `settle(stored, arriving) -> Verdict[]` : insert, promote, skip                                                                                              | `transaction-settlement.ts` et sa ré-application dans les tâches                     |
+| `categorization` | `ladder(rows, context) -> { decided, forModel }`, `finalize(forModel, modelOutput)`, `mayOverwrite(current, next)`                                           | `categorizer.ts`, `category-source.ts`, gardes SQL                                   |
+| `transfers`      | `recognize(rows, accounts) -> { counterpartAccountId, peerId }[]`                                                                                            | `internal-transfers.ts`, `transfer-detection.ts`, reconnaissance des comptes manuels |
+| `flow`           | `flowOf(tx, account, counterpart, nature)`, `decompose(buckets) -> Cashflow`                                                                                 | `cashflow-scope.ts` et ses trois variantes                                           |
+| `recurring`      | `attach(series, arrivals, calendar)`, `discover(unattached, series, calendar)`, `advance(series, today, calendar)`, `nextDue(series, calendar)` (section 10) | `recurring-detection.ts`, la réconciliation et les 7 calculs d'échéance              |
+| `budgets`        | `budgetOverview(budgets, spend, taxonomy) -> BudgetTree`                                                                                                     | `budget-rollup.ts`, `budget-overview.ts`, règle anti double compte x4                |
+| `balances`       | `reconstruct(anchor, bookedRows, fromDay) -> DailyBalance[]`, `manualBalance(declared, legs, day)`                                                           | Snapshots JSONB, `manual-account-balance.ts`                                         |
+| `review`         | `buildMonthlyReview(facts, calendarDay) -> { verdicts, tone }`                                                                                               | Comportement gardé (ADR 0015)                                                        |
 
 ### `@keel/banking` : les modules applicatifs
 
@@ -424,39 +424,40 @@ graphe de trésorerie (R10) et reconstruit le passé (ADR 0011).
 
 **`transactions`** :
 
-| Colonne                                                      | Type                                 | Rôle                                                                              |
-| ------------------------------------------------------------ | ------------------------------------ | --------------------------------------------------------------------------------- |
-| `id`                                                         | uuid v7                              |                                                                                   |
-| `household_id`, `account_id`                                 | uuid                                 | FK, `account_id` obligatoire (ramnn l'acceptait nul)                              |
-| `private_to`                                                 | text null                            | Copie de la visibilité du compte, pour le RLS                                     |
-| `origin`                                                     | enum `provider` \| `csv` \| `manual` |                                                                                   |
-| `provider_ref`                                               | text null                            | `entry_reference` uniquement                                                      |
-| `fingerprint`, `occurrence`                                  | text, smallint                       | Identité de repli                                                                 |
-| `import_id`                                                  | uuid null                            | FK `csv_imports`, pour annuler un import                                          |
-| `purchased_on`, `booked_on`                                  | date                                 | Voir les invariants                                                               |
-| `amount_minor`, `currency`                                   | bigint, char(3)                      | Signé, non nul                                                                    |
-| `label`                                                      | text                                 | Libellé bancaire joint                                                            |
-| `raw`                                                        | jsonb null                           | Champs bruts utiles du provider, pour re-parser quand le parseur s'améliore       |
-| `counterparty_name`, `counterparty_iban`, `mcc`, `bank_code` | text null                            |                                                                                   |
-| `method`                                                     | enum                                 | `card`, `cash_withdrawal`, `transfer`, `direct_debit`, `fee`, `interest`, `other` |
-| `merchant_key`                                               | text null                            | Sortie du normaliseur unique                                                      |
-| `merchant_id`                                                | uuid null                            | FK `merchants` (globale)                                                          |
-| `display_name`, `note`                                       | text null                            | Éditions du membre, jamais lues par la machine                                    |
-| `category_id`                                                | uuid null                            | FK feuille, `ON DELETE RESTRICT`                                                  |
-| `category_source`                                            | enum null                            | `user`, `mapping`, `history`, `dictionary`, `model`                               |
-| `category_mapping_id`                                        | uuid null                            | Le mapping qui a décidé, pour déplacer exactement ses lignes                      |
-| `category_confidence`                                        | real null                            | Modèle seulement                                                                  |
-| `categorized_at`                                             | timestamptz null                     | Null = catégorisation en attente                                                  |
-| `needs_review`                                               | bool, généré                         | Pas de catégorie, ou modèle de confiance < 0,8                                    |
-| `counterpart_account_id`                                     | uuid null                            | Compte du foyer de l'autre côté (ADR 0009)                                        |
-| `transfer_peer_id`                                           | uuid null                            | La jambe jumelle, si elle existe                                                  |
-| `transfer_dismissed`                                         | bool                                 | « Ce n'est pas un virement interne »                                              |
-| `flow`                                                       | enum                                 | Voir les invariants (ADR 0010)                                                    |
-| `recurring_series_id`                                        | uuid null                            |                                                                                   |
-| `excluded_from_budget`, `excluded_from_analysis`             | bool                                 |                                                                                   |
-| `search_text`                                                | text, généré                         | `lower(unaccent(label, nom affiché, contrepartie, note))`                         |
-| `deleted_at`                                                 | timestamptz null                     | Tombstone                                                                         |
-| `created_at`, `updated_at`                                   | timestamptz                          |                                                                                   |
+| Colonne                                                      | Type                                 | Rôle                                                                                    |
+| ------------------------------------------------------------ | ------------------------------------ | --------------------------------------------------------------------------------------- |
+| `id`                                                         | uuid v7                              |                                                                                         |
+| `household_id`, `account_id`                                 | uuid                                 | FK, `account_id` obligatoire (ramnn l'acceptait nul)                                    |
+| `private_to`                                                 | text null                            | Copie de la visibilité du compte, pour le RLS                                           |
+| `origin`                                                     | enum `provider` \| `csv` \| `manual` |                                                                                         |
+| `provider_ref`                                               | text null                            | `entry_reference` uniquement                                                            |
+| `fingerprint`, `occurrence`                                  | text, smallint                       | Identité de repli                                                                       |
+| `import_id`                                                  | uuid null                            | FK `csv_imports`, pour annuler un import                                                |
+| `purchased_on`, `booked_on`                                  | date                                 | Voir les invariants                                                                     |
+| `amount_minor`, `currency`                                   | bigint, char(3)                      | Signé, non nul                                                                          |
+| `label`                                                      | text                                 | Libellé bancaire joint                                                                  |
+| `raw`                                                        | jsonb null                           | Champs bruts utiles du provider, pour re-parser quand le parseur s'améliore             |
+| `counterparty_name`, `counterparty_iban`, `mcc`, `bank_code` | text null                            |                                                                                         |
+| `method`                                                     | enum                                 | `card`, `cash_withdrawal`, `transfer`, `direct_debit`, `fee`, `interest`, `other`       |
+| `merchant_key`                                               | text null                            | Sortie du normaliseur unique                                                            |
+| `merchant_id`                                                | uuid null                            | FK `merchants` (globale)                                                                |
+| `display_name`, `note`                                       | text null                            | Éditions du membre, jamais lues par la machine                                          |
+| `category_id`                                                | uuid null                            | FK feuille, `ON DELETE RESTRICT`                                                        |
+| `category_source`                                            | enum null                            | `user`, `mapping`, `history`, `dictionary`, `model`                                     |
+| `category_mapping_id`                                        | uuid null                            | Le mapping qui a décidé, pour déplacer exactement ses lignes                            |
+| `category_confidence`                                        | real null                            | Modèle seulement                                                                        |
+| `categorized_at`                                             | timestamptz null                     | Null = catégorisation en attente                                                        |
+| `needs_review`                                               | bool, généré                         | Pas de catégorie, ou modèle de confiance < 0,8                                          |
+| `counterpart_account_id`                                     | uuid null                            | Compte du foyer de l'autre côté (ADR 0009)                                              |
+| `transfer_peer_id`                                           | uuid null                            | La jambe jumelle, si elle existe                                                        |
+| `transfer_dismissed`                                         | bool                                 | « Ce n'est pas un virement interne »                                                    |
+| `flow`                                                       | enum                                 | Voir les invariants (ADR 0010)                                                          |
+| `recurring_series_id`                                        | uuid null                            |                                                                                         |
+| `recurring_excluded`                                         | bool                                 | « Cette transaction ne fait pas partie de la série » : le détecteur ne la rattache plus |
+| `excluded_from_budget`, `excluded_from_analysis`             | bool                                 |                                                                                         |
+| `search_text`                                                | text, généré                         | `lower(unaccent(label, nom affiché, contrepartie, note))`                               |
+| `deleted_at`                                                 | timestamptz null                     | Tombstone                                                                               |
+| `created_at`, `updated_at`                                   | timestamptz                          |                                                                                         |
 
 Contraintes : `CHECK (amount_minor <> 0)` ;
 **U** (`account_id`, `provider_ref`) `WHERE provider_ref IS NOT NULL` ;
@@ -498,16 +499,25 @@ colonne `priority`.
 
 #### Séries, budgets, objectif
 
-**`recurring_series`** : id ; `household_id` ; `private_to` ;
-`identity_key` ; `merchant_key` ; `direction` (`outflow` | `inflow`) ;
-`currency` ; `cadence` ; `typical_amount_minor` (> 0) ; `name` ; `status`
-(`suggested` | `active` | `dismissed` | `ended`) ; `origin` (`detected` |
-`member`) ; `last_on` ; `next_due_on` (écrit par le seul module) ;
-`occurrence_count` ; `confirmed_at` ; `created_at`, `updated_at`.
-**U** (`household_id`, `identity_key`) : le rejet (`dismissed`) est une
-tombstone qui empêche la re-suggestion. Index (`household_id`,
-`next_due_on`) `WHERE status = 'active'` pour les échéances et le calendrier
-(R8).
+**`recurring_series`** (reconçue en section 10) : id ; `household_id` ;
+`private_to` ; signatures d'identité `mandate_ref`, `counterparty_iban`,
+`merchant_id`, `merchant_key` (toutes nulles possibles, au moins une
+renseignée) ; `direction` (`outflow` | `inflow`) ; `flow` (celui de ses
+membres) ; `currency` ; `cadence` ; `anchor` (jour du mois, du 1 au 31 ou
+« dernier jour », ou jour de semaine) ; `shifts_to_business_day bool` ;
+`amount_kind` (`fixed` | `variable`) ; `typical_amount_minor` (> 0) ;
+`amount_low_minor`, `amount_high_minor` (fourchette des variables) ; `name` ;
+`review` (`suggested` | `confirmed` | `dismissed`) ; `state` (`live` |
+`late` | `ended`) ; `ended_reason` (`missed` | `member`) ; `confidence` ;
+`origin` (`detected` | `member`) ; `first_on`, `last_on` ; `next_due_on`
+(écrit par le seul module) ; `occurrence_count` ; `confirmed_at` ;
+`created_at`, `updated_at`.
+Pas de clé texte unique : l'identité est l'id, et les signatures servent à
+rattacher (section 10). Une série `dismissed` garde ses signatures, ce qui
+empêche la re-suggestion. Index (`household_id`, `next_due_on`)
+`WHERE review <> 'dismissed' AND state <> 'ended'` pour les échéances et le
+calendrier (R8) ; index (`household_id`, `merchant_id`) et (`household_id`,
+`counterparty_iban`) partiels pour le rattachement.
 
 **`budgets`** : id ; `household_id` ; `category_id` ; `effective_month`
 (`CHECK` premier du mois) ; `amount_minor null` (null = plus de budget à
@@ -621,7 +631,7 @@ main si une mesure le demande.
 | `user_category_rule_conditions` | `merchant_mappings` | Idem. `priority` remplacée par « le motif le plus long gagne »                                                                                                                                                                                                                                                                                                                                                                           |
 | `bank_connections`              | `bank_connections`  | Consentement lié à un membre ; `next_sync_at` pour le planificateur ; classe d'erreur typée ; colonnes `error*` mortes supprimées ; unicité (banque, propriétaire) abandonnée ; révocation différée à la purge                                                                                                                                                                                                                           |
 | `bank_accounts`                 | `bank_accounts`     | Propriétaire et visibilité ; `kind` à la place de `type`, et l'ADR 0004 de ramnn, contredite par son code, est tranchée ; unicité (connexion, `stable_ref`) ; `CHECK` compte manuel ; devise obligatoire ; solde en unités mineures signé du point de vue du titulaire                                                                                                                                                                   |
-| `recurring_series`              | `recurring_series`  | `identity_key` calculée à partir du `merchant_key` stocké : plus de dérive quand l'enrichissement change. `next_due_on` n'est plus jamais reçu du client. `rejected` devient `dismissed`. Plus de soft delete                                                                                                                                                                                                                            |
+| `recurring_series`              | `recurring_series`  | Plus de clé texte : identité par id et signatures (mandat SEPA, IBAN, marchand, clé de libellé), qui ne dérivent plus quand l'enrichissement change. Statut coupé en deux axes (revue du membre, état dans le temps). Ancre calendaire et jours ouvrés. Montant fixe ou variable, un changement de prix ne coupe plus la série. `next_due_on` n'est jamais reçu du client. Plus de soft delete (section 10)                              |
 | `bank_transactions`             | `transactions`      | Unités mineures ; `booked_on` gardé ; identité par compte (`provider_ref` ou empreinte + rang) au lieu d'un `internal_id` global préfixé par l'utilisateur ; plus de gel USD ; `counterpart_account_id` et `transfer_peer_id` à la place de `transfer_pair_id` ; `flow` stocké ; `merchant_key` stocké ; `categorized_at` remplace `enrichment_completed` ; recherche en trigramme à la place de la FTS `english` ; `raw` pour re-parser |
 | `bank_transaction_embeddings`   | —                   | Coupée (kNN, décision 1). L'étape 3 peut en réintroduire, sous une autre forme                                                                                                                                                                                                                                                                                                                                                           |
 | `transaction_anomaly_scores`    | —                   | Coupée (anomalies)                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -659,23 +669,24 @@ worker démarre un `Worker` par file. Toujours un seul point d'entrée
 
 ### 6.2 Liste
 
-| Job                            | Payload (Zod)                                                                                                       | Déclenchement                                         | Idempotence                                                                                                                                                                                |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `bank.sync-due`                | `{}`                                                                                                                | Planificateur, toutes les 15 min                      | Parcours `SECURITY DEFINER` des connexions dues, puis enqueue de chacune                                                                                                                   |
-| `bank.sync-connection`         | `{ connectionId: uuid, reason: "scheduled" \| "manual" \| "initial" \| "reconnect", psu?: { ip, userAgent, ... } }` | `sync-due`, bouton rafraîchir, fin de consentement    | `jobId` = `sync:<connectionId>:<créneau>`                                                                                                                                                  |
-| `bank.sync-account`            | `{ accountId: uuid, window: "incremental" \| "full", reason, psu? }`                                                | Fan-out de `sync-connection`, un job par compte       | `jobId` = `sync-account:<accountId>:<créneau>` ; Settlement est idempotent par construction                                                                                                |
-| `bank.categorize`              | `{ householdId: uuid }`                                                                                             | `transactionsChanged`                                 | Regroupement par foyer (dédoublonnage BullMQ, anti-rebond de 5 s avec `extend` et `replace`). Traite tout ce qui est en attente (`categorized_at IS NULL`) : aucune liste d'ids dans Redis |
-| `bank.reconcile`               | `{ householdId: uuid }`                                                                                             | `transactionsChanged`, fin de `categorize`            | Même regroupement. Recalcul complet du foyer, écriture du seul diff                                                                                                                        |
-| `bank.consent-reminders`       | `{}`                                                                                                                | Quotidien                                             | `jobId` = `reminder:<connectionId>:<J-14 ou J-3>`                                                                                                                                          |
-| `bank.purge`                   | `{}`                                                                                                                | Quotidien                                             | Connexions retirées depuis plus de 30 jours : révocation chez l'agrégateur puis suppression. Tombstones de plus de 800 jours                                                               |
-| `bank.institutions-refresh`    | `{ country?: string }`                                                                                              | Hebdomadaire                                          | Upsert sur (`provider`, `provider_ref`)                                                                                                                                                    |
-| `fx.refresh-rates`             | `{ from?: date }`                                                                                                   | Quotidien, après publication de la BCE                | Upsert sur (`currency`, `day`)                                                                                                                                                             |
-| `csv.import`                   | `{ importId: uuid }`                                                                                                | Fin du mapping des colonnes                           | Passe par `settleArrivals`, donc rejouable                                                                                                                                                 |
-| `review.dispatch`              | `{}`                                                                                                                | Toutes les heures                                     | Membres dont c'est le 1er du mois, 8 h, dans le fuseau du foyer, sans `emailed_at`                                                                                                         |
-| `review.send`                  | `{ userId, month }`                                                                                                 | `review.dispatch`                                     | `jobId` = `review:<userId>:<month>`, upsert (`user_id`, `month`)                                                                                                                           |
-| `notify.email`                 | `{ notificationId: uuid }`                                                                                          | Création d'une notification avec le canal email actif | `jobId` = id de la notification                                                                                                                                                            |
-| `export.gdpr` / `export.purge` | `{ userId }` / `{ key }`                                                                                            | Réglages ; 12 h plus tard                             | `jobId` par utilisateur et par jour                                                                                                                                                        |
-| `user.delete-data`             | `{ userId }`                                                                                                        | Confirmation par email                                | Chaque étape idempotente (révocations, purge R2, suppression)                                                                                                                              |
+| Job                            | Payload (Zod)                                                                                                       | Déclenchement                                         | Idempotence                                                                                                                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bank.sync-due`                | `{}`                                                                                                                | Planificateur, toutes les 15 min                      | Parcours `SECURITY DEFINER` des connexions dues, puis enqueue de chacune                                                                                                                                          |
+| `bank.sync-connection`         | `{ connectionId: uuid, reason: "scheduled" \| "manual" \| "initial" \| "reconnect", psu?: { ip, userAgent, ... } }` | `sync-due`, bouton rafraîchir, fin de consentement    | `jobId` = `sync:<connectionId>:<créneau>`                                                                                                                                                                         |
+| `bank.sync-account`            | `{ accountId: uuid, window: "incremental" \| "full", reason, psu? }`                                                | Fan-out de `sync-connection`, un job par compte       | `jobId` = `sync-account:<accountId>:<créneau>` ; Settlement est idempotent par construction                                                                                                                       |
+| `bank.categorize`              | `{ householdId: uuid }`                                                                                             | `transactionsChanged`                                 | Regroupement par foyer (dédoublonnage BullMQ, anti-rebond de 5 s avec `extend` et `replace`). Traite tout ce qui est en attente (`categorized_at IS NULL`) : aucune liste d'ids dans Redis                        |
+| `bank.reconcile`               | `{ householdId: uuid }`                                                                                             | `transactionsChanged`, fin de `categorize`            | Même regroupement. Recalcul complet du foyer, écriture du seul diff                                                                                                                                               |
+| `bank.daily-advance`           | `{}`                                                                                                                | Quotidien, tôt le matin                               | Parcours `SECURITY DEFINER` des foyers, puis `bank.reconcile` de chacun (dédoublonné) : fait avancer l'état des séries (`late`, `ended`) et l'historique de solde au jour courant, même sans nouvelle transaction |
+| `bank.consent-reminders`       | `{}`                                                                                                                | Quotidien                                             | `jobId` = `reminder:<connectionId>:<J-14 ou J-3>`                                                                                                                                                                 |
+| `bank.purge`                   | `{}`                                                                                                                | Quotidien                                             | Connexions retirées depuis plus de 30 jours : révocation chez l'agrégateur puis suppression. Tombstones de plus de 800 jours                                                                                      |
+| `bank.institutions-refresh`    | `{ country?: string }`                                                                                              | Hebdomadaire                                          | Upsert sur (`provider`, `provider_ref`)                                                                                                                                                                           |
+| `fx.refresh-rates`             | `{ from?: date }`                                                                                                   | Quotidien, après publication de la BCE                | Upsert sur (`currency`, `day`)                                                                                                                                                                                    |
+| `csv.import`                   | `{ importId: uuid }`                                                                                                | Fin du mapping des colonnes                           | Passe par `settleArrivals`, donc rejouable                                                                                                                                                                        |
+| `review.dispatch`              | `{}`                                                                                                                | Toutes les heures                                     | Membres dont c'est le 1er du mois, 8 h, dans le fuseau du foyer, sans `emailed_at`                                                                                                                                |
+| `review.send`                  | `{ userId, month }`                                                                                                 | `review.dispatch`                                     | `jobId` = `review:<userId>:<month>`, upsert (`user_id`, `month`)                                                                                                                                                  |
+| `notify.email`                 | `{ notificationId: uuid }`                                                                                          | Création d'une notification avec le canal email actif | `jobId` = id de la notification                                                                                                                                                                                   |
+| `export.gdpr` / `export.purge` | `{ userId }` / `{ key }`                                                                                            | Réglages ; 12 h plus tard                             | `jobId` par utilisateur et par jour                                                                                                                                                                               |
+| `user.delete-data`             | `{ userId }`                                                                                                        | Confirmation par email                                | Chaque étape idempotente (révocations, purge R2, suppression)                                                                                                                                                     |
 
 Le digest de transactions n'existe plus (décision 3).
 
@@ -765,3 +776,205 @@ providerCode }`. Les réponses sont validées par Zod ; une réponse
    français.
 10. **Trois packages** : `@keel/finance`, `@keel/banking`,
     `@keel/bank-providers`.
+
+## 9. Temps réel (ajout du 2026-09-28, à valider)
+
+Dans ramnn, le temps réel reposait sur un pub/sub Redis relayé en SSE fait
+main, avec des topics ajoutés au cas par cas et des gestionnaires
+d'invalidation dispersés dans l'app. Un événement émis pendant une
+déconnexion était perdu, et rien ne garantissait qu'il soit publié après le
+commit. Dans keel, le temps réel est un module à part entière (ADR 0016).
+
+### Ce qui a besoin du temps réel
+
+| Besoin                                                      | Événement                                                                                               | Effet dans l'app                                                                 |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Suivre une sync (bouton rafraîchir, statut d'une connexion) | `sync.progress` : `connectionId`, phase (`queued`, `fetching`, `settling`, `done`, `failed`), compteurs | Mise à jour directe du statut en cache, sans requête                             |
+| Nouvelles transactions                                      | `transactions.changed` : comptes, plage de jours, cause                                                 | Invalidation des listes et soldes concernés                                      |
+| Catégorisation terminée                                     | `transactions.categorized` : mois touchés, nombre                                                       | Invalidation des listes, des compteurs « à revoir » et des agrégats de ces mois  |
+| Réconciliation terminée                                     | `household.reconciled` : mois, comptes, séries touchées                                                 | Invalidation du cashflow, des budgets, des échéances et de l'historique de solde |
+| Modification par un autre membre ou un autre onglet         | Les mêmes événements, avec `originClientId`                                                             | L'onglet d'origine les ignore (sa mise à jour optimiste est déjà faite)          |
+| Notification                                                | `notification.created` : id, type                                                                       | Ajout en tête de liste et badge                                                  |
+| Import CSV                                                  | `import.progress` : `importId`, lignes traitées, total, statut                                          | Barre de progression                                                             |
+| Connexion à renouveler                                      | `connection.status`                                                                                     | Bandeau de reconnexion                                                           |
+| Revue du mois prête                                         | `review.ready` : mois                                                                                   | La ligne du mois clos apparaît sous la salutation                                |
+
+Ce qui n'en a pas besoin : taux de change, liste des banques, réglages. Le
+rafraîchissement au retour sur l'onglet suffit.
+
+### Architecture
+
+1. **Un registry d'événements**, comme celui des jobs : nom → schéma Zod.
+   Aucun événement hors registry.
+2. **Publication après le commit, jamais avant.** Un module applicatif émet ses
+   événements dans la transaction de `withScope`, qui ne les publie qu'une fois
+   la transaction validée. Si elle est annulée, rien ne part. Le worker et
+   l'API publient de la même façon.
+3. **Un flux Redis (Stream) par foyer** (`rt:h:<householdId>`), alimenté par
+   `XADD` et tronqué vers 500 entrées. L'identifiant d'entrée du flux sert
+   d'identifiant d'événement : il est monotone.
+4. **Livraison par une subscription tRPC en SSE**, le lien déjà en place dans
+   keel pour le tableau de bord des jobs. Chaque événement part en
+   `tracked(id, data)`. À la reconnexion, le client renvoie `lastEventId` et
+   le serveur rejoue les entrées suivantes (`XRANGE`) : aucune perte. Si
+   l'identifiant est plus ancien que le flux tronqué, le serveur envoie un
+   `resync` et le client invalide tout.
+5. **Un lecteur par instance d'API** : une seule connexion Redis en `XREAD`
+   bloquant sur les flux des foyers connectés à cette instance, qui distribue
+   aux abonnés locaux. Pas une connexion Redis par onglet.
+6. **Des événements sans données sensibles.** Un événement porte des ids, des
+   mois, des comptes et des compteurs, jamais un montant ni un libellé.
+   L'app relit ce dont elle a besoin par tRPC, donc sous RLS. Le temps réel ne
+   peut rien révéler que le membre ne pourrait pas lire, et il ne duplique
+   aucune logique de lecture. Un événement lié à un compte privé porte
+   `privateTo`, et le serveur ne le livre qu'à ce membre.
+7. **Côté app, une table unique** `événement → invalidations` dans un seul
+   `RealtimeProvider` monté par le layout. Grâce aux clés de requête
+   déterministes (section 4), l'invalidation est précise : `household.reconciled`
+   pour septembre invalide `cashflow(2026-09)` et `budgetOverview(2026-09)`,
+   et rien d'autre. Les invalidations sont regroupées sur 250 ms, comme le fait
+   déjà le tableau de bord des jobs.
+8. **Filet de sécurité** : le rafraîchissement au retour sur l'onglet de
+   TanStack Query reste actif. Une coupure du SSE ne produit ni spinner ni
+   message ; les données se remettent à jour dès le retour du flux.
+
+### Tests
+
+- Quels événements une cause produit : fonction pure de `@keel/banking`,
+  testée avec l'enregistreur du port `Dispatch`.
+- Publication après commit : test sur PGlite avec un bus en mémoire, qui
+  vérifie qu'une transaction annulée ne publie rien.
+- Reprise après déconnexion : test du lecteur avec un faux flux.
+- Table d'invalidation de l'app : test unitaire, un cas par événement.
+
+## 10. Séries récurrentes, reconçues (ajout du 2026-09-28, à valider)
+
+L'analyse détaillée de ramnn a relevé 19 défauts vérifiés. Ils viennent de
+trois choix de fond, que keel inverse (ADR 0017).
+
+| ramnn                                                                                                                                                                                                            | keel                                                                                                                                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| L'identité d'une série est une clé texte dérivée du nom du marchand. Un renommage par l'enrichissement crée un doublon, vole les membres d'une série confirmée, laisse une série manuelle vide comptée deux fois | L'identité est l'id de la série. Des **signatures** servent seulement à rattacher : mandat SEPA, IBAN de contrepartie, marchand global, clé de libellé               |
+| Le montant décide de l'appartenance (±30 % autour de la médiane). Une hausse de prix coupe la série, une facture variable n'est jamais activée                                                                   | La **contrepartie** décide de l'appartenance. Le montant est une propriété de la série (fixe ou variable), et un changement de prix est un événement                 |
+| Recalcul complet sur 730 jours à chaque sync. Pas de notion de retard ; une série résiliée reste projetée 66 jours, une série manuelle pour toujours ; un annuel clignote                                        | Rattachement **incrémental** à l'arrivée, découverte sur les seules lignes non rattachées, et un **état dans le temps** (`live`, `late`, `ended`) avancé chaque jour |
+
+### Deux axes au lieu d'un statut
+
+- **Revue** (ce que le membre a dit) : `suggested`, `confirmed`, `dismissed`.
+  ramnn passait des séries en `active` automatiquement, et l'outil MCP les
+  décrivait comme « confirmées par l'utilisateur ».
+- **État** (ce que le temps dit) : `live`, `late` (échéance dépassée sans
+  débit, au-delà d'une marge), `ended` (cycles manqués, ou « résiliée » dite
+  par le membre).
+- Les échéances et la projection de solde lisent les séries non rejetées, non
+  terminées, et soit confirmées, soit de confiance élevée. Une suggestion
+  faible n'entre dans aucun chiffre tant que le membre ne l'a pas confirmée.
+
+### Identité et rattachement
+
+1. Une transaction arrivante est comparée aux séries du foyer, par ordre de
+   force de signature : mandat SEPA (si la banque l'expose ; à vérifier dans
+   la documentation Enable Banking), IBAN de contrepartie, marchand global,
+   puis clé de libellé. Même direction et même devise exigées.
+2. Elle est rattachée si sa date tombe dans la fenêtre attendue de la
+   prochaine échéance (tolérance selon la cadence). Le montant ne sert qu'à
+   départager deux séries de la même contrepartie, par exemple deux
+   abonnements Disney+ à des prix différents : chacune garde sa propre grille,
+   et la ligne va à celle dont la grille et le montant collent le mieux.
+3. Un montant différent sur une série fixe, à la bonne date, est un
+   **changement de prix** : la série continue, son montant typique change, et
+   un événement « Netflix passe de 13,49 € à 15,99 € » est émis.
+4. Comme le rattachement ne dépend plus du texte, changer le normaliseur de
+   libellés ne casse aucune série : seule la signature `merchant_key` est
+   recalculée, par une migration versionnée.
+
+### Calendrier
+
+- **Cadences** : hebdomadaire, deux semaines, quatre semaines, mensuelle,
+  bimestrielle, trimestrielle, semestrielle, annuelle. Bimestrielle et
+  semestrielle sont nouvelles (factures d'énergie, assurances).
+- **Ancre** : pour les cadences mensuelles et au-delà, le jour du mois prévu
+  (du 1 au 31, ou « dernier jour »), appris sur les dates **prévues** et non
+  sur les dates réelles décalées. Un débit du 31 reste un débit du 31 : ramnn
+  mémorisait le 28 après février et prédisait trop tôt tous les mois
+  suivants.
+- **Jours ouvrés** : une série peut se décaler au jour ouvré suivant, et le
+  module l'apprend en observant ses membres. Les prélèvements SEPA suivent le
+  calendrier TARGET2 (week-ends, 1er janvier, Vendredi saint, lundi de Pâques,
+  1er mai, 25 et 26 décembre). La prochaine échéance tient compte de ce
+  décalage.
+- **Cycles manqués** : un mois sans débit ne casse pas la série. Chaque
+  occurrence est placée sur la grille de la cadence, et la confiance baisse
+  avec les trous.
+- **Annuel** : deux occurrences à 12 mois d'écart suffisent pour une
+  suggestion. L'historique n'est plus borné à 730 jours pour les séries déjà
+  connues : un annuel ne disparaît plus au moment de son échéance.
+
+### Découverte
+
+- Porte seulement sur les transactions non rattachées et non exclues par le
+  membre, regroupées par signature. Coût proportionnel aux nouvelles lignes,
+  plus au rescan complet de 730 jours à chaque sync.
+- Les virements ne sont plus exclus : un loyer payé par virement permanent,
+  un virement mensuel vers l'épargne, un salaire sont des séries. Chaque
+  série porte le flux de ses membres, donc une charge fixe est une série au
+  flux `expense`, un plan d'épargne une série au flux `savings_out`, qui
+  compte dans la projection sans être une dépense. Les frais bancaires
+  mensuels sont des charges fixes. Seuls les retraits d'espèces restent
+  exclus.
+- Montant fixe ou variable, décidé par la dispersion des derniers montants.
+  Une série variable a une fourchette (du 10e au 90e centile), et la
+  projection prend sa médiane. Une facture d'énergie devient donc une série
+  comme les autres.
+- Seuils de suggestion : trois occurrences pour les cadences courtes, deux
+  pour les mensuelles et au-delà. Confiance élevée seulement avec une grille
+  régulière et une signature forte (mandat, IBAN ou marchand connu).
+
+### Gestes du membre, tous serveur
+
+| Geste                                      | Effet                                                                                                                                                |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Confirmer                                  | `review = confirmed`                                                                                                                                 |
+| Rejeter la série                           | `review = dismissed`, membres détachés ; la signature reste, donc elle n'est plus jamais suggérée                                                    |
+| « Cette transaction n'en fait pas partie » | Seule la transaction est détachée, avec `recurring_excluded`. Dans ramnn, décocher une transaction rejetait toute la série                           |
+| Rattacher une transaction à une série      | Rattachement explicite, qui compte comme confirmation                                                                                                |
+| Créer une série depuis une transaction     | Série `member` confirmée. Cadence proposée par le module, que le membre peut changer. L'échéance est toujours calculée, jamais envoyée par le client |
+| « Résiliée »                               | `state = ended`, `ended_reason = member` : la projection s'arrête tout de suite                                                                      |
+
+### Historique et charges fixes
+
+L'appartenance est stockée sur la transaction (`recurring_series_id`). Une
+charge fixe d'un mois passé le reste même si la série se termine plus tard :
+les revues déjà écrites ne changent plus rétroactivement. Seul un rejet
+détache les membres, et c'est voulu : le membre a dit que ce n'était pas une
+série.
+
+### Ce que le temps fait
+
+La réconciliation quotidienne d'un foyer (dans `bank.reconcile`, aussi lancée
+une fois par jour sans écriture) avance l'état de chaque série avec
+`advance(series, today, calendar)` : `live` → `late` quand l'échéance plus la
+marge est passée, `late` → `ended` après deux cycles manqués (un seul pour
+l'annuel), et retour à `live` dès que le débit arrive. Le passage à `late`
+peut notifier le membre (« Le loyer n'est pas encore passé »), selon ses
+préférences.
+
+### Évaluation
+
+- Les cas réels des tests de ramnn deviennent des scénarios nommés : Basic-Fit
+  (proratisation, trou d'inscription, palier 24,99 → 29,99), Disney base et
+  premium, EDF variable, salaire « CP Creation » libellé de trois façons,
+  débit de fin de mois traversant février, Amazon (abonnement parmi des achats
+  ponctuels), double débit le même jour.
+- On y ajoute les défauts de l'analyse, un test chacun : hausse de 37,5 %,
+  deux abonnements à des prix proches, annuel à la limite de la fenêtre,
+  salaire avec prime, loyer par virement, série résiliée, renommage du
+  marchand.
+- Un générateur de séries synthétiques (bruit de date, week-ends, jours
+  fériés, mois manqués, changements de prix) vérifie les invariants :
+  l'échéance n'est jamais avant la dernière occurrence, un changement de prix
+  ne crée jamais de seconde série, une série confirmée ne perd jamais ses
+  membres.
+- Sur les données de prod (export anonymisé), on rejoue l'historique et on
+  compare aux décisions des utilisateurs de ramnn : séries confirmées (vrais
+  positifs) et rejetées (faux positifs).

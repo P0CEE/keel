@@ -191,9 +191,20 @@ _Avoid_: saved, savings (the accounts)
 
 **Recurring series**:
 Charges or incomes that come back on their own at a steady cadence from the
-same merchant (subscription, rent, salary). Suggested by detection, confirmed
-or dismissed by a member, dismissed for good.
+same counterparty (subscription, rent, salary, a standing transfer to
+savings). Identified by who is on the other side, never by the amount: a price
+change does not start a new series.
 _Avoid_: subscription (only one kind), recurring transaction
+
+**Series review**:
+What a member said about a recurring series: suggested (nobody said anything
+yet), confirmed, or dismissed for good.
+
+**Series state**:
+Where a recurring series stands in time, whatever the review: live, late (its
+due date passed without the charge) or ended (it stopped coming, or a member
+said it was cancelled).
+_Avoid_: status (it mixes the two axes)
 
 **Cadence**:
 How often a recurring series comes back: weekly, every two weeks, every four
@@ -201,12 +212,14 @@ weeks, monthly, quarterly or yearly.
 _Avoid_: frequency, period
 
 **Next due date**:
-When a recurring series is expected next, always derived from its last
-occurrence and its cadence.
+When a recurring series is expected next, always derived from its cadence,
+its calendar anchor (the 5th, the last day of the month) and business days,
+never typed by anyone.
 
 **Fixed charge**:
-An expense that belongs to an active recurring series. Never exceptional,
-whatever its size.
+An expense that belongs to a recurring series that was not dismissed. Never
+exceptional, whatever its size, and it stays fixed in past months even after
+the series ends.
 
 ### Budgets and review
 
