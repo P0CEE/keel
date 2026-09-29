@@ -452,6 +452,7 @@ graphe de trésorerie (R10) et reconstruit le passé (ADR 0011).
 | `transfer_peer_id`                                           | uuid null                            | La jambe jumelle, si elle existe                                                        |
 | `transfer_dismissed`                                         | bool                                 | « Ce n'est pas un virement interne »                                                    |
 | `flow`                                                       | enum                                 | Voir les invariants (ADR 0010)                                                          |
+| `mandate_ref`                                                | text null                            | Le mandat SEPA (`labels.readMandate`), signature d'une série                            |
 | `recurring_series_id`                                        | uuid null                            |                                                                                         |
 | `recurring_excluded`                                         | bool                                 | « Cette transaction ne fait pas partie de la série » : le détecteur ne la rattache plus |
 | `excluded_from_budget`, `excluded_from_analysis`             | bool                                 |                                                                                         |
@@ -503,12 +504,19 @@ colonne `priority`.
 `private_to` ; signatures d'identité `mandate_ref`, `counterparty_iban`,
 `merchant_id`, `merchant_key` (toutes nulles possibles, au moins une
 renseignée) ; `direction` (`outflow` | `inflow`) ; `flow` (celui de ses
-membres) ; `currency` ; `cadence` ; `anchor` (jour du mois, du 1 au 31 ou
-« dernier jour », ou jour de semaine) ; `shifts_to_business_day bool` ;
-`amount_kind` (`fixed` | `variable`) ; `typical_amount_minor` (> 0) ;
-`amount_low_minor`, `amount_high_minor` (fourchette des variables) ; `name` ;
+membres) ; `currency` ; `account_id` (le compte de son dernier membre, pour
+la projection) ; `cadence` et `cadence_pinned` (le membre l'a choisie) ;
+`schedule_origin` (le jour prévu de l'occurrence 0, qui fixe la phase et le
+jour de semaine) ; `anchor_day` (jour du mois, du 1 au 31, 31 étant le
+dernier jour ; nul pour une cadence en semaines) ; `business_day_shift`
+(`none` | `following` | `preceding`) ; `amount_kind` (`fixed` |
+`variable`) ; `typical_amount_minor` (> 0) ; `amount_low_minor`,
+`amount_high_minor` (fourchette des variables) ; `previous_amount_minor`,
+`amount_changed_on` (le dernier changement de prix) ; `name` (celui du
+marchand ou du libellé, recalculé) et `custom_name` (celui du membre) ;
 `review` (`suggested` | `confirmed` | `dismissed`) ; `state` (`live` |
-`late` | `ended`) ; `ended_reason` (`missed` | `member`) ; `confidence` ;
+`late` | `ended`) ; `ended_reason` (`missed` | `member`) et `ended_on` ;
+`confidence` ;
 `origin` (`detected` | `member`) ; `first_on`, `last_on` ; `next_due_on`
 (écrit par le seul module) ; `occurrence_count` ; `confirmed_at` ;
 `created_at`, `updated_at`.
@@ -516,8 +524,11 @@ Pas de clé texte unique : l'identité est l'id, et les signatures servent à
 rattacher (section 10). Une série `dismissed` garde ses signatures, ce qui
 empêche la re-suggestion. Index (`household_id`, `next_due_on`)
 `WHERE review <> 'dismissed' AND state <> 'ended'` pour les échéances et le
-calendrier (R8) ; index (`household_id`, `merchant_id`) et (`household_id`,
-`counterparty_iban`) partiels pour le rattachement.
+calendrier (R8). Pas d'index de rattachement : la réconciliation lit déjà
+toutes les lignes du foyer et rattache en mémoire (lot 6). Les passes d'un
+foyer sont sérialisées par un verrou consultatif de transaction, pris avant
+toute lecture, pour qu'une réconciliation et un geste simultanés ne créent
+pas la même série deux fois.
 
 **`budgets`** : id ; `household_id` ; `category_id` ; `effective_month`
 (`CHECK` premier du mois) ; `amount_minor null` (null = plus de budget à
@@ -847,7 +858,7 @@ rafraîchissement au retour sur l'onglet suffit.
 - Reprise après déconnexion : test du lecteur avec un faux flux.
 - Table d'invalidation de l'app : test unitaire, un cas par événement.
 
-## 10. Séries récurrentes, reconçues (ajout du 2026-09-28, à valider)
+## 10. Séries récurrentes, reconçues (ajout du 2026-09-28, précisé au lot 6 le 2026-09-29)
 
 L'analyse détaillée de ramnn a relevé 19 défauts vérifiés. Ils viennent de
 trois choix de fond, que keel inverse (ADR 0017).
@@ -873,17 +884,30 @@ trois choix de fond, que keel inverse (ADR 0017).
 ### Identité et rattachement
 
 1. Une transaction arrivante est comparée aux séries du foyer, par ordre de
-   force de signature : mandat SEPA (si la banque l'expose ; à vérifier dans
-   la documentation Enable Banking), IBAN de contrepartie, marchand global,
-   puis clé de libellé. Même direction et même devise exigées.
-2. Elle est rattachée si sa date tombe dans la fenêtre attendue de la
-   prochaine échéance (tolérance selon la cadence). Le montant ne sert qu'à
-   départager deux séries de la même contrepartie, par exemple deux
+   force de signature : mandat SEPA (Enable Banking l'expose dans
+   `reference_number` quand son schéma est `SDDM`, et les banques françaises
+   l'écrivent dans le libellé : « RUM », « MDT/ », « MANDAT » ;
+   `labels.readMandate`), IBAN de contrepartie, marchand global, puis clé de
+   libellé. Même direction, même devise et même confidentialité exigées.
+2. Elle est rattachée si sa date tombe près d'une échéance : un cinquième
+   du cycle (au moins la tolérance de la cadence, au plus 30 jours), et
+   jusqu'à un demi-cycle quand la signature partagée est un mandat ou un IBAN
+   (un loyer payé une semaine en retard reste le loyer du mois). Le montant
+   départage deux séries de la même contrepartie, par exemple deux
    abonnements Disney+ à des prix différents : chacune garde sa propre grille,
    et la ligne va à celle dont la grille et le montant collent le mieux.
-3. Un montant différent sur une série fixe, à la bonne date, est un
-   **changement de prix** : la série continue, son montant typique change, et
-   un événement « Netflix passe de 13,49 € à 15,99 € » est émis.
+   Quand seule la clé de libellé est partagée, le montant doit en plus être
+   plausible (de la moitié au double du prix ou de la fourchette) : un achat
+   Amazon de 45 € ne rejoint pas l'abonnement Prime.
+3. Un montant différent sur une série fixe de dépense, à la bonne date, est
+   un **changement de prix** : la série continue, son prix devient le
+   dernier, et l'ancien prix et sa date sont gardés sur la série
+   (`previous_amount_minor`, `amount_changed_on`), que la fiche affiche
+   (« 13,49 € → 15,99 € ») et que les notifications liront (lot 9) ; les
+   événements temps réel ne portent pas de montant (ADR 0016). Si le prix
+   revient ensuite à l'ancien, c'était un ponctuel (prorata, prime) et le
+   changement est oublié. Le salaire d'une série de revenu n'est pas un
+   prix : pas de changement noté.
 4. Comme le rattachement ne dépend plus du texte, changer le normaliseur de
    libellés ne casse aucune série : seule la signature `merchant_key` est
    recalculée, par une migration versionnée.
@@ -898,14 +922,23 @@ trois choix de fond, que keel inverse (ADR 0017).
   sur les dates réelles décalées. Un débit du 31 reste un débit du 31 : ramnn
   mémorisait le 28 après février et prédisait trop tôt tous les mois
   suivants.
-- **Jours ouvrés** : une série peut se décaler au jour ouvré suivant, et le
-  module l'apprend en observant ses membres. Les prélèvements SEPA suivent le
+- **Jours ouvrés** : une série peut se décaler au jour ouvré suivant (un
+  prélèvement), au jour ouvré précédent (un salaire versé la veille d'un
+  week-end) ou pas du tout (une carte débite le dimanche) :
+  `business_day_shift` vaut `none`, `following` ou `preceding`, et le module
+  l'apprend en observant ses membres. Les prélèvements SEPA suivent le
   calendrier TARGET2 (week-ends, 1er janvier, Vendredi saint, lundi de Pâques,
   1er mai, 25 et 26 décembre). La prochaine échéance tient compte de ce
   décalage.
 - **Cycles manqués** : un mois sans débit ne casse pas la série. Chaque
   occurrence est placée sur la grille de la cadence, et la confiance baisse
-  avec les trous.
+  avec les trous. Un écart qui traverse un jour férié TARGET2 se lit sur les
+  jours prévus possibles : un débit du lundi de Pâques avancé au jeudi reste
+  à l'heure.
+- **Nouveau rythme** : l'ancre s'apprend sur les dernières occurrences
+  régulières. Un créancier qui change de jour de facturation (Basic-Fit)
+  impose son nouveau jour après trois occurrences ; un retard isolé ne
+  déplace pas l'ancre.
 - **Annuel** : deux occurrences à 12 mois d'écart suffisent pour une
   suggestion. L'historique n'est plus borné à 730 jours pour les séries déjà
   connues : un annuel ne disparaît plus au moment de son échéance.
@@ -926,9 +959,27 @@ trois choix de fond, que keel inverse (ADR 0017).
   Une série variable a une fourchette (du 10e au 90e centile), et la
   projection prend sa médiane. Une facture d'énergie devient donc une série
   comme les autres.
+- Deux lignes qui partagent une valeur de signature sont la même
+  contrepartie (une ligne Netflix déjà enrichie et une autre connue par son
+  libellé se retrouvent). Une contrepartie donne plusieurs séries quand
+  plusieurs prix exacts au centime tombent dans les mêmes cycles (deux
+  forfaits, deux lignes de téléphone) ; sinon une seule si ses montants
+  restent une facture (de 1 à 4 au plus : les versements d'hiver et d'été
+  d'un fournisseur d'énergie) ; sinon le seul prix qui revient (un abonnement
+  parmi des achats, trois occurrences au moins). Un groupe qui complète une
+  série existante la rejoint au lieu d'en créer une seconde.
 - Seuils de suggestion : trois occurrences pour les cadences courtes, deux
-  pour les mensuelles et au-delà. Confiance élevée seulement avec une grille
-  régulière et une signature forte (mandat, IBAN ou marchand connu).
+  pour les mensuelles et au-delà, une de plus quand seule la clé de libellé
+  identifie la contrepartie ; au moins les trois quarts des écarts
+  réguliers (six sur dix pour un prélèvement SEPA, promesse de revenir).
+- Confiance : régularité × preuves (deux occurrences 0,6, trois 0,85, quatre
+  et plus 1) × signature (1 pour un mandat, un IBAN ou un marchand connu,
+  0,8 pour une clé de libellé seule). Elle est élevée à partir de 0,75.
+- Une série trouvée déjà terminée dans un vieil historique est gardée (ses
+  mois restent des charges fixes, et elle reprend si un débit revient) mais
+  n'est ni proposée ni listée.
+- Rejouée sur la prod de ramnn (lot 6), cette découverte propose 15 % de
+  séries que les membres avaient rejetées, contre 66 % pour ramnn.
 
 ### Gestes du membre, tous serveur
 
@@ -955,7 +1006,8 @@ La réconciliation quotidienne d'un foyer (dans `bank.reconcile`, aussi lancée
 une fois par jour sans écriture) avance l'état de chaque série avec
 `advance(series, today, calendar)` : `live` → `late` quand l'échéance plus la
 marge est passée, `late` → `ended` après deux cycles manqués (un seul pour
-l'annuel), et retour à `live` dès que le débit arrive. Le passage à `late`
+l'annuel et le semestriel), et retour à `live` dès que le débit arrive, même
+après « résiliée ». Le passage à `late`
 peut notifier le membre (« Le loyer n'est pas encore passé »), selon ses
 préférences.
 

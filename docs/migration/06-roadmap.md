@@ -3,7 +3,7 @@
 - Date : 2026-09-28
 - Entrées : `01-audit.md` à `05-ui-porting.md` et leurs décisions validées,
   ADR 0001 à 0017, `CONTEXT.md`, catalogue des démos mint-pocs.
-- Statut : validée le 2026-09-28 ; lots 0 à 4 livrés.
+- Statut : validée le 2026-09-28 ; lots 0 à 6 livrés.
 
 ## 1. Principes de découpage
 
@@ -396,24 +396,82 @@ et la sandbox Enable Banking restent à faire.
 
 ### Lot 6 · Séries récurrentes
 
-- **`@keel/finance`** `recurring` (section 10 de `02-domain.md`) :
-  signatures, rattachement incrémental, découverte, calendrier TARGET2,
-  ancres, séries variables, `advance`, `nextDue`.
-- **Gestes** serveur : confirmer, rejeter, détacher une transaction,
-  rattacher, créer depuis une transaction, « résiliée ». Événement de
-  changement de prix.
-- **Lectures** : `upcoming`, charges fixes du mois, projection de solde.
-- **Écrans** : échéances à venir, détail de série, liste des séries. Démos :
-  `cycle-input` (cadence), `earnings-calendar` (calendrier des échéances,
-  reconverti comme le dock : à confirmer sur captures), `callout`.
-- **Eval** : scénarios nommés de ramnn et de l'analyse, générateur de séries
-  synthétiques, puis rejeu de l'historique de prod anonymisé contre les
-  décisions des utilisateurs (46 % de séries rejetées dans ramnn : c'est le
-  chiffre à battre).
+- **`@keel/finance`** : `business-days` (calendrier TARGET2, Pâques
+  calculée, décalage `following` ou `preceding`) et `recurring` (dossier :
+  `calendar`, `fit`, `amounts`, `discover`, `attach`, `series`, `project`).
+  Huit cadences, dont bimestrielle et semestrielle. La cadence se lit sur les
+  écarts entre dates (un ou deux cycles, tolérances de ramnn, lecture qui
+  traverse un jour férié TARGET2), la grille (ancre du 1er au 31, 31 = dernier
+  jour, et décalage de jour ouvré) s'apprend sur les dates prévues de la
+  dernière série régulière : un nouveau rythme ne remplace l'ancien qu'après
+  trois occurrences, un retard isolé ne déplace pas l'ancre. La découverte
+  regroupe les lignes non rattachées par contrepartie (union des signatures :
+  mandat, IBAN, marchand, clé de libellé), puis prend les prix exacts au
+  centime qui tombent dans les mêmes cycles (deux forfaits), sinon le groupe
+  entier s'il reste une seule facture (rapport 1 à 4 au plus), sinon le seul
+  prix qui revient (un abonnement parmi des achats, trois occurrences au
+  moins). Un groupe qui complète une série existante la rejoint au lieu d'en
+  créer une seconde ; un groupe semblable à une série rejetée n'est jamais
+  reproposé. Le rattachement exige la date près d'une échéance (un
+  demi-cycle pour un mandat ou un IBAN, un cinquième sinon) et, pour une
+  simple clé de libellé, un prix plausible. Montant fixe (prix courant,
+  changement de prix noté, oublié si le prix revient) ou variable (médiane et
+  fourchette 10e-90e centile). Confiance = régularité × preuves (2, 3, 4
+  occurrences) × force de signature ; une série compte dans les chiffres si
+  elle est confirmée ou de confiance au moins 0,75. `advance` : `live`,
+  `late` au-delà de la tolérance, `ended` après deux échéances manquées (une
+  pour l'annuel et le semestriel) ou « résiliée » jusqu'à un nouveau débit.
+  `duesOf`, `projectBalance`, `monthlyEquivalent`. `labels.readMandate` :
+  le mandat SEPA (champ `reference_number` de schéma `SDDM` d'Enable Banking,
+  ou « RUM », « MDT/ », « MANDAT » du libellé).
+- **Schéma** (migration 0015) : `recurring_series` (signatures, sens, flux,
+  compte, cadence et cadence épinglée, origine de grille, ancre, décalage,
+  montants, ancien prix, nom et nom du membre, revue, état, fin, confiance,
+  dates, occurrences), RLS du foyer et du privé ; sur `transactions`,
+  `mandate_ref`, `recurring_series_id`, `recurring_excluded`. Index R8 et
+  R21.
+- **`@keel/banking`** : la passe des séries dans `bank.reconcile`
+  (rattacher, découvrir, réajuster, avancer, n'écrire que le diff,
+  événement `recurring.changed` par audience), sous un verrou par foyer pris
+  avant toute lecture. Gestes, chacun suivi de la même passe : confirmer,
+  rejeter et annuler le rejet, « n'en fait pas partie », rattacher à la
+  main (vaut confirmation), créer depuis une transaction avec sa cadence,
+  « résiliée » et son retour, changer la cadence, renommer. Lectures :
+  `recurring.list`, `recurring.outlook` (échéances à 30 jours, projection des
+  comptes courants et cartes, charges fixes et revenus récurrents du mois),
+  `recurring.calendar({ month })`, `recurring.members`.
+- **Écrans** (provisoires, refaits au lot 8) : page Récurrents (charges fixes
+  et revenus du mois, projection, échéancier, séries par nature,
+  suggestions en cards-inset, échéances à venir), fiche de série, ligne
+  « Récurrence » et « Suivre comme récurrent » dans la fiche transaction,
+  rythme dans la liste, « À venir » sur la home, entrée du dock. Démos
+  portées : `cycle-input`, `earnings-calendar` (devenu `due-calendar`) ; icône
+  Mint `calendar`.
+- **Eval** : les scénarios de ramnn (25) et les défauts de l'analyse en
+  tests nommés ; générateur synthétique sur les huit cadences (bruit de
+  date, jours ouvrés, trous, hausses de prix), vérifié sur 1 200 séries ;
+  rejeu de la prod (`eval/recurring`, export anonymisé dans le conteneur par
+  `run-in-railway.sh`, `bun run eval:recurring`).
 
 Fini quand : les invariants du générateur tiennent (échéance jamais avant la
 dernière occurrence, un changement de prix ne crée jamais de seconde série),
-et le rejeu de prod donne moins de faux positifs que ramnn.
+et le rejeu de prod donne moins de faux positifs que ramnn. Vérifié le
+2026-09-29 : invariants tenus sur 1 200 séries ; rejeu sur 3 membres et
+3 246 transactions, 14,8 % de suggestions rejetées (4 sur 27 jugées) contre
+66 % pour ramnn (31 sur 47), 12,5 % sur les seules séries de confiance
+élevée ; keel retrouve 22 des 23 séries confirmées détectables (les autres
+sont des séries créées à la main sur une transaction).
+
+**Précisions reportées dans `02-domain.md`** (sections 5 et 10) : décalage
+de jour ouvré à trois valeurs (un salaire part la veille), compte et nom du
+membre sur la série, changement de prix gardé sur la série (les événements
+temps réel ne portent pas de montant ; la notification vient au lot 9),
+montant plausible exigé quand seule la clé de libellé est partagée, fenêtre
+d'un demi-cycle pour un mandat ou un IBAN, seuils de suggestion plus
+stricts, série née terminée gardée sans être proposée, mandat SEPA lu chez
+Enable Banking et dans le libellé. Sur les données de démo, EDF est « en
+retard » : la banque factice a deux prélèvements en août et aucun en
+septembre.
 
 ### Lot 7 · Budgets et objectif d'épargne
 
