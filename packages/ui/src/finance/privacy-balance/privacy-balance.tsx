@@ -88,6 +88,8 @@ export type PrivacyBalanceProps = {
   readonly change?: PrivacyBalanceChange | null;
   /** Smaller type (25px balance, 14px change) for tight spaces. */
   readonly compact?: boolean;
+  /** Larger type (40px balance), a page's header. */
+  readonly large?: boolean;
   /** Drives the button's visibility (and the close-up) from a parent. */
   readonly hovered?: boolean;
   /**
@@ -118,6 +120,7 @@ function BalanceBody({
   labels,
   change,
   compact = false,
+  large = false,
   hovered: hoveredProp,
   stretch = true,
   as: Heading = "h1",
@@ -147,6 +150,7 @@ function BalanceBody({
     <div
       className={styles.root}
       data-compact={compact ? true : undefined}
+      data-large={large && !compact ? true : undefined}
       data-stretch={!compact && stretch ? true : undefined}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -157,7 +161,11 @@ function BalanceBody({
           aria-label={`${labels.balance}${hidden ? `, ${maskLabel}` : ` ${text}`}`}
         >
           <span aria-hidden="true">
-            <MaskedAmount text={text} mode={mode} dotSize={compact ? 12 : 15} />
+            <MaskedAmount
+              text={text}
+              mode={mode}
+              dotSize={compact ? 12 : large ? 18 : 15}
+            />
           </span>
         </Heading>
         <ToggleButton

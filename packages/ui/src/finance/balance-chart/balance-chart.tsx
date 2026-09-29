@@ -20,7 +20,7 @@ import { useSize } from "../../mint/hooks/use-size";
 import { ease, spring } from "../../mint/motion";
 import { usePrivacy } from "../privacy/privacy";
 import styles from "./balance-chart.module.css";
-import { indexAt, plotOf, scrubKey, trendOf } from "./plot";
+import { indexAt, plotOf, SAMPLES, scrubKey, trendOf } from "./plot";
 import { type Day, formatShortDate } from "@keel/finance/dates";
 import { formatMoney } from "@keel/finance/money";
 
@@ -68,6 +68,16 @@ export type BalanceChartProps = {
   readonly onScrub?: (point: BalancePoint | null) => void;
   /** The slider's value text for a point (default: "3 sept., 1 234,56 €"). */
   readonly describe?: (point: BalancePoint) => string;
+  /**
+   * The halftone wash under the line (on by default). Off, the line stands
+   * alone over its dashed rule, as Wealthsimple's desktop home draws it.
+   */
+  readonly wash?: boolean;
+  /**
+   * One drawn point every two pixels rather than a fixed count: a wide
+   * chart keeps a daily history's texture instead of smoothing it.
+   */
+  readonly dense?: boolean;
 };
 
 export function BalanceChart({
@@ -79,6 +89,8 @@ export function BalanceChart({
   delay = 0,
   onScrub,
   describe,
+  wash = true,
+  dense = false,
 }: BalanceChartProps) {
   const reduce = useReducedMotion() ?? false;
   const { hidden, maskLabel } = usePrivacy();
@@ -88,7 +100,12 @@ export function BalanceChart({
   const [scrub, setScrub] = useState<number | null>(null);
 
   const values = series.map((point) => point.minor);
-  const plot = plotOf(values, width, height);
+  const plot = plotOf(
+    values,
+    width,
+    height,
+    dense ? Math.max(SAMPLES, Math.round(width / 2)) : SAMPLES,
+  );
   const last = series.length - 1;
   const trend = trendOf(values);
   // where the line changes colour, as a gradient offset: the baseline
@@ -317,21 +334,23 @@ export function BalanceChart({
           />
 
           <g clipPath={`url(#${id}-draw)`}>
-            <motion.path
-              d={plot.area}
-              fill={`url(#${id}-wash)`}
-              mask={`url(#${id}-halftone)`}
-              clipPath={`url(#${id}-left)`}
-              initial={{ d: plot.area, opacity: 0 }}
-              animate={{ d: plot.area, opacity: 1 }}
-              transition={{
-                d: SNAP,
-                opacity: {
-                  duration: 0.6,
-                  delay: reduce ? 0 : delay + DRAW * 0.5,
-                },
-              }}
-            />
+            {wash ? (
+              <motion.path
+                d={plot.area}
+                fill={`url(#${id}-wash)`}
+                mask={`url(#${id}-halftone)`}
+                clipPath={`url(#${id}-left)`}
+                initial={{ d: plot.area, opacity: 0 }}
+                animate={{ d: plot.area, opacity: 1 }}
+                transition={{
+                  d: SNAP,
+                  opacity: {
+                    duration: 0.6,
+                    delay: reduce ? 0 : delay + DRAW * 0.5,
+                  },
+                }}
+              />
+            ) : null}
             <motion.path
               className={styles.line}
               stroke={`url(#${id}-stroke)`}

@@ -1,0 +1,34 @@
+/* The balance chart's line and halftone wash (balance-chart.module.css),
+   small: green above where it started, red below. */
+
+.box {
+  --trend: var(--positive);
+
+  position: relative;
+  width: 100%;
+}
+
+.box[data-trend="down"] {
+  --trend: var(--negative);
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+.stop {
+  stop-color: var(--trend);
+}
+
+.line {
+  fill: none;
+  stroke: var(--trend);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.dot {
+  fill: var(--trend);
+}

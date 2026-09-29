@@ -993,3 +993,21 @@ export function MinusSmallIcon({ size = 8, className }: IconProps) {
     </svg>
   );
 }
+
+/** The six-dot grip a reorderable row is dragged by (HoldingsTable's). */
+export function GripIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      {[3, 8, 13].flatMap((y) =>
+        [6, 10].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.25" />),
+      )}
+    </svg>
+  );
+}

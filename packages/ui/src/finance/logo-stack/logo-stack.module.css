@@ -1,0 +1,26 @@
+/* mint-pocs' AppTopBar .at-stack, at any size: each logo steps in by 10 of
+   32 (5/16 of its size); the crescent's circle sits 38 of 32 to the right,
+   18.5 of 32 across. */
+
+.stack {
+  display: flex;
+  flex: none;
+}
+
+.item {
+  display: inline-flex;
+  margin-left: calc(var(--logo) * -0.3125);
+  mask: radial-gradient(
+    circle at calc(var(--logo) * 1.1875) 50%,
+    transparent calc(var(--logo) * 0.578),
+    black calc(var(--logo) * 0.594)
+  );
+}
+
+.item:first-child {
+  margin-left: 0;
+}
+
+.item:last-child {
+  mask: none;
+}

@@ -1,0 +1,157 @@
+/* Mint's card (mint-pocs' AppTopBar .at-card: 20px radius, the card fill,
+   its hairline edge and the raised shadow) holding a stat: the summary
+   card's label and the Spend & Save card's figure and caption. */
+
+.card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  min-height: 232px;
+  padding: var(--space-s2-50) var(--space-s2-50) var(--space-s2);
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow:
+    inset 0 0 0 1px var(--card-edge),
+    var(--shadow-raised);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  transition: transform 70ms ease;
+}
+
+/* the whole card is the button, under the content: a chart inside keeps
+   its pointer */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 100ms ease;
+}
+
+@media (hover: hover) {
+  .overlay:hover {
+    background: var(--hover-faint);
+  }
+}
+
+.card[data-clickable]:has(.overlay:active) {
+  transform: scale(0.98);
+}
+
+.overlay:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.head,
+.caption {
+  pointer-events: none;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s1);
+}
+
+.label {
+  overflow: hidden;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  color: var(--ink-3);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* the Spend & Save card's balance: 25 / 30 bold */
+.figure {
+  overflow: hidden;
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* the Price change's compact tag: Mint's accent tag on 18px, 6px radius */
+.tag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--space-s0-75);
+  border-radius: 6px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.18px;
+  background: var(--tag-bg);
+  color: var(--tag-ink);
+}
+
+.tag[data-tone="positive"] {
+  --tag-bg: var(--positive-soft);
+  --tag-ink: var(--on-positive-soft);
+}
+
+.tag[data-tone="negative"] {
+  --tag-bg: var(--negative-soft);
+  --tag-ink: var(--negative);
+}
+
+.tag[data-tone="neutral"] {
+  --tag-bg: var(--highlight);
+  --tag-ink: var(--ink-2);
+  font-weight: var(--weight-medium);
+}
+
+/* the visual takes what the head and the caption leave, its content at
+   the foot */
+.visual {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 0;
+  margin-top: var(--space-s2);
+}
+
+/* a line or a ring that runs to the card's sides, and to its foot when
+   no caption closes the card */
+.visual[data-bleed] {
+  margin-inline: calc(-1 * var(--space-s2-50));
+}
+
+.visual[data-bleed]:last-child {
+  margin-bottom: calc(-1 * var(--space-s2));
+}
+
+.caption {
+  margin: var(--space-s1-50) 0 0;
+  overflow: hidden;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

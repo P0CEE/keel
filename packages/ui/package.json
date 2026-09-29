@@ -67,7 +67,18 @@
     "./finance/due-calendar": "./src/finance/due-calendar/due-calendar.tsx",
     "./finance/category-budget": "./src/finance/category-budget/category-budget.tsx",
     "./mint/amount-stepper": "./src/mint/amount-stepper/amount-stepper.tsx",
-    "./finance/unlock-progress": "./src/finance/unlock-progress/unlock-progress.tsx"
+    "./finance/unlock-progress": "./src/finance/unlock-progress/unlock-progress.tsx",
+    "./finance/stat-card": "./src/finance/stat-card/stat-card.tsx",
+    "./finance/budget-gauge": "./src/finance/budget-gauge/budget-gauge.tsx",
+    "./finance/sparkline": "./src/finance/sparkline/sparkline.tsx",
+    "./finance/logo-stack": "./src/finance/logo-stack/logo-stack.tsx",
+    "./finance/streak": "./src/finance/streak/streak.tsx",
+    "./finance/meter": "./src/finance/meter/meter.tsx",
+    "./finance/day-strip": "./src/finance/day-strip/day-strip.tsx",
+    "./finance/for-you": "./src/finance/for-you/for-you.tsx",
+    "./finance/account-rows": "./src/finance/account-rows/account-rows.tsx",
+    "./finance/payday-pill": "./src/finance/payday-pill/payday-pill.tsx",
+    "./mint/reorder-list": "./src/mint/reorder-list/reorder-list.tsx"
   },
   "scripts": {
     "lint": "oxlint .",

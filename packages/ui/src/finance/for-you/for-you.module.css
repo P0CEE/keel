@@ -1,0 +1,186 @@
+/* Wealthsimple's "For you" card: the card washed in its colour, a 18 / 28
+   bold title, a line in the second ink, the round arrow in ink, and the art
+   on the right: a ring in the card's colour, lit from the top. */
+
+.forYou {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s1);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s0-50);
+}
+
+.position {
+  margin-right: var(--space-s0-50);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* the Earnings calendar's arrow, as the day strip's */
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-8);
+  background: var(--pill);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    box-shadow var(--duration-fast) ease,
+    transform 70ms ease,
+    opacity var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .arrow:hover:not(:disabled) {
+    box-shadow: inset 0 0 0 100px var(--hover);
+  }
+}
+
+.arrow:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.arrow:focus-visible,
+.go:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.window {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.card {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-s2);
+  min-height: 172px;
+  padding: var(--space-s2-50);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--card-tone) 14%, var(--card-bg));
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--card-tone) 18%, transparent);
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+  text-wrap: balance;
+}
+
+.text {
+  margin: var(--space-s0-50) 0 0;
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* the round arrow: 32px, ink on the card, the arrow in the inverted ink */
+.go {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-top: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink-fill);
+  color: var(--on-ink);
+  cursor: pointer;
+  transition: transform 70ms ease;
+}
+
+.go:active {
+  transform: scale(0.94);
+}
+
+/* the art: a 96px ring in the card's colour, lit from the top, its glyph
+   in the middle */
+.art {
+  flex: none;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--card-tone) 10%, var(--card-bg)) 58%,
+      transparent 59%
+    ),
+    conic-gradient(
+      from 210deg,
+      color-mix(in srgb, var(--card-tone), white 35%),
+      var(--card-tone),
+      color-mix(in srgb, var(--card-tone), black 10%),
+      color-mix(in srgb, var(--card-tone), white 35%)
+    );
+}
+
+.glyph {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--card-tone);
+}
+
+.glyph > svg {
+  width: 100%;
+  height: 100%;
+}

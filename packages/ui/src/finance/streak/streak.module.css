@@ -1,0 +1,73 @@
+/* The Streaks card's circles: a hairline ring; a kept period a ring of the
+   series blue around its lit disc, a missed one a dash, the running one
+   empty. */
+
+.marks {
+  display: flex;
+  gap: var(--space-s1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mark {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s1);
+  min-width: 0;
+  max-width: 56px;
+}
+
+.circle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--line-heavy);
+  background: var(--card-bg);
+}
+
+.mark[data-state="kept"] .circle {
+  box-shadow: inset 0 0 0 1.5px
+    color-mix(in srgb, var(--category-blue) 45%, transparent);
+}
+
+/* the kept disc, lit from the top, 5px inside the ring */
+.mark[data-state="kept"] .circle::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: linear-gradient(
+    color-mix(in srgb, var(--category-blue), white 18%),
+    var(--category-blue)
+  );
+}
+
+.dash {
+  width: 28%;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ink-3);
+}
+
+.label {
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

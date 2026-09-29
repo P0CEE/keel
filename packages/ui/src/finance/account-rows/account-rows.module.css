@@ -1,0 +1,151 @@
+/* mint-pocs' phone home rows (AppTopBar .at-row-card, .at-list), laid out
+   as Wealthsimple's desktop home lists its accounts: 72px row cards, 8px
+   apart; a group a card whose rows sit under hairlines. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rowCard,
+.groupHead,
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Mint's row card: 20px radius, the card fill, its edge and the lift */
+.rowCard {
+  min-height: 72px;
+  padding: var(--space-s1-50) var(--space-s2-50);
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow:
+    inset 0 0 0 1px var(--card-edge),
+    var(--shadow-raised);
+  transition:
+    background-color 100ms ease,
+    transform 70ms ease;
+}
+
+@media (hover: hover) {
+  .rowCard:hover,
+  .groupHead:hover,
+  .row:hover {
+    background-image: linear-gradient(var(--hover-faint), var(--hover-faint));
+  }
+}
+
+.rowCard:active {
+  transform: scale(0.99);
+}
+
+.rowCard:focus-visible,
+.groupHead:focus-visible,
+.row:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  overflow: hidden;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.figures {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.figure {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sub {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* a kind: one card, its head and its rows */
+.group {
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow:
+    inset 0 0 0 1px var(--card-edge),
+    var(--shadow-raised);
+}
+
+.groupHead {
+  min-height: 72px;
+  padding: var(--space-s1-50) var(--space-s2-50);
+  background: none;
+}
+
+.groupHead > svg {
+  flex: none;
+  color: var(--ink-3);
+  transform: rotate(180deg);
+  transition: transform 200ms var(--ease-sheet);
+}
+
+.groupHead[aria-expanded="false"] > svg {
+  transform: rotate(0deg);
+}
+
+.groupBody {
+  overflow: hidden;
+}
+
+.rows {
+  margin: 0;
+  padding: 0 0 var(--space-s1);
+  list-style: none;
+}
+
+.row {
+  min-height: 64px;
+  padding: var(--space-s1) var(--space-s2-50);
+  background: none;
+  box-shadow: inset 0 1px 0 var(--line);
+}

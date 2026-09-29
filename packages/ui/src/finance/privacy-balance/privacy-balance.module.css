@@ -62,6 +62,17 @@
   letter-spacing: -0.02em;
 }
 
+/* the home's header, Wealthsimple's 40 / 48 balance with its change close
+   under it */
+.root[data-large] .balance {
+  font-size: var(--text-xxlarge);
+  line-height: var(--leading-xxlarge);
+}
+
+.root[data-large] .change {
+  margin-top: 0;
+}
+
 .root[data-compact] .change {
   font-size: var(--text-small);
   line-height: var(--leading-small);

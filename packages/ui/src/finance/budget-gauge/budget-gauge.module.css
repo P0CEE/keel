@@ -1,0 +1,58 @@
+/* The Spending breakdown's half gauge (spending-breakdown.module.css), its
+   wedges lit from the top, over the grey track of what is left. */
+
+.gauge {
+  position: relative;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* each wedge lit from the top: its colour mixed with white, down to it */
+.lit {
+  stop-color: color-mix(in srgb, var(--slice-color), white 18%);
+}
+
+.tint {
+  stop-color: var(--slice-color);
+}
+
+.wedge {
+  transform-box: view-box;
+  transform-origin: 50% 100%;
+}
+
+/* what is left: the page's quiet fill, as Wealthsimple's gauge */
+.track {
+  fill: var(--pill);
+  stroke: var(--pill);
+}
+
+.middle {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.value {
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.caption {
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-3);
+}

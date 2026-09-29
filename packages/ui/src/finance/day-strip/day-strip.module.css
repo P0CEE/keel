@@ -1,0 +1,172 @@
+/* Wealthsimple's home Earnings strip, drawn with the Earnings calendar's
+   pieces (mint-pocs' .cal-arrow, .cal-mini logos) on Mint's card: a title
+   with its chevron, the 28px arrows, and a row of day cards. */
+
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s1);
+}
+
+/* the section's title, 16 / 22 bold, its chevron after it */
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s0-50);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+
+.title > svg {
+  color: var(--ink-3);
+  transition: transform var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .title:hover > svg {
+    transform: translateX(2px);
+  }
+}
+
+.title:focus-visible,
+.arrow:focus-visible,
+.day:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.arrows {
+  display: flex;
+  gap: var(--space-s0-50);
+}
+
+/* the Earnings calendar's arrow: 28px, 8px radius, the pill fill */
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-8);
+  background: var(--pill);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    box-shadow var(--duration-fast) ease,
+    transform 70ms ease,
+    opacity var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .arrow:hover:not(:disabled) {
+    box-shadow: inset 0 0 0 100px var(--hover);
+  }
+}
+
+.arrow:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.window {
+  position: relative;
+  overflow: hidden;
+  /* room for the cards' shadow inside the clip */
+  padding: 2px 2px 8px;
+  margin: -2px -2px -8px;
+}
+
+.days {
+  display: grid;
+  gap: var(--space-s1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* a day: Mint's card, its number over its month, what is due at its foot */
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 112px;
+  padding: var(--space-s1-50) var(--space-s0-50) var(--space-s1-50);
+  border: 0;
+  border-radius: var(--radius-16);
+  background: var(--card-bg);
+  box-shadow:
+    inset 0 0 0 1px var(--card-edge),
+    var(--shadow-raised);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform 70ms ease;
+}
+
+@media (hover: hover) {
+  .day:hover {
+    background-image: linear-gradient(var(--hover-faint), var(--hover-faint));
+  }
+}
+
+.day:active {
+  transform: scale(0.98);
+}
+
+.number {
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.caption {
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* today reads in ink, as the calendar's badge */
+.day[data-today] .caption {
+  color: var(--ink);
+  font-weight: var(--weight-medium);
+}
+
+.logos {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 24px;
+  margin-top: var(--space-s1);
+}
+
+.none {
+  color: var(--ink-3);
+  line-height: 24px;
+}
