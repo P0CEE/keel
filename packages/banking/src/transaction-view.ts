@@ -6,6 +6,7 @@ import {
   nameFromMerchantKey,
   type TransactionMethod,
 } from "@keel/finance/labels";
+import type { Cadence, Review } from "@keel/finance/recurring";
 
 /**
  * One transaction, ready to show (02-domain.md, section 4): the list's row
@@ -58,6 +59,16 @@ export type TransactionView = {
   readonly transferDismissed: boolean;
   /** `all` for a manual entry; `member` when only the name and note may change. */
   readonly editable: "all" | "member";
+  /** The recurring series it belongs to (ADR 0017), as the list marks it. */
+  readonly series: SeriesMark | null;
+  /** The member said it is not part of a series: never attached again. */
+  readonly recurringExcluded: boolean;
+};
+
+export type SeriesMark = {
+  readonly id: string;
+  readonly cadence: Cadence;
+  readonly review: Review;
 };
 
 type AccountFacts = {
@@ -79,6 +90,7 @@ export function transactionView(
   row: TransactionRow,
   account: AccountFacts,
   merchant: MerchantFacts = null,
+  series: SeriesMark | null = null,
 ): TransactionView {
   const accountName = accountDisplayName(
     account.customName,
@@ -115,9 +127,12 @@ export function transactionView(
     transferPeerId: row.transferPeerId,
     transferDismissed: row.transferDismissed,
     editable: row.origin === "manual" ? "all" : "member",
+    series:
+      series !== null && series.id === row.recurringSeriesId ? series : null,
+    recurringExcluded: row.recurringExcluded,
   };
 }
 
 export function listedView(row: ListedTransaction): TransactionView {
-  return transactionView(row, row.account, row.merchant);
+  return transactionView(row, row.account, row.merchant, row.series);
 }

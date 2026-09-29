@@ -9,6 +9,7 @@ import { healthRouter } from "./routers/health";
 import { householdRouter } from "./routers/household";
 import { insightsRouter } from "./routers/insights";
 import { realtimeRouter } from "./routers/realtime";
+import { recurringRouter } from "./routers/recurring";
 import { settingsRouter } from "./routers/settings";
 import { transactionsRouter } from "./routers/transactions";
 import { router } from "./trpc";
@@ -27,6 +28,7 @@ export const appRouter = router({
   categories: categoriesRouter,
   mappings: mappingsRouter,
   insights: insightsRouter,
+  recurring: recurringRouter,
 });
 
 /** End-to-end type consumed by `@keel/app` for type-safe clients. */

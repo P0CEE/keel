@@ -8,6 +8,7 @@ import {
 import { type Scope, withScope } from "@keel/db";
 import {
   getAccount,
+  getSeries,
   getTransaction,
   listTransactions,
   merchantsByIds,
@@ -114,7 +115,18 @@ export function transactionDetail(
         tx,
         row.merchantId === null ? [] : [row.merchantId],
       );
-      return transactionView(row, account, merchant ?? null);
+      const series =
+        row.recurringSeriesId === null
+          ? null
+          : await getSeries(tx, scope, row.recurringSeriesId);
+      return transactionView(
+        row,
+        account,
+        merchant ?? null,
+        series === null
+          ? null
+          : { id: series.id, cadence: series.cadence, review: series.review },
+      );
     },
     deps.database,
   );

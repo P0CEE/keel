@@ -1,6 +1,7 @@
 import { PIPELINE_DEBOUNCE_MS } from "./after-write";
 import type { BankingDeps } from "./deps";
 import { decideLinks, type Reconciled } from "./reconcile-links";
+import { announceSeries, trackSeries } from "./recurring-pass";
 import { db, type Scope, type ScopedWork, withScope } from "@keel/db";
 import {
   type Account,
@@ -12,6 +13,7 @@ import {
   householdsStartingDay,
   listAccounts,
   lockDirtyAccount,
+  lockSeries,
   markHistoryDirty,
   reconcileRows,
   replaceBalanceHistory,
@@ -185,6 +187,7 @@ async function reconcileAs(
   return withScope(
     scope,
     async (unit) => {
+      await lockSeries(unit.tx, scope);
       const { timezone } = await getHousehold(unit.tx, scope);
       const today = todayIn(timezone, deps.now());
       const accounts = await listAccounts(unit.tx, scope);
@@ -199,6 +202,8 @@ async function reconcileAs(
       );
       await markMoved(unit, accounts, touched, today);
       const rebuilt = await rebuildHistories(unit, decision.rows, today);
+      const series = await trackSeries(unit, decision.rows, today);
+      announceSeries(deps, unit, series);
       const changed = new Set([
         ...touched,
         ...rebuilt.map((account) => account.id),
@@ -239,7 +244,8 @@ function announce(
  * `bank.reconcile`: the household's derived state, recomputed after writes
  * (ADR 0008): internal transfers and their peers (ADR 0009), each row's
  * flow (ADR 0010), manual balances and the balance histories (ADR 0011),
- * writing only what changed. Run once per member, since a private account
+ * the recurring series and their state in time (ADR 0017), writing only
+ * what changed. Run once per member, since a private account
  * is visible to its owner alone.
  */
 export async function reconcileHousehold(

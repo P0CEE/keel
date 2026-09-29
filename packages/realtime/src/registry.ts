@@ -74,6 +74,15 @@ export const eventSchemas = {
   /** The household's subcategories or merchant mappings changed. */
   "categories.changed": z.object({}).strict(),
   /**
+   * Recurring series were found, refitted, advanced in time, or changed by
+   * the member (ADR 0017): the series, their dues, the calendar and the
+   * rows marked as members refetch. Sent with `privateTo` for a private
+   * account's series.
+   */
+  "recurring.changed": z
+    .object({ seriesIds: z.array(z.uuid()).min(1).max(200) })
+    .strict(),
+  /**
    * A reconciliation rewrote derived state (lot 3: the balance history of
    * these accounts).
    */

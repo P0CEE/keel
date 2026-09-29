@@ -1,16 +1,15 @@
 import type { BankingDeps } from "./deps";
+import { context, converter, loadRates } from "./display";
 import { BankingError } from "./errors";
 import { loadTaxonomy } from "./taxonomy";
 import { logoPath } from "./transaction-view";
-import { type Scope, type Transaction, withScope } from "@keel/db";
+import { type Scope, withScope } from "@keel/db";
 import {
   expenseByCategory,
   expenseByDay,
   expenseByMerchant,
   flowSums,
-  ratesBetween,
 } from "@keel/db/banking";
-import { getHousehold, getSettings } from "@keel/db/members";
 import {
   addDays,
   addMonths,
@@ -18,7 +17,6 @@ import {
   daysBetween,
   endOfMonth,
   startOfMonth,
-  todayIn,
 } from "@keel/finance/dates";
 import {
   type Cashflow,
@@ -26,7 +24,6 @@ import {
   type Flow,
   inCashflowScope,
 } from "@keel/finance/flow";
-import { convertMinor, type RateTable } from "@keel/finance/fx";
 
 // The figures the home and the analysis read, by block rather than by page
 // (a cash flow over months, a month's spending), so a screen composes the
@@ -42,61 +39,6 @@ export const AVERAGE_MONTHS = 3;
 
 /** How many merchants a month's spending lists. */
 export const MERCHANTS_SHOWN = 20;
-
-type Context = {
-  readonly currency: string;
-  readonly today: Day;
-};
-
-async function context(
-  tx: Transaction,
-  scope: Scope,
-  deps: Pick<BankingDeps, "now">,
-): Promise<Context> {
-  const household = await getHousehold(tx, scope);
-  const settings = await getSettings(tx, scope);
-  return {
-    currency: settings.displayCurrency ?? household.baseCurrency,
-    today: todayIn(household.timezone, deps.now()),
-  };
-}
-
-async function loadRates(
-  tx: Transaction,
-  currencies: readonly string[],
-  range: { readonly from: Day; readonly to: Day },
-): Promise<RateTable> {
-  const rows = await ratesBetween(tx, [...new Set(currencies)], range);
-  return rows.reduce(
-    (table, row) => {
-      const next = new Map(table);
-      next.set(row.currency, [
-        ...(table.get(row.currency) ?? []),
-        { day: row.day, perEur: row.perEur },
-      ]);
-      return next;
-    },
-    new Map() as Map<string, { day: Day; perEur: string }[]>,
-  );
-}
-
-/**
- * A group of sums converted to one currency: each native sum at the rate
- * of its day (a month's last day, or today for the running month), those
- * without a rate left out and named.
- */
-function converter(currency: string, rates: RateTable) {
-  const missing = new Set<string>();
-  const convert = (minor: number, from: string, day: Day): number => {
-    const value = convertMinor({ minor, currency: from }, currency, rates, day);
-    if (value === null) {
-      missing.add(from);
-      return 0;
-    }
-    return value;
-  };
-  return { convert, missing: () => [...missing].toSorted() };
-}
 
 /** The day a month's sums convert at: its last day, never after today. */
 function rateDay(month: Day, today: Day): Day {

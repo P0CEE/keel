@@ -82,7 +82,7 @@ export {
   UNATTENDED_CALLS_PER_DAY,
 } from "./sync-limits";
 export { nextSyncAt } from "./sync-schedule";
-export { type TransactionView } from "./transaction-view";
+export { type SeriesMark, type TransactionView } from "./transaction-view";
 export {
   createTransaction,
   deleteTransaction,
@@ -144,3 +144,30 @@ export {
   type SpendingRead,
   type SpendingSubcategory,
 } from "./insights";
+export {
+  attachToSeries,
+  confirmSeries,
+  createSeriesFrom,
+  dismissSeries,
+  endSeries,
+  excludeFromSeries,
+  renameSeries,
+  restoreSeries,
+  resumeSeries,
+  SERIES_NAME_MAX,
+  setSeriesCadence,
+} from "./recurring";
+export {
+  type CalendarEntry,
+  type DueView,
+  OUTLOOK_DAYS,
+  recurringCalendar,
+  type RecurringCalendar,
+  recurringList,
+  type RecurringList,
+  recurringOutlook,
+  type RecurringOutlook,
+  SERIES_MEMBERS_SHOWN,
+  seriesMembers,
+  type SeriesView,
+} from "./recurring-read";

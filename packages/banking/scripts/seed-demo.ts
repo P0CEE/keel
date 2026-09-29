@@ -1,8 +1,9 @@
 // Gives a member of the local database demo accounts, through the same
 // modules as the app: two connections to the fake bank's scenarios (their
 // suggested accounts followed, the card mirror left out, their history
-// synced) and a manual account. The jobs the modules plan run here, in
-// process, so no worker is needed. Development only: it refuses to run in
+// synced) and a manual account, then a reconciliation, which also gives
+// data seeded earlier what later lots derive (the recurring series). The
+// jobs the modules plan run here, in process, so no worker is needed. Development only: it refuses to run in
 // production.
 //
 //   bun run db:seed-demo <email>
@@ -144,15 +145,22 @@ async function main(): Promise<void> {
   const manual = [...before.groups.flatMap((group) => group.accounts)].some(
     (account) => account.manual && account.name === "Assurance vie",
   );
-  if (manual) return;
-  await createManualAccount(deps, scope, {
-    name: "Assurance vie",
-    kind: "savings",
-    currency: "EUR",
-    balanceMinor: 2_450_000,
-    on: todayIn("Europe/Paris"),
-  });
-  console.info("Manual account added");
+  if (!manual) {
+    await createManualAccount(deps, scope, {
+      name: "Assurance vie",
+      kind: "savings",
+      currency: "EUR",
+      balanceMinor: 2_450_000,
+      on: todayIn("Europe/Paris"),
+    });
+    console.info("Manual account added");
+  }
+
+  // Whatever was already there gets what later lots derive from it (the
+  // recurring series of lot 6): one reconciliation, which writes only
+  // what changed.
+  await reconcileHousehold(deps, scope.householdId);
+  console.info("Household reconciled");
 }
 
 try {
