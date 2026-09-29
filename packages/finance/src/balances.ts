@@ -59,3 +59,35 @@ export function reconstruct(
         ],
   );
 }
+
+/** A row as the manual balance reads it, with its transfer link. */
+export type ManualMoveRow = {
+  readonly accountId: string;
+  readonly bookedOn: Day;
+  readonly amountMinor: number;
+  readonly currency: string;
+  readonly counterpartAccountId: string | null;
+  readonly peerId: string | null;
+};
+
+/**
+ * What moved a manual account (ADR 0009): its own rows, and every transfer
+ * leg elsewhere whose counterpart it is and that has no peer on it, the
+ * leg's sign turned (a debit on the current account is a credit on the
+ * savings account). A leg with a peer is already counted by that peer. A
+ * leg in another currency is left out: its amount on this side is unknown.
+ */
+export function manualMoves(
+  account: { readonly id: string; readonly currency: string },
+  rows: readonly ManualMoveRow[],
+): { readonly bookedOn: Day; readonly amountMinor: number }[] {
+  return rows.flatMap((row) => {
+    if (row.currency !== account.currency) return [];
+    if (row.accountId === account.id) {
+      return [{ bookedOn: row.bookedOn, amountMinor: row.amountMinor }];
+    }
+    return row.counterpartAccountId === account.id && row.peerId === null
+      ? [{ bookedOn: row.bookedOn, amountMinor: -row.amountMinor }]
+      : [];
+  });
+}

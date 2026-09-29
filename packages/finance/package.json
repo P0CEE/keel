@@ -11,12 +11,14 @@
     "./currencies": "./src/currencies.ts",
     "./dates": "./src/dates.ts",
     "./dictionaries": "./src/dictionaries.ts",
+    "./flow": "./src/flow.ts",
     "./fx": "./src/fx.ts",
     "./labels": "./src/labels.ts",
     "./money": "./src/money.ts",
     "./settlement": "./src/settlement.ts",
     "./taxonomy": "./src/taxonomy.ts",
-    "./transaction-filter": "./src/transaction-filter.ts"
+    "./transaction-filter": "./src/transaction-filter.ts",
+    "./transfers": "./src/transfers.ts"
   },
   "scripts": {
     "lint": "oxlint .",

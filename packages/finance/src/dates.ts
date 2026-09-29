@@ -60,6 +60,21 @@ export function startOfMonth(day: Day): Day {
   return `${day.slice(0, 7)}-01`;
 }
 
+/** The first day of the month `months` away ("2026-01-15", -2 -> "2025-11-01"). */
+export function addMonths(day: Day, months: number): Day {
+  assertDay(day);
+  const index = Number(day.slice(0, 4)) * 12 + Number(day.slice(5, 7)) - 1;
+  const target = index + months;
+  const year = Math.floor(target / 12);
+  const month = target - year * 12 + 1;
+  return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-01`;
+}
+
+/** The last day of a day's month ("2028-02-10" -> "2028-02-29"). */
+export function endOfMonth(day: Day): Day {
+  return addDays(addMonths(day, 1), -1);
+}
+
 /**
  * The label a day heading shows: "Aujourd'hui", "Hier", then a short date
  * ("23 sept."), with the year only when it is not the current one.

@@ -2,7 +2,9 @@ import { describe, expect, test } from "bun:test";
 
 import {
   addDays,
+  addMonths,
   daysBetween,
+  endOfMonth,
   formatDayLabel,
   formatMonth,
   formatShortDate,
@@ -116,5 +118,19 @@ describe("time zone picker", () => {
 
   test("names UTC itself", () => {
     expect(timeZoneLabel("UTC", "en", summer)).toBe("UTC · UTC");
+  });
+});
+
+describe("months", () => {
+  test("addMonths lands on the first day, across years both ways", () => {
+    expect(addMonths("2026-01-15", -2)).toBe("2025-11-01");
+    expect(addMonths("2026-11-30", 3)).toBe("2027-02-01");
+    expect(addMonths("2026-09-01", 0)).toBe("2026-09-01");
+  });
+
+  test("endOfMonth knows February's leap years", () => {
+    expect(endOfMonth("2028-02-10")).toBe("2028-02-29");
+    expect(endOfMonth("2026-02-01")).toBe("2026-02-28");
+    expect(endOfMonth("2026-12-31")).toBe("2026-12-31");
   });
 });
