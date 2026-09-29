@@ -47,3 +47,6 @@ coverage
 
 # Claude Code session artifacts (transient agent worktrees, local settings)
 .claude/
+
+# The recurring replay's export of ramnn's production (anonymized, still private)
+packages/banking/eval/recurring/data/

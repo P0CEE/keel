@@ -11,7 +11,8 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "db:seed-demo": "bun --env-file=../db/.env --env-file=../../apps/worker/.env scripts/seed-demo.ts",
-    "eval:categorization": "bun --env-file=../db/.env --env-file=../../apps/worker/.env eval/run-eval.ts"
+    "eval:categorization": "bun --env-file=../db/.env --env-file=../../apps/worker/.env eval/run-eval.ts",
+    "eval:recurring": "bun eval/recurring/replay.ts"
   },
   "dependencies": {
     "@keel/bank-providers": "workspace:*",
