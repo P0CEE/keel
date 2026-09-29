@@ -26,8 +26,11 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* The app is a frame, not a document: pulled past its ends, the page
+     does not bounce (the rail would bounce with it). */
   html {
     background: var(--page);
+    overscroll-behavior: none;
   }
 
   body {

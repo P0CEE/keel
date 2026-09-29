@@ -88,7 +88,6 @@
    clips them). On a desk the pager is off and the page flows. */
 .viewport {
   position: relative;
-  overflow-x: clip;
 }
 
 .track {
@@ -104,6 +103,8 @@
 }
 
 @media (max-width: 767px) {
+  /* only a phone lays the pages side by side and clips them: a desk never
+     cuts a popup or a chart that reaches past the page */
   .viewport {
     flex: 1;
     min-height: 0;

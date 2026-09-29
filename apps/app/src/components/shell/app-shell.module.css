@@ -8,11 +8,12 @@
   font-family: var(--font-sans);
 }
 
+/* the rail is pinned to the window, never carried by the page's scroll */
 .rail {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   z-index: var(--z-shell);
-  flex: none;
   height: 100dvh;
 }
 
@@ -71,6 +72,11 @@
    rather than on the room the 96px rail leaves (the rail sits in the left
    margin). Never closer than 40px to the rail. */
 @media (min-width: 768px) {
+  /* the room the pinned rail takes */
+  .column {
+    padding-left: 96px;
+  }
+
   .main {
     width: min(80vw, 1600px);
     margin-left: max(
