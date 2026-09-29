@@ -230,6 +230,36 @@ export function merchantKey(input: {
   return keyOf(input.labelLines[0] ?? "") ?? keyOf(joinLabel(input.labelLines));
 }
 
+// Where a French bank writes the mandate in a direct debit's label: "RUM
+// FMM12345" (CM-group, La Banque Postale), "MDT/FMM12345" (BNP), "REF
+// MANDAT FMM12345" (Société Générale). A mandate is one contract with one
+// creditor, the strongest signature a recurring series has.
+const MANDATE_PATTERNS = [
+  /\bRUM\s*[:.]?\s*([A-Z0-9][^\s/]{2,34})/i,
+  /\bMDT\/([^/\s]{3,35})/i,
+  /\bMANDAT\s*[:.]?\s*([A-Z0-9][^\s/]{2,34})/i,
+];
+
+/**
+ * The SEPA mandate a row runs under: the aggregator's structured field
+ * when it has one, else the reference the label writes; upper case. Null
+ * for anything but a direct debit's.
+ */
+export function readMandate(input: {
+  readonly labelLines: readonly string[];
+  readonly mandateRef: string | null;
+}): string | null {
+  const structured = input.mandateRef?.trim() ?? "";
+  if (structured !== "") return structured.toUpperCase();
+  for (const line of input.labelLines) {
+    for (const pattern of MANDATE_PATTERNS) {
+      const found = pattern.exec(line)?.[1]?.replace(/[.,;:]+$/, "");
+      if (found !== undefined && found !== "") return found.toUpperCase();
+    }
+  }
+  return null;
+}
+
 const CARD_FAMILIES = new Set(["CCRD", "MCRD", "CARD"]);
 const TRANSFER_FAMILIES = new Set(["ICDT", "RCDT", "DMCT", "ESCT", "XBCT"]);
 const DIRECT_DEBIT_FAMILIES = new Set(["IDDT", "RDDT", "ESDD", "DMDD"]);

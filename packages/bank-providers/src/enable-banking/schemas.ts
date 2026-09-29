@@ -111,6 +111,7 @@ export const transactionSchema = z.object({
   transaction_date: optionalText,
   balance_after_transaction: amountSchema.nullish(),
   reference_number: optionalText,
+  reference_number_schema: optionalText,
   remittance_information: z.array(z.string().nullable()).nullish(),
   note: optionalText,
 });

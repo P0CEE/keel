@@ -37,6 +37,7 @@ function row(overrides: Partial<ArrivingRow> = {}): ArrivingRow {
     labelLines: ["PAIEMENT PSC 2409 PARIS", "CAFE DE FLORE    CARTE 5699"],
     counterpartyName: null,
     counterpartyIban: null,
+    mandateRef: null,
     mcc: null,
     bankCode: null,
     balanceAfterMinor: null,

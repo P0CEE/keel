@@ -281,6 +281,7 @@ describe("rows", () => {
       labelLines: ["PAIEMENT PSC 2409 PARIS", "DIZIMA           CARTE 5699"],
       counterpartyName: null,
       counterpartyIban: null,
+      mandateRef: null,
       mcc: "5812",
       bankCode: null,
       balanceAfterMinor: -124_530,
@@ -288,6 +289,7 @@ describe("rows", () => {
         entry_reference: "20260926-0001",
         transaction_id: "tx-volatile-1",
         reference_number: null,
+        reference_number_schema: null,
         booking_date: "2026-09-26",
         value_date: "2026-09-25",
         transaction_date: "2026-09-24",
@@ -320,6 +322,29 @@ describe("rows", () => {
 
     expect(debit?.counterpartyName).toBe("FREE MOBILE");
     expect(debit?.counterpartyIban).toBe("FR8310107001180001234567890");
+  });
+
+  test("reads a SEPA mandate only from a mandate reference", async () => {
+    const { fetch } = await bank(() =>
+      page([
+        txn({
+          reference_number: "FMM-0042-7781",
+          reference_number_schema: "SDDM",
+          remittance_information: ["PRLV SEPA FREE MOBILE"],
+        }),
+        txn({
+          reference_number: "RF18539007547034",
+          reference_number_schema: "INTL",
+          remittance_information: ["VIR SEPA LOYER"],
+        }),
+      ]),
+    );
+
+    const [debit, transfer] = await fetch("incremental");
+
+    expect(debit?.mandateRef).toBe("FMM-0042-7781");
+    // A creditor reference names a payment, not a mandate.
+    expect(transfer?.mandateRef).toBeNull();
   });
 
   test("keeps a bank-provided creditor name as it is sent", async () => {

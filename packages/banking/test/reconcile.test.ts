@@ -42,6 +42,7 @@ function arriving(overrides: Partial<ArrivingRow>): ArrivingRow {
     labelLines: ["PRLV SEPA"],
     counterpartyName: null,
     counterpartyIban: null,
+    mandateRef: null,
     mcc: null,
     bankCode: null,
     balanceAfterMinor: null,

@@ -18,6 +18,7 @@ import {
   bankConnections,
   categories,
   merchants,
+  recurringSeries,
   transactions,
 } from "../../schema";
 import type { Scope, Transaction } from "../../scope";
@@ -42,6 +43,7 @@ export type TransactionPatch = Partial<
     | "raw"
     | "counterpartyName"
     | "counterpartyIban"
+    | "mandateRef"
     | "mcc"
     | "bankCode"
     | "method"
@@ -50,6 +52,8 @@ export type TransactionPatch = Partial<
     | "displayName"
     | "note"
     | "transferDismissed"
+    | "recurringSeriesId"
+    | "recurringExcluded"
     | "deletedAt"
   >
 >;
@@ -181,6 +185,8 @@ export type TransactionQuery = {
   readonly categories: readonly string[];
   /** Only rows waiting for the member. */
   readonly review: boolean;
+  /** Only the members of this recurring series (R21). */
+  readonly series?: string;
   readonly after: { readonly purchasedOn: string; readonly id: string } | null;
   readonly limit: number;
 };
@@ -194,6 +200,12 @@ export type ListedTransaction = TransactionRow & {
   readonly merchant: {
     readonly name: string;
     readonly domain: string | null;
+  } | null;
+  /** The recurring series it belongs to, as the list marks it. */
+  readonly series: {
+    readonly id: string;
+    readonly cadence: (typeof recurringSeries.$inferSelect)["cadence"];
+    readonly review: (typeof recurringSeries.$inferSelect)["review"];
   } | null;
 };
 
@@ -243,6 +255,9 @@ export async function listTransactions(
           inArray(categories.parentId, [...query.categories]),
         ),
     query.review ? eq(transactions.needsReview, true) : undefined,
+    query.series === undefined
+      ? undefined
+      : eq(transactions.recurringSeriesId, query.series),
     query.after === null
       ? undefined
       : sql`(${transactions.purchasedOn}, ${transactions.id}) < (${query.after.purchasedOn}::date, ${query.after.id}::uuid)`,
@@ -257,10 +272,16 @@ export async function listTransactions(
       },
       merchantName: merchants.name,
       merchantDomain: merchants.domain,
+      seriesCadence: recurringSeries.cadence,
+      seriesReview: recurringSeries.review,
     })
     .from(transactions)
     .innerJoin(bankAccounts, eq(bankAccounts.id, transactions.accountId))
     .leftJoin(merchants, eq(merchants.id, transactions.merchantId))
+    .leftJoin(
+      recurringSeries,
+      eq(recurringSeries.id, transactions.recurringSeriesId),
+    )
     .leftJoin(categories, eq(categories.id, transactions.categoryId))
     .leftJoin(
       bankConnections,
@@ -269,14 +290,33 @@ export async function listTransactions(
     .where(and(...conditions))
     .orderBy(desc(transactions.purchasedOn), desc(transactions.id))
     .limit(query.limit);
-  return rows.map(({ row, account, merchantName, merchantDomain }) => ({
-    ...row,
-    account,
-    merchant:
-      merchantName === null
-        ? null
-        : { name: merchantName, domain: merchantDomain },
-  }));
+  return rows.map(
+    ({
+      row,
+      account,
+      merchantName,
+      merchantDomain,
+      seriesCadence,
+      seriesReview,
+    }) => ({
+      ...row,
+      account,
+      merchant:
+        merchantName === null
+          ? null
+          : { name: merchantName, domain: merchantDomain },
+      series:
+        row.recurringSeriesId === null ||
+        seriesCadence === null ||
+        seriesReview === null
+          ? null
+          : {
+              id: row.recurringSeriesId,
+              cadence: seriesCadence,
+              review: seriesReview,
+            },
+    }),
+  );
 }
 
 /**

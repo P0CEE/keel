@@ -36,6 +36,7 @@ function arriving(index: number): ArrivingRow {
     labelLines: [`ACHAT ${index}`],
     counterpartyName: null,
     counterpartyIban: null,
+    mandateRef: null,
     mcc: null,
     bankCode: null,
     balanceAfterMinor: null,

@@ -123,6 +123,7 @@ function toRow(
     }),
     counterpartyName: transaction.counterpartyName ?? null,
     counterpartyIban: normalizeIban(transaction.counterpartyIban),
+    mandateRef: transaction.mandateRef ?? null,
     mcc: transaction.mcc ?? null,
     bankCode: transaction.bankCode ?? null,
     balanceAfterMinor: null,

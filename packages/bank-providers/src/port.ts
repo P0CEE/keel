@@ -127,6 +127,11 @@ export type ArrivingRow = {
   readonly labelLines: readonly string[];
   readonly counterpartyName: string | null;
   readonly counterpartyIban: string | null;
+  /**
+   * The SEPA mandate a direct debit runs under, when the aggregator names
+   * it in a structured field; a label that writes it is read by the domain.
+   */
+  readonly mandateRef: string | null;
   readonly mcc: string | null;
   readonly bankCode: {
     readonly code: string | null;

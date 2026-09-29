@@ -29,6 +29,8 @@ export type FakeTransaction = {
   readonly providerRef: string | null;
   readonly counterpartyName?: string;
   readonly counterpartyIban?: string;
+  /** The SEPA mandate, as a bank that exposes it sends it. */
+  readonly mandateRef?: string;
   readonly mcc?: string;
   readonly bankCode?: ArrivingRow["bankCode"];
 };

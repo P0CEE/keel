@@ -31,28 +31,14 @@ import {
   merchants,
 } from "./categorization";
 import { households } from "./households";
+import { recurringSeries } from "./recurring";
 import { currentHousehold, currentMember, keelApp } from "./rls";
+import { transactionFlow } from "./transaction-flow";
 
 export const transactionOrigin = pgEnum("transaction_origin", [
   "provider",
   "csv",
   "manual",
-]);
-
-/**
- * What a transaction means for the month's money (ADR 0010), decided once
- * by `@keel/finance/flow` and stored: every aggregate reads this column.
- */
-export const transactionFlow = pgEnum("transaction_flow", [
-  "income",
-  "expense",
-  "savings_in",
-  "savings_out",
-  "transfer_in",
-  "transfer_out",
-  "internal",
-  "outside",
-  "unclassified",
 ]);
 
 export const transactionMethod = pgEnum("transaction_method", [
@@ -111,6 +97,9 @@ export const transactions = pgTable(
     raw: jsonb("raw"),
     counterpartyName: text("counterparty_name"),
     counterpartyIban: text("counterparty_iban"),
+    // The SEPA mandate a direct debit runs under, from the aggregator or
+    // the label (`readMandate`): a recurring series' strongest signature.
+    mandateRef: text("mandate_ref"),
     mcc: text("mcc"),
     // ISO 20022 family and sub-family, "RDDT/ESDD".
     bankCode: text("bank_code"),
@@ -162,6 +151,15 @@ export const transactions = pgTable(
     excludedFromAnalysis: boolean("excluded_from_analysis")
       .notNull()
       .default(false),
+    // The series the row belongs to (ADR 0017): written by the
+    // reconciliation and the member's gestures. Kept when the series ends,
+    // so a past month's fixed charges never change; cleared by a dismissal.
+    recurringSeriesId: uuid("recurring_series_id").references(
+      () => recurringSeries.id,
+      { onDelete: "set null" },
+    ),
+    // "Not part of this series": the machine never attaches it again.
+    recurringExcluded: boolean("recurring_excluded").notNull().default(false),
     // What the search reads (R2): accents and case dropped, one trigram index.
     searchText: text("search_text").generatedAlwaysAs(
       (): SQL =>
@@ -208,6 +206,10 @@ export const transactions = pgTable(
     index("transactions_counterpart_idx")
       .on(table.counterpartAccountId)
       .where(sql`${table.counterpartAccountId} IS NOT NULL`),
+    // R21: a series' members.
+    index("transactions_recurring_idx")
+      .on(table.recurringSeriesId)
+      .where(sql`${table.recurringSeriesId} IS NOT NULL`),
     index("transactions_mapping_idx")
       .on(table.categoryMappingId)
       .where(sql`${table.categoryMappingId} IS NOT NULL`),

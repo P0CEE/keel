@@ -21,6 +21,7 @@ import {
   LABELS_VERSION,
   merchantKey,
   purchaseDate,
+  readMandate,
   transactionMethod,
 } from "@keel/finance/labels";
 import {
@@ -97,6 +98,7 @@ function enrich(row: ArrivingRow): Enriched {
       raw: { ...row.raw, label_lines: row.labelLines },
       counterpartyName: row.counterpartyName,
       counterpartyIban: row.counterpartyIban,
+      mandateRef: readMandate(row),
       mcc: row.mcc,
       bankCode: bankCodeOf(row),
       method: transactionMethod(row),

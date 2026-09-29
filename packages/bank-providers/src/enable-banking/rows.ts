@@ -53,6 +53,11 @@ export function toArrivingRow(
     }),
     counterpartyName: nonBlank(party?.name),
     counterpartyIban: normalizeIban(partyAccount?.iban),
+    // "SDDM": the reference is the SEPA direct debit mandate.
+    mandateRef:
+      transaction.reference_number_schema === "SDDM"
+        ? nonBlank(transaction.reference_number)
+        : null,
     mcc: nonBlank(transaction.merchant_category_code),
     bankCode: toBankCode(transaction.bank_transaction_code),
     balanceAfterMinor: balanceAfter(transaction.balance_after_transaction),
@@ -60,6 +65,7 @@ export function toArrivingRow(
       entry_reference: transaction.entry_reference ?? null,
       transaction_id: transaction.transaction_id ?? null,
       reference_number: transaction.reference_number ?? null,
+      reference_number_schema: transaction.reference_number_schema ?? null,
       booking_date: transaction.booking_date ?? null,
       value_date: transaction.value_date ?? null,
       transaction_date: transaction.transaction_date ?? null,

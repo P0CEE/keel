@@ -3,6 +3,7 @@ import { asc, eq, max, sql } from "drizzle-orm";
 import {
   accountBalances,
   categories,
+  merchants,
   transactionFlow,
   transactions,
 } from "../../schema";
@@ -32,6 +33,14 @@ export type ReconcileRow = {
   readonly flow: Flow;
   /** A tombstone: never linked, but a live row's peer may still name it. */
   readonly deleted: boolean;
+  // What the recurring series read (ADR 0017).
+  readonly privateTo: string | null;
+  readonly mandateRef: string | null;
+  readonly merchantId: string | null;
+  readonly merchantKey: string | null;
+  readonly merchantName: string | null;
+  readonly recurringSeriesId: string | null;
+  readonly recurringExcluded: boolean;
 };
 
 /**
@@ -63,9 +72,17 @@ export function reconcileRows(
       transferDismissed: transactions.transferDismissed,
       flow: transactions.flow,
       deleted: sql<boolean>`${transactions.deletedAt} IS NOT NULL`,
+      privateTo: transactions.privateTo,
+      mandateRef: transactions.mandateRef,
+      merchantId: transactions.merchantId,
+      merchantKey: transactions.merchantKey,
+      merchantName: merchants.name,
+      recurringSeriesId: transactions.recurringSeriesId,
+      recurringExcluded: transactions.recurringExcluded,
     })
     .from(transactions)
     .leftJoin(categories, eq(categories.id, transactions.categoryId))
+    .leftJoin(merchants, eq(merchants.id, transactions.merchantId))
     .where(eq(transactions.householdId, scope.householdId))
     .orderBy(asc(transactions.bookedOn), asc(transactions.id));
 }

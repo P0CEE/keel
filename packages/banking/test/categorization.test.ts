@@ -56,6 +56,7 @@ function row(
     labelLines: label.split(" / "),
     counterpartyName: null,
     counterpartyIban: null,
+    mandateRef: null,
     mcc: null,
     bankCode: null,
     balanceAfterMinor: null,

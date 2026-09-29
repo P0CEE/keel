@@ -8,6 +8,7 @@ import {
   labelTokens,
   merchantKey,
   purchaseDate,
+  readMandate,
   transactionMethod,
 } from "../src/labels";
 
@@ -188,5 +189,42 @@ describe("transactionMethod", () => {
       "cash_withdrawal",
     );
     expect(label("ECHEANCE PRET IMMOBILIER")).toBe("other");
+  });
+});
+
+describe("readMandate", () => {
+  test("the aggregator's structured mandate wins", () => {
+    expect(
+      readMandate({
+        labelLines: ["PRLV SEPA EDF RUM X"],
+        mandateRef: " ab-12 ",
+      }),
+    ).toBe("AB-12");
+  });
+
+  test("the mandate French banks write in the label", () => {
+    const read = (line: string) =>
+      readMandate({
+        labelLines: ["PRLV SEPA FREE MOBILE", line],
+        mandateRef: null,
+      });
+    expect(read("RUM FMM0042778")).toBe("FMM0042778");
+    expect(read("RUM: fmm-0042.")).toBe("FMM-0042");
+    expect(
+      read("ECH/150926 ID EMETTEUR/FR25ZZZ123456 MDT/FMM0042 REF/X1"),
+    ).toBe("FMM0042");
+    expect(read("REF MANDAT FMM0042778 MOTIF FACTURE")).toBe("FMM0042778");
+  });
+
+  test("no mandate in a card payment or a transfer", () => {
+    expect(
+      readMandate({
+        labelLines: ["PAIEMENT PSC 2606 PARIS", "RUMBA CAFE       CARTE 5699"],
+        mandateRef: null,
+      }),
+    ).toBeNull();
+    expect(
+      readMandate({ labelLines: ["VIR SEPA ACME SAS"], mandateRef: null }),
+    ).toBeNull();
   });
 });
