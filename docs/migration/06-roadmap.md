@@ -26,15 +26,16 @@
 
 ### Règles transverses, dans chaque lot
 
-| Sujet                | Règle                                                                                                                                                                                                                                                                     |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fluidité             | Aucun spinner ni squelette sur une lecture : préchargement au survol avec la même clé de requête qu'au clic (filtres normalisés par une fonction partagée), réponses prêtes à afficher, écritures optimistes avec retour arrière. Les démos `skeleton` ne servent pas ici |
-| Temps réel           | Chaque module qui écrit émet ses événements du registry (ADR 0016) ; chaque écran ajoute ses lignes à la table d'invalidation de l'app                                                                                                                                    |
-| UI                   | Portée de mint-pocs à l'identique (recette de `05-ui-porting.md`, section 5), captures côte à côte avec la démo, clair et sombre, 390 px et desktop                                                                                                                       |
-| Mode confidentialité | Tout montant affiché passe par le masquage (`privacy-mode`), dès le premier écran qui montre un solde                                                                                                                                                                     |
-| Tests                | `@keel/finance` en unitaire ; `@keel/banking` sur PGlite, RLS compris ; `@keel/bank-providers` sur réponses enregistrées. Les bugs de l'audit deviennent des cas nommés dans le lot qui porte leur module                                                                 |
-| Textes               | Français et anglais dès le premier écran, via next-international ; aucun texte en dur dans un composant                                                                                                                                                                   |
-| Définition de fini   | `bun run lint && bun run typecheck && bun run test`, build de production, puis validation                                                                                                                                                                                 |
+| Sujet                | Règle                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fluidité             | Aucun spinner ni squelette sur une lecture : préchargement au survol avec la même clé de requête qu'au clic (filtres normalisés par une fonction partagée), réponses prêtes à afficher, écritures optimistes avec retour arrière. Les démos `skeleton` ne servent pas ici                                                                                                                            |
+| Temps réel           | Chaque module qui écrit émet ses événements du registry (ADR 0016) ; chaque écran ajoute ses lignes à la table d'invalidation de l'app                                                                                                                                                                                                                                                               |
+| Notifications        | Jamais la nuit : une alerte (budget, seuil, reconnexion) se décide à tout moment, en fin de réconciliation, mais son email ne part que dans la fenêtre de jour du foyer (8 h à 21 h dans son fuseau) ; hors fenêtre, un job BullMQ retardé la livre au début de la suivante. ramnn envoyait ses alertes de budget à l'heure de la sync, que Trigger.dev étalait sur 24 h : des emails à 4 h du matin |
+| UI                   | Portée de mint-pocs à l'identique (recette de `05-ui-porting.md`, section 5), captures côte à côte avec la démo, clair et sombre, 390 px et desktop                                                                                                                                                                                                                                                  |
+| Mode confidentialité | Tout montant affiché passe par le masquage (`privacy-mode`), dès le premier écran qui montre un solde                                                                                                                                                                                                                                                                                                |
+| Tests                | `@keel/finance` en unitaire ; `@keel/banking` sur PGlite, RLS compris ; `@keel/bank-providers` sur réponses enregistrées. Les bugs de l'audit deviennent des cas nommés dans le lot qui porte leur module                                                                                                                                                                                            |
+| Textes               | Français et anglais dès le premier écran, via next-international ; aucun texte en dur dans un composant                                                                                                                                                                                                                                                                                              |
+| Définition de fini   | `bun run lint && bun run typecheck && bun run test`, build de production, puis validation                                                                                                                                                                                                                                                                                                            |
 
 ## 2. Vue d'ensemble
 
@@ -361,9 +362,13 @@ et le rejeu de prod donne moins de faux positifs que ramnn.
 - Démos : `category-budget`, `amount-input`, `amount-stepper`,
   `unlock-progress` (objectif d'épargne, à confirmer sur captures).
 
+- **Cas nommé** : un dépassement constaté par une sync à 4 h part à 8 h dans
+  le fuseau du foyer, une seule fois ; le mois du budget est celui du foyer,
+  jamais le mois UTC.
+
 Fini quand : budgets, alertes et revue lisent le même arbre, et les bugs de
-l'audit (transferts « hors budget », remboursements, mois UTC) sont des tests
-qui passent.
+l'audit (transferts « hors budget », remboursements, mois UTC, alertes de
+nuit) sont des tests qui passent.
 
 ### Lot 8 · Home à widgets
 
@@ -385,7 +390,12 @@ comme sur un historique de trois ans.
   `notify.email` via Resend et react-email, événement `notification.created`.
   Démos : `notification-bell`, `notification-center`, `toast`.
 - **Seuils de solde** déclenchés en fin de réconciliation, avec hystérésis
-  et claim atomique (logique de ramnn gardée).
+  et claim atomique (logique de ramnn gardée), livrés dans la fenêtre de jour
+  du foyer comme toute alerte (règle transverse).
+- **Fenêtre de jour** : le module de livraison calcule le prochain instant
+  permis dans le fuseau du foyer (`@keel/finance/dates`, changements d'heure
+  compris) ; l'alerte reste visible dans la cloche dès sa décision, seul
+  l'email attend.
 - **Revue mensuelle** : `review` pur (ADR 0015) sur les faits du périmètre de
   flux, `review.dispatch` et `review.send` avec leur propre curseur, page de
   revue, note du membre, ligne du mois clos sous la salutation (contrat du
