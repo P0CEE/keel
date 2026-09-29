@@ -90,6 +90,7 @@ export {
   LABEL_MAX,
   NOTE_MAX,
   restoreTransaction,
+  setExclusions,
   setTransferDismissed,
 } from "./transactions";
 export {
@@ -171,3 +172,19 @@ export {
   seriesMembers,
   type SeriesView,
 } from "./recurring-read";
+export {
+  AMOUNT_MAX_MINOR,
+  BUDGET_HISTORY_MONTHS,
+  type BudgetHistory,
+  type BudgetHistoryMonth,
+  type BudgetsRead,
+  type BudgetSuggestions,
+  budgetsHistory,
+  budgetsOverview,
+  budgetSuggestions,
+  decideBudgetAlerts,
+  type SavingsView,
+  setBudget,
+  setSavingsTarget,
+  SUGGESTION_MONTHS,
+} from "./budgets";

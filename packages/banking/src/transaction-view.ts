@@ -57,6 +57,10 @@ export type TransactionView = {
   readonly transferPeerId: string | null;
   /** The member said it is not an internal transfer. */
   readonly transferDismissed: boolean;
+  /** Out of the budget: its spending counts in no budget. */
+  readonly excludedFromBudget: boolean;
+  /** Out of every figure: cash flow, spending, budgets. */
+  readonly excludedFromAnalysis: boolean;
   /** `all` for a manual entry; `member` when only the name and note may change. */
   readonly editable: "all" | "member";
   /** The recurring series it belongs to (ADR 0017), as the list marks it. */
@@ -126,6 +130,8 @@ export function transactionView(
     counterpartAccountId: row.counterpartAccountId,
     transferPeerId: row.transferPeerId,
     transferDismissed: row.transferDismissed,
+    excludedFromBudget: row.excludedFromBudget,
+    excludedFromAnalysis: row.excludedFromAnalysis,
     editable: row.origin === "manual" ? "all" : "member",
     series:
       series !== null && series.id === row.recurringSeriesId ? series : null,

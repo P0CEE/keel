@@ -13,6 +13,7 @@ import {
   RECATEGORIZE_MAX,
   restoreTransaction,
   reviewSummary,
+  setExclusions,
   setTransferDismissed,
   transactionDetail,
   transactionsPage,
@@ -158,6 +159,27 @@ export const transactionsRouter = router({
     .input(z.object({ id: z.uuid(), dismissed: z.boolean() }))
     .mutation(({ ctx, input }) =>
       setTransferDismissed(bankingDeps(), ctx.scope, {
+        ...input,
+        ...origin(ctx.clientId),
+      }),
+    ),
+
+  // Out of the budget, out of every figure, or back in.
+  setExclusions: bankingProcedure
+    .input(
+      z
+        .object({
+          id: z.uuid(),
+          budget: z.boolean().optional(),
+          analysis: z.boolean().optional(),
+        })
+        .refine(
+          (input) => input.budget !== undefined || input.analysis !== undefined,
+          "Nothing to change",
+        ),
+    )
+    .mutation(({ ctx, input }) =>
+      setExclusions(bankingDeps(), ctx.scope, {
         ...input,
         ...origin(ctx.clientId),
       }),

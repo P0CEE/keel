@@ -1,4 +1,5 @@
 import { PIPELINE_DEBOUNCE_MS } from "./after-write";
+import { decideBudgetAlerts } from "./budgets";
 import type { BankingDeps } from "./deps";
 import { decideLinks, type Reconciled } from "./reconcile-links";
 import { announceSeries, trackSeries } from "./recurring-pass";
@@ -204,6 +205,8 @@ async function reconcileAs(
       const rebuilt = await rebuildHistories(unit, decision.rows, today);
       const series = await trackSeries(unit, decision.rows, today);
       announceSeries(deps, unit, series);
+      // Last: the alerts read the flows this pass just wrote.
+      await decideBudgetAlerts(deps, unit);
       const changed = new Set([
         ...touched,
         ...rebuilt.map((account) => account.id),
@@ -244,8 +247,8 @@ function announce(
  * `bank.reconcile`: the household's derived state, recomputed after writes
  * (ADR 0008): internal transfers and their peers (ADR 0009), each row's
  * flow (ADR 0010), manual balances and the balance histories (ADR 0011),
- * the recurring series and their state in time (ADR 0017), writing only
- * what changed. Run once per member, since a private account
+ * the recurring series and their state in time (ADR 0017), then the
+ * member's budget alerts, writing only what changed. Run once per member, since a private account
  * is visible to its owner alone.
  */
 export async function reconcileHousehold(

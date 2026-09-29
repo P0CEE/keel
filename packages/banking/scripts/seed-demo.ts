@@ -1,8 +1,9 @@
 // Gives a member of the local database demo accounts, through the same
 // modules as the app: two connections to the fake bank's scenarios (their
 // suggested accounts followed, the card mirror left out, their history
-// synced) and a manual account, then a reconciliation, which also gives
-// data seeded earlier what later lots derive (the recurring series). The
+// synced) and a manual account, budgets and a savings target, then a
+// reconciliation, which also gives data seeded earlier what later lots
+// derive (the recurring series, the budget alerts). The
 // jobs the modules plan run here, in process, so no worker is needed. Development only: it refuses to run in
 // production.
 //
@@ -13,6 +14,7 @@ import { eq } from "drizzle-orm";
 import {
   accountsOverview,
   type BankingDeps,
+  budgetSuggestions,
   categorizeHousehold,
   completeConsent,
   connectionOffer,
@@ -30,8 +32,15 @@ import {
 } from "../src/index";
 import { createGatewayCategorizationModel } from "@keel/ai/categorize";
 import { createFakeProvider } from "@keel/bank-providers/fake";
-import { closePool, db, resolveScope, user } from "@keel/db";
-import { todayIn } from "@keel/finance/dates";
+import { closePool, db, resolveScope, user, withScope } from "@keel/db";
+import {
+  listBudgetVersions,
+  listSavingsTargets,
+  putBudgetVersion,
+  putSavingsTarget,
+} from "@keel/db/banking";
+import { getHousehold, getSettings } from "@keel/db/members";
+import { addMonths, startOfMonth, todayIn } from "@keel/finance/dates";
 import type { Dispatch } from "@keel/jobs";
 
 const BANKS = ["Banque Démo", "Néobanque Démo"] as const;
@@ -156,8 +165,39 @@ async function main(): Promise<void> {
     console.info("Manual account added");
   }
 
+  // Budgets at the suggested amounts and a savings target, once. They are
+  // written six months back, so the page has a history to show: the app
+  // itself only ever sets them from the running month on.
+  const { suggestions } = await budgetSuggestions(deps, scope);
+  await withScope(scope, async ({ tx }) => {
+    const household = await getHousehold(tx, scope);
+    const settings = await getSettings(tx, scope);
+    const currency = settings.displayCurrency ?? household.baseCurrency;
+    const month = startOfMonth(todayIn(household.timezone));
+    const from = addMonths(month, -5);
+    if ((await listBudgetVersions(tx, scope, month)).length === 0) {
+      for (const suggestion of suggestions.slice(0, 5)) {
+        await putBudgetVersion(tx, scope, {
+          categoryId: suggestion.categoryId,
+          effectiveMonth: from,
+          amountMinor: suggestion.amountMinor,
+          currency,
+        });
+      }
+      console.info(`${Math.min(suggestions.length, 5)} budgets set`);
+    }
+    if ((await listSavingsTargets(tx, scope, month)).length === 0) {
+      await putSavingsTarget(tx, scope, {
+        effectiveMonth: from,
+        amountMinor: 300_00,
+        currency,
+      });
+      console.info("Savings target set");
+    }
+  });
+
   // Whatever was already there gets what later lots derive from it (the
-  // recurring series of lot 6): one reconciliation, which writes only
+  // recurring series of lot 6, the budget alerts of lot 7): one reconciliation, which writes only
   // what changed.
   await reconcileHousehold(deps, scope.householdId);
   console.info("Household reconciled");

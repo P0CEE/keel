@@ -4,6 +4,7 @@ import {
   connectionsRouter,
   institutionsRouter,
 } from "./routers/banking";
+import { budgetsRouter } from "./routers/budgets";
 import { categoriesRouter, mappingsRouter } from "./routers/categories";
 import { healthRouter } from "./routers/health";
 import { householdRouter } from "./routers/household";
@@ -29,6 +30,7 @@ export const appRouter = router({
   mappings: mappingsRouter,
   insights: insightsRouter,
   recurring: recurringRouter,
+  budgets: budgetsRouter,
 });
 
 /** End-to-end type consumed by `@keel/app` for type-safe clients. */

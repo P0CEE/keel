@@ -1,5 +1,5 @@
 import type { BankingDeps } from "./deps";
-import { context, converter, loadRates } from "./display";
+import { context, converter, loadRates, rateDay } from "./display";
 import { BankingError } from "./errors";
 import { loadTaxonomy } from "./taxonomy";
 import { logoPath } from "./transaction-view";
@@ -8,6 +8,7 @@ import {
   expenseByCategory,
   expenseByDay,
   expenseByMerchant,
+  type FlowSum,
   flowSums,
 } from "@keel/db/banking";
 import {
@@ -40,12 +41,6 @@ export const AVERAGE_MONTHS = 3;
 /** How many merchants a month's spending lists. */
 export const MERCHANTS_SHOWN = 20;
 
-/** The day a month's sums convert at: its last day, never after today. */
-function rateDay(month: Day, today: Day): Day {
-  const end = endOfMonth(month);
-  return end < today ? end : today;
-}
-
 export type CashflowMonth = Cashflow & {
   /** The month's first day. */
   readonly month: Day;
@@ -59,6 +54,31 @@ export type CashflowRead = {
   /** Currencies left out for want of a rate: the figures are partial. */
   readonly missing: readonly string[];
 };
+
+/**
+ * One month's cash flow from the per-flow sums, each converted at the
+ * month's rate day. Shared by the cash flow and the savings target, so the
+ * two never disagree on what was set aside.
+ */
+export function monthCashflow(
+  sums: readonly FlowSum[],
+  month: Day,
+  today: Day,
+  convert: (minor: number, from: string, day: Day) => number,
+): Cashflow {
+  const totals = sums
+    .filter((sum) => sum.month === month && inCashflowScope(sum.flow))
+    .reduce<Partial<Record<Flow, number>>>(
+      (acc, sum) => ({
+        ...acc,
+        [sum.flow]:
+          (acc[sum.flow] ?? 0) +
+          convert(sum.minor, sum.currency, rateDay(month, today)),
+      }),
+      {},
+    );
+  return decompose(totals);
+}
 
 /**
  * The cash flow of the last `months` months, the running one included
@@ -101,20 +121,10 @@ export function cashflow(
       return {
         currency,
         today,
-        months: months.map((month) => {
-          const totals = sums
-            .filter((sum) => sum.month === month && inCashflowScope(sum.flow))
-            .reduce<Partial<Record<Flow, number>>>(
-              (acc, sum) => ({
-                ...acc,
-                [sum.flow]:
-                  (acc[sum.flow] ?? 0) +
-                  convert(sum.minor, sum.currency, rateDay(month, today)),
-              }),
-              {},
-            );
-          return { month, ...decompose(totals) };
-        }),
+        months: months.map((month) => ({
+          month,
+          ...monthCashflow(sums, month, today, convert),
+        })),
         missing: missing(),
       };
     },

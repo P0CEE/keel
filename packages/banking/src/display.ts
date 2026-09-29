@@ -2,7 +2,7 @@ import type { BankingDeps } from "./deps";
 import type { Scope, Transaction } from "@keel/db";
 import { ratesBetween } from "@keel/db/banking";
 import { getHousehold, getSettings } from "@keel/db/members";
-import { type Day, todayIn } from "@keel/finance/dates";
+import { type Day, endOfMonth, todayIn } from "@keel/finance/dates";
 import { convertMinor, type RateTable } from "@keel/finance/fx";
 
 // What every converted read starts from: the member's display currency and
@@ -12,6 +12,7 @@ import { convertMinor, type RateTable } from "@keel/finance/fx";
 export type Context = {
   readonly currency: string;
   readonly today: Day;
+  readonly timezone: string;
 };
 
 export async function context(
@@ -24,6 +25,7 @@ export async function context(
   return {
     currency: settings.displayCurrency ?? household.baseCurrency,
     today: todayIn(household.timezone, deps.now()),
+    timezone: household.timezone,
   };
 }
 
@@ -44,6 +46,12 @@ export async function loadRates(
     },
     new Map() as Map<string, { day: Day; perEur: string }[]>,
   );
+}
+
+/** The day a month's sums convert at: its last day, never after today. */
+export function rateDay(month: Day, today: Day): Day {
+  const end = endOfMonth(month);
+  return end < today ? end : today;
 }
 
 /**

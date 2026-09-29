@@ -299,6 +299,50 @@ export function setTransferDismissed(
   );
 }
 
+/**
+ * Take a row out of the budget or out of every figure, or put it back
+ * (ramnn's two switches): a reimbursed work expense is not the household's
+ * spending, a one-off gift may be kept out of the budget only. The
+ * reconciliation that follows decides the budget alerts again.
+ */
+export function setExclusions(
+  deps: BankingDeps,
+  scope: Scope,
+  input: {
+    readonly id: string;
+    readonly budget?: boolean;
+    readonly analysis?: boolean;
+  } & Origin,
+): Promise<TransactionView> {
+  return withScope(
+    scope,
+    async (unit) => {
+      const { row, account } = await loadOwn(unit, input.id);
+      if (row.deletedAt !== null) {
+        throw new BankingError("conflict", "The transaction is deleted");
+      }
+      const patch: TransactionPatch = {
+        ...(input.budget === undefined ||
+        input.budget === row.excludedFromBudget
+          ? {}
+          : { excludedFromBudget: input.budget }),
+        ...(input.analysis === undefined ||
+        input.analysis === row.excludedFromAnalysis
+          ? {}
+          : { excludedFromAnalysis: input.analysis }),
+      };
+      if (Object.keys(patch).length === 0) return transactionView(row, account);
+      const updated = await updateTransaction(unit.tx, scope, row.id, patch);
+      if (updated === null) {
+        throw new BankingError("not_found", "Unknown transaction");
+      }
+      await report(deps, unit, "excluded", [updated], input);
+      return transactionView(updated, account);
+    },
+    deps.database,
+  );
+}
+
 /** Undo a deletion. */
 export function restoreTransaction(
   deps: BankingDeps,

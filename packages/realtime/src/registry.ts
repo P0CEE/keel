@@ -57,6 +57,7 @@ export const eventSchemas = {
         "deleted",
         "restored",
         "recategorized",
+        "excluded",
         "reviewed",
       ]),
     })
@@ -82,6 +83,12 @@ export const eventSchemas = {
   "recurring.changed": z
     .object({ seriesIds: z.array(z.uuid()).min(1).max(200) })
     .strict(),
+  /**
+   * A budget or the savings target was set, changed or ended: the budget
+   * reads refetch. Spending moving under the budgets is told by the
+   * transaction and reconciliation events.
+   */
+  "budgets.changed": z.object({}).strict(),
   /**
    * A reconciliation rewrote derived state (lot 3: the balance history of
    * these accounts).

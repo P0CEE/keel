@@ -5,7 +5,8 @@ import type { Day } from "@keel/finance/dates";
 
 /**
  * Why transactions changed (ADR 0008): a bank or CSV arrival, a member's
- * entry, edit, deletion or undo, a recategorization, a review cleared.
+ * entry, edit, deletion or undo, a recategorization, a row taken out of the
+ * budget or the analysis (or put back), a review cleared.
  * Account changes and declared balances join with the lots that need them.
  */
 export type ChangeCause =
@@ -15,6 +16,7 @@ export type ChangeCause =
   | "deleted"
   | "restored"
   | "recategorized"
+  | "excluded"
   | "reviewed";
 
 export type Change = {
@@ -52,6 +54,7 @@ export function followUps(cause: ChangeCause): readonly PipelineJob[] {
     case "deleted":
     case "restored":
     case "recategorized":
+    case "excluded":
       return ["bank.reconcile"];
     case "reviewed":
       return [];
@@ -72,6 +75,7 @@ export function movesBalances(cause: ChangeCause): boolean {
     case "restored":
       return true;
     case "recategorized":
+    case "excluded":
     case "reviewed":
       return false;
   }
