@@ -35,7 +35,14 @@ const appFont = localFont({
 // (see its `generateMetadata`). The root only sets app-wide defaults.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  icons: { icon: "/favicon.svg" },
+  // mint-pocs' mark: the SVG where it is supported, the .ico elsewhere
+  // (and for the browsers that ask for /favicon.ico on their own).
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
