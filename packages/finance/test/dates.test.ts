@@ -11,9 +11,11 @@ import {
   InvalidDayError,
   isTimeZone,
   listTimeZones,
+  nextDaytime,
   startOfMonth,
   timeZoneLabel,
   todayIn,
+  zonedInstant,
 } from "../src/dates";
 
 describe("todayIn", () => {
@@ -132,5 +134,55 @@ describe("months", () => {
     expect(endOfMonth("2028-02-10")).toBe("2028-02-29");
     expect(endOfMonth("2026-02-01")).toBe("2026-02-28");
     expect(endOfMonth("2026-12-31")).toBe("2026-12-31");
+  });
+});
+
+describe("nextDaytime", () => {
+  test("a sync at 4 a.m. in Paris waits for 8 a.m. the same day", () => {
+    expect(
+      nextDaytime(new Date("2026-09-15T02:00:00Z"), "Europe/Paris"),
+    ).toEqual(new Date("2026-09-15T06:00:00Z"));
+  });
+
+  test("inside the day, it is now", () => {
+    const noon = new Date("2026-09-15T10:00:00Z");
+    expect(nextDaytime(noon, "Europe/Paris")).toEqual(noon);
+  });
+
+  test("after 9 p.m., it is the next morning", () => {
+    expect(
+      nextDaytime(new Date("2026-09-15T19:30:00Z"), "Europe/Paris"),
+    ).toEqual(new Date("2026-09-16T06:00:00Z"));
+  });
+
+  test("reads the household's zone, not UTC", () => {
+    // 11 p.m. UTC is 7 p.m. in Toronto: still day there.
+    const late = new Date("2026-09-15T23:00:00Z");
+    expect(nextDaytime(late, "America/Toronto")).toEqual(late);
+    expect(nextDaytime(late, "Europe/Paris")).toEqual(
+      new Date("2026-09-16T06:00:00Z"),
+    );
+  });
+
+  test("follows daylight saving", () => {
+    // Paris moves to winter time on 2026-10-25: 8 a.m. is 7:00 UTC after.
+    expect(
+      nextDaytime(new Date("2026-10-25T01:30:00Z"), "Europe/Paris"),
+    ).toEqual(new Date("2026-10-25T07:00:00Z"));
+    // And to summer time on 2026-03-29: 8 a.m. is 6:00 UTC.
+    expect(
+      nextDaytime(new Date("2026-03-29T00:30:00Z"), "Europe/Paris"),
+    ).toEqual(new Date("2026-03-29T06:00:00Z"));
+  });
+});
+
+describe("zonedInstant", () => {
+  test("is the wall-clock hour of a day in a zone", () => {
+    expect(zonedInstant("2026-01-10", 8, "Europe/Paris")).toEqual(
+      new Date("2026-01-10T07:00:00Z"),
+    );
+    expect(zonedInstant("2026-07-10", 8, "America/Toronto")).toEqual(
+      new Date("2026-07-10T12:00:00Z"),
+    );
   });
 });

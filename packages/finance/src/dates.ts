@@ -177,3 +177,77 @@ export function timeZoneLabel(
     : offset.replace("GMT", "UTC");
   return `${city} · ${utc.replace("-", "−")}`;
 }
+
+/**
+ * When the household is awake (8 h to 21 h on its wall clock): an alert may
+ * be decided at any time, but it is only sent inside this window. ramnn sent
+ * budget alerts at the hour of the sync, which Trigger.dev spread over the
+ * whole day: emails at 4 a.m.
+ */
+export const DAYTIME = { startHour: 8, endHour: 21 } as const;
+
+/** The wall-clock hour of an instant in a time zone (0 to 23). */
+function hourIn(timeZone: string, instant: Date): number {
+  const hour = formatter("en-GB", {
+    timeZone,
+    hour: "2-digit",
+    hourCycle: "h23",
+  })
+    .formatToParts(instant)
+    .find((part) => part.type === "hour")?.value;
+  return Number(hour);
+}
+
+/** How far a zone's wall clock is ahead of UTC at an instant, in ms. */
+function offsetAt(timeZone: string, instant: Date): number {
+  const parts = formatter("en-GB", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(instant);
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value ?? 0);
+  const wall = Date.UTC(
+    get("year"),
+    get("month") - 1,
+    get("day"),
+    get("hour"),
+    get("minute"),
+    get("second"),
+  );
+  return wall - Math.floor(instant.getTime() / 1000) * 1000;
+}
+
+/**
+ * The instant a wall-clock hour of a day falls on in a time zone. Two
+ * passes settle the offset across a daylight-saving change; an hour the
+ * change skips resolves to the one after it.
+ */
+export function zonedInstant(day: Day, hour: number, timeZone: string): Date {
+  const wall = toUtcDate(day).getTime() + hour * 3_600_000;
+  const first = wall - offsetAt(timeZone, new Date(wall));
+  const second = wall - offsetAt(timeZone, new Date(first));
+  return new Date(second);
+}
+
+/**
+ * The first instant from `now` inside the household's daytime: `now` itself
+ * when it is already day, else 8 h the same morning, or the next one after
+ * 21 h. Read in the household's zone, daylight-saving changes included.
+ */
+export function nextDaytime(
+  now: Date,
+  timeZone: string,
+  window: { readonly startHour: number; readonly endHour: number } = DAYTIME,
+): Date {
+  const hour = hourIn(timeZone, now);
+  if (hour >= window.startHour && hour < window.endHour) return now;
+  const today = todayIn(timeZone, now);
+  const day = hour < window.startHour ? today : addDays(today, 1);
+  return zonedInstant(day, window.startHour, timeZone);
+}
