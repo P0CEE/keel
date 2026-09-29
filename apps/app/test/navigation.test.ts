@@ -11,19 +11,27 @@ const LABELS = {
   transactionsHint: "",
   recurring: "Récurrents",
   recurringHint: "",
+  budgets: "Budgets",
+  budgetsHint: "",
 };
 
 describe("phonePageOrder", () => {
   test("puts Home in the middle, a page either side", () => {
     const ids = phonePageOrder(navigation(LABELS)).map((item) => item.id);
-    expect(ids).toEqual(["accounts", "home", "transactions", "recurring"]);
+    expect(ids).toEqual([
+      "accounts",
+      "home",
+      "transactions",
+      "recurring",
+      "budgets",
+    ]);
   });
 
   test("keeps the rail's order for pages it does not name", () => {
     const extra = {
       ...navigation(LABELS)[0],
-      id: "budgets",
-      href: "/budgets",
+      id: "analysis",
+      href: "/analysis",
     };
     const ids = phonePageOrder([...navigation(LABELS), extra]).map(
       (item) => item.id,
@@ -34,6 +42,7 @@ describe("phonePageOrder", () => {
       "transactions",
       "recurring",
       "budgets",
+      "analysis",
     ]);
   });
 
@@ -45,6 +54,7 @@ describe("phonePageOrder", () => {
       "accounts",
       "transactions",
       "recurring",
+      "budgets",
     ]);
   });
 });

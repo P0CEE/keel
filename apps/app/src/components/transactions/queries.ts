@@ -178,6 +178,33 @@ export function useDismissTransfer() {
   );
 }
 
+/**
+ * Out of the budget, out of every figure, or back in: shown at once on the
+ * row; the budgets and the figures follow the reconciliation's events.
+ */
+export function useSetExclusions() {
+  const trpc = useTRPC();
+  const pages = usePagesPatch();
+  return useMutation(
+    trpc.transactions.setExclusions.mutationOptions({
+      onMutate: (vars) =>
+        pages.apply((data) =>
+          withTransaction(data, vars.id, (item) => ({
+            ...item,
+            ...(vars.budget === undefined
+              ? {}
+              : { excludedFromBudget: vars.budget }),
+            ...(vars.analysis === undefined
+              ? {}
+              : { excludedFromAnalysis: vars.analysis }),
+          })),
+        ),
+      onError: (_error, _vars, snapshot) => pages.restore(snapshot),
+      onSettled: () => pages.refetch(),
+    }),
+  );
+}
+
 /** Delete at once from every list; `useRestoreTransaction` is the undo. */
 export function useDeleteTransaction() {
   const trpc = useTRPC();

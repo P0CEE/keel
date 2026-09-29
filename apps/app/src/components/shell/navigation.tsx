@@ -1,6 +1,7 @@
 import {
   AccountsIcon,
   ActivityIcon,
+  BudgetIcon,
   CalendarIcon,
   HomeIcon,
 } from "@keel/ui/mint/icons";
@@ -15,12 +16,14 @@ export type NavigationLabels = {
   readonly transactionsHint: string;
   readonly recurring: string;
   readonly recurringHint: string;
+  readonly budgets: string;
+  readonly budgetsHint: string;
 };
 
 /**
  * The pages the rail lists, with Mint's icons and their filled twins for the
  * current page, as mint-pocs' Sidebar draws them (20px; the phone tab bar
- * asks for 24). Budgets and analysis join the list with their features.
+ * asks for 24). Analysis joins the list with its feature.
  */
 export function navigation(labels: NavigationLabels, iconSize = 20): NavItem[] {
   return [
@@ -61,6 +64,16 @@ export function navigation(labels: NavigationLabels, iconSize = 20): NavItem[] {
       icon: <CalendarIcon size={iconSize} />,
       activeIcon: <CalendarIcon size={iconSize} filled />,
       shortcut: "r",
+      match: "prefix",
+    },
+    {
+      id: "budgets",
+      href: "/budgets",
+      label: labels.budgets,
+      hint: labels.budgetsHint,
+      icon: <BudgetIcon size={iconSize} />,
+      activeIcon: <BudgetIcon size={iconSize} filled />,
+      shortcut: "b",
       match: "prefix",
     },
   ];

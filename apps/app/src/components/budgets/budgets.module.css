@@ -1,0 +1,324 @@
+/* Budgets: the home's grid, a main column and the side panel beside it. */
+.page {
+  display: grid;
+  gap: var(--space-s5);
+}
+
+@media (min-width: 1180px) {
+  .page {
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+    column-gap: 64px;
+    align-items: start;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s5);
+  min-width: 0;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s3);
+  min-width: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  min-width: 0;
+}
+
+/* The month, with its arrows either side of its name. */
+.monthNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1);
+}
+
+.monthName {
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+}
+
+/* What is left of the month's budgets, as the home sets a total. */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+}
+
+.total {
+  color: var(--ink);
+  font-size: var(--text-xxlarge);
+  line-height: var(--leading-xxlarge);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.total[data-tone="negative"] {
+  color: var(--negative);
+}
+
+.split {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s2);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+
+.help {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A budget is a button when the month takes changes: the row, its hover
+   wash reaching past it, as the lists draw theirs. */
+.line {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.line {
+  cursor: pointer;
+}
+
+button.line::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--space-s1));
+  z-index: -1;
+  border-radius: var(--radius-12);
+  background: var(--hover);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  button.line:hover::before {
+    opacity: 1;
+  }
+}
+
+button.line:active::before {
+  opacity: 1;
+  background: var(--pill);
+}
+
+button.line:focus-visible {
+  outline: none;
+}
+
+button.line:focus-visible::before {
+  opacity: 1;
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+/* A category's subcategories under its line, indented to its name. */
+.children {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+  margin: var(--space-s2) 0 0 52px;
+  padding: 0;
+  list-style: none;
+}
+
+.child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+}
+
+.childName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.childAmount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+}
+
+.item + .item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-s1-50);
+  min-height: 56px;
+  padding: var(--space-s1) 0;
+}
+
+.glyph {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-8);
+  color: var(--glyph-color);
+  background: color-mix(in srgb, var(--glyph-color) 16%, transparent);
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-50);
+  min-width: 0;
+}
+
+.name,
+.meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: var(--weight-medium);
+}
+
+.meta {
+  color: var(--ink-3);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1);
+}
+
+.amount {
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+  text-wrap: balance;
+}
+
+.cardText {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+/* the button inside the well, 12px under the card */
+.buttonRow {
+  display: flex;
+  padding-top: var(--space-s1-50);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-s2);
+  max-width: 560px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+}
+
+.quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s1);
+}
+
+.danger {
+  display: flex;
+  justify-content: flex-start;
+}

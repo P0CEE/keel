@@ -47,17 +47,20 @@ export const invalidations = {
     trpc.transactions.get.pathKey(),
     trpc.transactions.review.queryKey(),
     trpc.insights.pathKey(),
+    trpc.budgets.pathKey(),
   ],
   "transactions.categorized": (_payload, trpc) => [
     trpc.transactions.page.pathKey(),
     trpc.transactions.get.pathKey(),
     trpc.transactions.review.queryKey(),
     trpc.insights.pathKey(),
+    trpc.budgets.pathKey(),
   ],
   "categories.changed": (_payload, trpc) => [
     trpc.categories.list.queryKey(),
     trpc.mappings.list.queryKey(),
     trpc.insights.pathKey(),
+    trpc.budgets.pathKey(),
   ],
   // Series found, refitted, advanced or changed by a member: the series,
   // their dues and calendar, and the rows marked as members.
@@ -66,12 +69,16 @@ export const invalidations = {
     trpc.transactions.page.pathKey(),
     trpc.transactions.get.pathKey(),
   ],
+  // A budget or the savings target set, changed or ended: every month's
+  // tree, the history and the suggestions.
+  "budgets.changed": (_payload, trpc) => [trpc.budgets.pathKey()],
   // Flows, transfer links and manual balances moved: the figures, the rows
   // that show a transfer, the accounts and their curves, and the balance
   // the series project from.
   "household.reconciled": ({ accountIds }, trpc) => [
     trpc.recurring.outlook.queryKey(),
     trpc.insights.pathKey(),
+    trpc.budgets.pathKey(),
     trpc.transactions.page.pathKey(),
     trpc.transactions.get.pathKey(),
     trpc.accounts.overview.queryKey(),

@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useState } from "react";
 
+import { ExclusionFacts } from "./exclusion-facts";
 import { neighbour } from "./page-patch";
 import { useDeleteTransaction, useRestoreTransaction } from "./queries";
 import {
@@ -290,6 +291,7 @@ function Details({
           )}
           <TransferFact item={item} />
           <RecurrenceFact item={item} onTrack={() => onMode("recurring")} />
+          <ExclusionFacts item={item} />
           <Row term={t("origin")}>{t(`origins.${item.origin}`)}</Row>
           {item.note === null ? null : <Row term={t("note")}>{item.note}</Row>}
         </dl>
