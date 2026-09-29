@@ -142,9 +142,13 @@ export function updateAccount(
     readonly hidden?: boolean;
   } & Origin,
 ): Promise<void> {
-  return change(deps, scope, input.accountId, input, (row) => {
+  return change(deps, scope, input.accountId, input, (row, unit) => {
     if (input.name === null && row.connectionId === null) {
       throw new BankingError("invalid", "A manual account needs a name");
+    }
+    // A name and a kind feed transfer recognition and every row's flow.
+    if (input.name !== undefined || input.kind !== undefined) {
+      planPipeline(deps, unit, ["bank.reconcile"]);
     }
     return {
       ...(input.name === undefined

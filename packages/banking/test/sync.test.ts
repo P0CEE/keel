@@ -396,6 +396,9 @@ describe("the refresh button", () => {
       })
       .from(bankAccounts);
     expect(dirty.filter((row) => row.from !== null)).toEqual([]);
-    expect(await reconcileHousehold(h.deps, HOUSEHOLD)).toEqual({ rebuilt: 0 });
+    expect(await reconcileHousehold(h.deps, HOUSEHOLD)).toEqual({
+      rows: 0,
+      rebuilt: 0,
+    });
   });
 });

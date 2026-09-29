@@ -6,6 +6,7 @@ import {
 } from "./banking";
 import { purgeSessions } from "./purge-sessions";
 import {
+  advanceDayJob,
   categorizeJob,
   reconcileJob,
   syncAccountJob,
@@ -40,6 +41,7 @@ const processors: { readonly [N in JobName]: JobProcessor<N> } = {
   "auth.purge-sessions": purgeSessions,
   "bank.institutions-refresh": refreshInstitutionsJob,
   "bank.categorize": categorizeJob,
+  "bank.daily-advance": advanceDayJob,
   "bank.purge": purgeConnectionsJob,
   "bank.reconcile": reconcileJob,
   "bank.sync-account": syncAccountJob,

@@ -13,6 +13,7 @@ import {
   RECATEGORIZE_MAX,
   restoreTransaction,
   reviewSummary,
+  setTransferDismissed,
   transactionDetail,
   transactionsPage,
   undoRecategorize,
@@ -147,6 +148,16 @@ export const transactionsRouter = router({
     .input(z.object({ id: z.uuid() }))
     .mutation(({ ctx, input }) =>
       restoreTransaction(bankingDeps(), ctx.scope, {
+        ...input,
+        ...origin(ctx.clientId),
+      }),
+    ),
+
+  // "This is not an internal transfer", or its undo.
+  dismissTransfer: bankingProcedure
+    .input(z.object({ id: z.uuid(), dismissed: z.boolean() }))
+    .mutation(({ ctx, input }) =>
+      setTransferDismissed(bankingDeps(), ctx.scope, {
         ...input,
         ...origin(ctx.clientId),
       }),

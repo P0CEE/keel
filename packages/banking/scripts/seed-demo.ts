@@ -126,6 +126,21 @@ async function main(): Promise<void> {
     console.info(`${name}: ${accountIds.length} accounts followed`);
   }
 
+  // A bank connected before its accounts could hold transactions (an older
+  // seed, an older schema) is synced now: the first sync fetches it all.
+  const overview = await accountsOverview(deps, scope);
+  for (const connection of overview.connections.filter(
+    (row) => row.status === "active" && row.lastSyncedAt === null,
+  )) {
+    await syncConnection(deps, {
+      householdId: scope.householdId,
+      memberId: scope.memberId,
+      connectionId: connection.id,
+      reason: "initial",
+    });
+    console.info(`${connection.institution.name}: synced`);
+  }
+
   const manual = [...before.groups.flatMap((group) => group.accounts)].some(
     (account) => account.manual && account.name === "Assurance vie",
   );

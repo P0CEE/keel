@@ -266,6 +266,39 @@ export function deleteTransaction(
   return setDeleted(deps, scope, input, true);
 }
 
+/**
+ * "This is not an internal transfer", or its undo: recognition leaves a
+ * dismissed row alone (and frees its would-be peer), and the reconciliation
+ * gives it back the flow its category says.
+ */
+export function setTransferDismissed(
+  deps: BankingDeps,
+  scope: Scope,
+  input: { readonly id: string; readonly dismissed: boolean } & Origin,
+): Promise<TransactionView> {
+  return withScope(
+    scope,
+    async (unit) => {
+      const { row, account } = await loadOwn(unit, input.id);
+      if (row.deletedAt !== null) {
+        throw new BankingError("conflict", "The transaction is deleted");
+      }
+      if (row.transferDismissed === input.dismissed) {
+        return transactionView(row, account);
+      }
+      const updated = await updateTransaction(unit.tx, scope, row.id, {
+        transferDismissed: input.dismissed,
+      });
+      if (updated === null) {
+        throw new BankingError("not_found", "Unknown transaction");
+      }
+      await report(deps, unit, "edited", [updated], input);
+      return transactionView(updated, account);
+    },
+    deps.database,
+  );
+}
+
 /** Undo a deletion. */
 export function restoreTransaction(
   deps: BankingDeps,

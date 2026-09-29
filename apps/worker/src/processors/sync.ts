@@ -3,6 +3,7 @@ import { UnrecoverableError } from "bullmq";
 import { workerBanking } from "../banking";
 import type { JobContext } from "./registry";
 import {
+  advanceDay,
   categorizeHousehold,
   reconcileHousehold,
   scheduleDueSyncs,
@@ -86,6 +87,20 @@ export async function reconcileJob(
     householdId: payload.householdId,
     ...result,
   });
+}
+
+/** Every hour: the households whose day just began are reconciled. */
+export async function advanceDayJob(
+  _payload: JobPayload<"bank.daily-advance">,
+  ctx: JobContext,
+): Promise<void> {
+  const result = await advanceDay(workerBanking());
+  if (result.households > 0) {
+    ctx.logger.info("bank.daily-advance: done", {
+      jobId: ctx.jobId,
+      ...result,
+    });
+  }
 }
 
 /** After arrivals and entries, debounced per household: the ladder, then the model. */

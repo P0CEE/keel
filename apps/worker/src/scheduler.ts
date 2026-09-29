@@ -24,6 +24,8 @@ const schedules: readonly Schedule<JobName>[] = [
   // Each connection has its own slot (7:00 and 19:00 where its household
   // lives): the scan every quarter hour picks up the ones that came due.
   { name: "bank.sync-due", pattern: "*/15 * * * *", data: {} },
+  // Hourly: each household's day begins at its own local midnight.
+  { name: "bank.daily-advance", pattern: "5 * * * *", data: {} },
   // Mondays: banks rarely join or leave an aggregator's list.
   { name: "bank.institutions-refresh", pattern: "0 4 * * 1", data: {} },
   // Weekdays after the ECB publishes (about 16:00 CET).

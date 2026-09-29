@@ -102,11 +102,18 @@ export const jobs = {
     queue: "bank-pipeline",
     schema: z.object({ householdId: z.uuid() }).strict(),
   },
-  // After a write (ADR 0008): the household's derived state, recomputed.
-  // Debounced per household; for now the balance history only.
+  // After a write (ADR 0008): the household's derived state, recomputed
+  // (transfers, flows, manual balances, balance histories). Debounced per
+  // household.
   "bank.reconcile": {
     queue: "bank-pipeline",
     schema: z.object({ householdId: z.uuid() }).strict(),
+  },
+  // Every hour: a bank.reconcile for each household whose day just began in
+  // its own time zone, so histories reach the new day without a write.
+  "bank.daily-advance": {
+    queue: "default",
+    schema: z.object({}).strict(),
   },
   // Daily: connections removed more than 30 days ago are revoked at the
   // aggregator, then deleted with their accounts.

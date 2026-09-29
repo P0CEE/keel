@@ -1,6 +1,7 @@
 import type { ListedTransaction, TransactionRow } from "@keel/db/banking";
 import { accountDisplayName, type AccountKind } from "@keel/finance/accounts";
 import type { Day } from "@keel/finance/dates";
+import type { Flow } from "@keel/finance/flow";
 import {
   nameFromMerchantKey,
   type TransactionMethod,
@@ -44,6 +45,17 @@ export type TransactionView = {
   /** Null while the ladder has not decided it yet. */
   readonly categorized: boolean;
   readonly needsReview: boolean;
+  /** What it means for the month's money (ADR 0010); unclassified until reconciled. */
+  readonly flow: Flow;
+  /**
+   * The household account on the other side of an internal transfer
+   * (ADR 0009), which the overview names; null when it is not one.
+   */
+  readonly counterpartAccountId: string | null;
+  /** The mirrored leg, when it exists. */
+  readonly transferPeerId: string | null;
+  /** The member said it is not an internal transfer. */
+  readonly transferDismissed: boolean;
   /** `all` for a manual entry; `member` when only the name and note may change. */
   readonly editable: "all" | "member";
 };
@@ -98,6 +110,10 @@ export function transactionView(
     categorySource: row.categorySource,
     categorized: row.categorizedAt !== null,
     needsReview: row.needsReview,
+    flow: row.flow,
+    counterpartAccountId: row.counterpartAccountId,
+    transferPeerId: row.transferPeerId,
+    transferDismissed: row.transferDismissed,
     editable: row.origin === "manual" ? "all" : "member",
   };
 }

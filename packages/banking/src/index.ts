@@ -63,7 +63,7 @@ export {
 } from "./deps";
 export { BankingError, type BankingErrorCode, isBankingError } from "./errors";
 export { type FetchText, parseEcbRates, refreshFxRates } from "./fx";
-export { reconcileHousehold } from "./reconcile";
+export { advanceDay, reconcileHousehold } from "./reconcile";
 export { settleArrivals, type SettleSummary } from "./settle-arrivals";
 export {
   refreshConnection,
@@ -90,6 +90,7 @@ export {
   LABEL_MAX,
   NOTE_MAX,
   restoreTransaction,
+  setTransferDismissed,
 } from "./transactions";
 export {
   BALANCE_RANGES,
@@ -130,3 +131,16 @@ export {
   type ConnectionView,
   EXPIRY_WARNING_DAYS,
 } from "./overview";
+export {
+  AVERAGE_MONTHS,
+  cashflow,
+  type CashflowMonth,
+  type CashflowRead,
+  CASHFLOW_MONTHS_MAX,
+  MERCHANTS_SHOWN,
+  spending,
+  type SpendingCategory,
+  type SpendingMerchant,
+  type SpendingRead,
+  type SpendingSubcategory,
+} from "./insights";
