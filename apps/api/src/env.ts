@@ -34,6 +34,9 @@ const envSchema = z.object({
     .string()
     .url()
     .default("http://localhost:3001/v1/bank/callback"),
+  // Merchant logos (/v1/logos): fetched once from logo.dev, then served
+  // from the database. Without it the app shows initials.
+  LOGO_DEV_TOKEN: z.string().min(1).optional(),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),

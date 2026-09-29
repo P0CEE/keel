@@ -23,6 +23,15 @@ const envSchema = z.object({
     .string()
     .url()
     .default("http://localhost:3001/v1/bank/callback"),
+  // The categorization model (bank.categorize) runs on the Vercel AI
+  // Gateway; without a key, what the ladder leaves goes to review.
+  AI_GATEWAY_API_KEY: z.string().min(1).optional(),
+  // The Gateway sells zero data retention with its Pro plan only: a dev key
+  // on Hobby must turn it off.
+  AI_ZERO_DATA_RETENTION: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((value) => value === "true"),
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),

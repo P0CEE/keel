@@ -3,14 +3,19 @@ import { z } from "zod";
 import { bankingDeps } from "../../lib/banking";
 import { bankingProcedure, router } from "../trpc";
 import {
+  confirmCategories,
   createTransaction,
   deleteTransaction,
   editTransaction,
   LABEL_MAX,
   NOTE_MAX,
+  recategorize,
+  RECATEGORIZE_MAX,
   restoreTransaction,
+  reviewSummary,
   transactionDetail,
   transactionsPage,
+  undoRecategorize,
 } from "@keel/banking";
 import {
   MAX_FILTER_ACCOUNTS,
@@ -31,6 +36,8 @@ const filterSchema = z.object({
     .max(MAX_QUERY_LENGTH * 4)
     .default(""),
   direction: z.enum(TRANSACTION_DIRECTIONS).default("all"),
+  categories: z.array(z.uuid()).max(MAX_FILTER_ACCOUNTS).default([]),
+  review: z.boolean().default(false),
 });
 
 /** Tags the realtime events a write causes with the tab that made it. */
@@ -75,12 +82,14 @@ export const transactionsRouter = router({
           .string()
           .max(NOTE_MAX * 2)
           .nullish(),
+        categoryId: z.uuid().nullish(),
       }),
     )
     .mutation(({ ctx, input }) =>
       createTransaction(bankingDeps(), ctx.scope, {
         ...input,
         note: input.note ?? null,
+        categoryId: input.categoryId ?? null,
         ...origin(ctx.clientId),
       }),
     ),
@@ -142,4 +151,45 @@ export const transactionsRouter = router({
         ...origin(ctx.clientId),
       }),
     ),
+
+  // The one writer of a member's category (ADR 0006): a row, or a bulk
+  // selection. Answers with the undo token and, for one merchant, the rule
+  // prompt.
+  recategorize: bankingProcedure
+    .input(
+      z.object({
+        ids: z.array(z.uuid()).min(1).max(RECATEGORIZE_MAX),
+        categoryId: z.uuid(),
+      }),
+    )
+    .mutation(({ ctx, input }) =>
+      recategorize(bankingDeps(), ctx.scope, {
+        ...input,
+        ...origin(ctx.clientId),
+      }),
+    ),
+
+  undoRecategorize: bankingProcedure
+    .input(z.object({ token: z.uuid() }))
+    .mutation(({ ctx, input }) =>
+      undoRecategorize(bankingDeps(), ctx.scope, {
+        ...input,
+        ...origin(ctx.clientId),
+      }),
+    ),
+
+  // "It's right": rows of the review queue, confirmed as they are.
+  confirm: bankingProcedure
+    .input(z.object({ ids: z.array(z.uuid()).min(1).max(RECATEGORIZE_MAX) }))
+    .mutation(({ ctx, input }) =>
+      confirmCategories(bankingDeps(), ctx.scope, {
+        ...input,
+        ...origin(ctx.clientId),
+      }),
+    ),
+
+  // The review queue's size, for the shell's dock.
+  review: bankingProcedure.query(({ ctx }) =>
+    reviewSummary(bankingDeps(), ctx.scope),
+  ),
 });

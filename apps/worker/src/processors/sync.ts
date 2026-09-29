@@ -3,6 +3,7 @@ import { UnrecoverableError } from "bullmq";
 import { workerBanking } from "../banking";
 import type { JobContext } from "./registry";
 import {
+  categorizeHousehold,
   reconcileHousehold,
   scheduleDueSyncs,
   syncAccount,
@@ -81,6 +82,22 @@ export async function reconcileJob(
 ): Promise<void> {
   const result = await reconcileHousehold(workerBanking(), payload.householdId);
   ctx.logger.info("bank.reconcile: done", {
+    jobId: ctx.jobId,
+    householdId: payload.householdId,
+    ...result,
+  });
+}
+
+/** After arrivals and entries, debounced per household: the ladder, then the model. */
+export async function categorizeJob(
+  payload: JobPayload<"bank.categorize">,
+  ctx: JobContext,
+): Promise<void> {
+  const result = await categorizeHousehold(
+    workerBanking(),
+    payload.householdId,
+  );
+  ctx.logger.info("bank.categorize: done", {
     jobId: ctx.jobId,
     householdId: payload.householdId,
     ...result,

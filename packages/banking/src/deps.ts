@@ -2,6 +2,7 @@ import type { ConsentStore } from "./consent-store";
 import type { SyncLimits } from "./sync-limits";
 import type { BankingProvider, ProviderId } from "@keel/bank-providers";
 import type { Database } from "@keel/db";
+import type { CategorizationModel } from "@keel/finance/categorization";
 import type { Dispatch } from "@keel/jobs";
 import type { AppEvents } from "@keel/realtime";
 import type { Emit } from "@keel/realtime/server";
@@ -21,6 +22,8 @@ export type BankingDeps = {
   /** Plans follow-up jobs (ADR 0008): BullMQ, or a recorder in tests. */
   readonly dispatch: Dispatch;
   readonly limits: SyncLimits;
+  /** Null when none is configured: what the ladder leaves goes to review. */
+  readonly model: CategorizationModel | null;
   readonly now: () => Date;
 };
 

@@ -1,3 +1,4 @@
+import { categorizeHousehold } from "../src/categorize";
 import { createMemoryConsentStore } from "../src/consent-store";
 import { type BankingDeps, providerRegistry } from "../src/deps";
 import { reconcileHousehold } from "../src/reconcile";
@@ -12,6 +13,11 @@ import {
   user,
 } from "@keel/db";
 import { createTestDatabase, type TestDatabase } from "@keel/db/testing";
+import type {
+  CategorizationModel,
+  ModelAnswer,
+  ModelRow,
+} from "@keel/finance/categorization";
 import { createRecordingDispatch, type RecordedJob } from "@keel/jobs";
 import type { AppEvents, EventMeta } from "@keel/realtime";
 import type { Emit } from "@keel/realtime/server";
@@ -60,7 +66,36 @@ export type Harness = {
   readonly recorder: ReturnType<typeof createRecordingEmitter>;
   readonly provider: ReturnType<typeof createFakeProvider>;
   readonly jobs: ReturnType<typeof createRecordingDispatch>;
+  readonly model: ReturnType<typeof createScriptedModel>;
 };
+
+/**
+ * A model that answers from a script, per label fragment, and records what
+ * it was shown; unscripted rows are abstentions.
+ */
+export function createScriptedModel() {
+  let script: readonly (readonly [string, ModelAnswer])[] = [];
+  let seen: readonly ModelRow[] = [];
+  const model: CategorizationModel = {
+    id: "scripted",
+    categorize: (rows) => {
+      seen = [...seen, ...rows];
+      return Promise.resolve(
+        rows.map(
+          (row) =>
+            script.find(([fragment]) => row.label.includes(fragment))?.[1],
+        ),
+      );
+    },
+  };
+  return {
+    model,
+    answer: (fragment: string, answer: ModelAnswer) => {
+      script = [...script, [fragment, answer]];
+    },
+    seen: () => seen,
+  };
+}
 
 export async function createHarness(
   start = "2026-09-28T10:00:00Z",
@@ -73,7 +108,9 @@ export async function createHarness(
     now: clock.now,
   });
   const jobs = createRecordingDispatch();
+  const model = createScriptedModel();
   return {
+    model,
     testDb,
     clock,
     recorder,
@@ -86,6 +123,7 @@ export async function createHarness(
       emit: recorder.emit,
       dispatch: jobs.dispatch,
       limits: createMemorySyncLimits(clock.now),
+      model: model.model,
       now: clock.now,
     },
   };
@@ -170,6 +208,11 @@ export function createJobRunner(h: Harness) {
         await syncAccount(
           h.deps,
           job.payload as Parameters<typeof syncAccount>[1],
+        );
+      } else if (job.name === "bank.categorize") {
+        await categorizeHousehold(
+          h.deps,
+          (job.payload as { householdId: string }).householdId,
         );
       } else if (job.name === "bank.reconcile") {
         await reconcileHousehold(

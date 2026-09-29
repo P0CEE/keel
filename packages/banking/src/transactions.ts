@@ -1,6 +1,7 @@
 import { type ChangeCause, transactionsChanged } from "./after-write";
 import type { BankingDeps } from "./deps";
 import { BankingError } from "./errors";
+import { loadTaxonomy } from "./taxonomy";
 import { transactionView, type TransactionView } from "./transaction-view";
 import { type Scope, type ScopedWork, withScope } from "@keel/db";
 import {
@@ -20,6 +21,7 @@ import {
   TRANSACTION_LABEL_MAX,
   TRANSACTION_NOTE_MAX,
 } from "@keel/finance/labels";
+import { signFits } from "@keel/finance/taxonomy";
 
 type Origin = { readonly originClientId?: string };
 
@@ -103,6 +105,8 @@ export function createTransaction(
     readonly purchasedOn: Day;
     readonly label: string;
     readonly note?: string | null;
+    /** The member's choice; without one, the ladder decides. */
+    readonly categoryId?: string | null;
   } & Origin,
 ): Promise<TransactionView> {
   const label = checkText(input.label, LABEL_MAX, "label");
@@ -116,6 +120,16 @@ export function createTransaction(
         throw new BankingError("not_found", "Unknown account");
       }
       await checkPast(unit, deps, input.purchasedOn);
+      const category =
+        input.categoryId == null
+          ? null
+          : (await loadTaxonomy(unit.tx, scope)).assignable(input.categoryId);
+      if (input.categoryId != null && category === null) {
+        throw new BankingError("not_found", "Unknown subcategory");
+      }
+      if (category !== null && !signFits(category.nature, amountMinor)) {
+        throw new BankingError("invalid", "A debit is never income");
+      }
       const [id] = await insertTransactions(unit.tx, scope, [
         {
           accountId: account.id,
@@ -133,6 +147,13 @@ export function createTransaction(
             counterpartyName: null,
           }),
           labelsVersion: LABELS_VERSION,
+          ...(category === null
+            ? {}
+            : {
+                categoryId: category.id,
+                categorySource: "user" as const,
+                categorizedAt: deps.now(),
+              }),
         },
       ]);
       const row =

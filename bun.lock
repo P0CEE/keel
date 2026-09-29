@@ -105,6 +105,7 @@
       "name": "@keel/worker",
       "version": "0.0.0",
       "dependencies": {
+        "@keel/ai": "workspace:*",
         "@keel/banking": "workspace:*",
         "@keel/db": "workspace:*",
         "@keel/jobs": "workspace:*",
@@ -126,6 +127,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@ai-sdk/openai": "catalog:",
+        "@keel/finance": "workspace:*",
         "ai": "catalog:",
         "zod": "catalog:",
       },
@@ -159,9 +161,11 @@
         "@keel/jobs": "workspace:*",
         "@keel/realtime": "workspace:*",
         "drizzle-orm": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@electric-sql/pglite": "catalog:",
+        "@keel/ai": "workspace:*",
         "@keel/tsconfig": "workspace:*",
         "@types/bun": "catalog:",
         "typescript": "catalog:",

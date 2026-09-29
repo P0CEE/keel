@@ -30,8 +30,20 @@ export type TransactionView = {
   readonly counterpartyName: string | null;
   readonly counterpartyIban: string | null;
   readonly note: string | null;
-  /** The merchant's logo (lot 4); null shows the initial. */
+  /** The merchant's logo, served by the API (`/v1/logos/<domain>.png`); null shows the initial. */
   readonly logoUrl: string | null;
+  /** The leaf; null while it waits for the ladder, or when the model abstained. */
+  readonly categoryId: string | null;
+  readonly categorySource:
+    | "user"
+    | "mapping"
+    | "history"
+    | "dictionary"
+    | "model"
+    | null;
+  /** Null while the ladder has not decided it yet. */
+  readonly categorized: boolean;
+  readonly needsReview: boolean;
   /** `all` for a manual entry; `member` when only the name and note may change. */
   readonly editable: "all" | "member";
 };
@@ -42,9 +54,19 @@ type AccountFacts = {
   readonly kind: AccountKind;
 };
 
+type MerchantFacts = {
+  readonly name: string;
+  readonly domain: string | null;
+} | null;
+
+export function logoPath(domain: string | null): string | null {
+  return domain === null ? null : `/v1/logos/${domain}.png`;
+}
+
 export function transactionView(
   row: TransactionRow,
   account: AccountFacts,
+  merchant: MerchantFacts = null,
 ): TransactionView {
   const accountName = accountDisplayName(
     account.customName,
@@ -58,6 +80,7 @@ export function transactionView(
     accountKind: account.kind,
     name:
       row.displayName ??
+      merchant?.name ??
       (row.origin !== "manual" && row.merchantKey !== null
         ? nameFromMerchantKey(row.merchantKey)
         : row.label),
@@ -70,11 +93,15 @@ export function transactionView(
     counterpartyName: row.counterpartyName,
     counterpartyIban: row.counterpartyIban,
     note: row.note,
-    logoUrl: null,
+    logoUrl: logoPath(merchant?.domain ?? null),
+    categoryId: row.categoryId,
+    categorySource: row.categorySource,
+    categorized: row.categorizedAt !== null,
+    needsReview: row.needsReview,
     editable: row.origin === "manual" ? "all" : "member",
   };
 }
 
 export function listedView(row: ListedTransaction): TransactionView {
-  return transactionView(row, row.account);
+  return transactionView(row, row.account, row.merchant);
 }

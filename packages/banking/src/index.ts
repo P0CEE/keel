@@ -18,6 +18,30 @@ export {
   PIPELINE_DEBOUNCE_MS,
   transactionsChanged,
 } from "./after-write";
+export { categorizeHousehold, CATEGORIZE_BATCH, MODEL_LOT } from "./categorize";
+export {
+  type CategoryView,
+  createSubcategory,
+  SUBCATEGORY_NAME_MAX,
+  taxonomyView,
+  updateSubcategory,
+} from "./categories";
+export {
+  deleteMapping,
+  type MappingView,
+  mappingsView,
+  normalizePattern,
+  PATTERN_MAX,
+  saveMapping,
+} from "./mappings";
+export {
+  confirmCategories,
+  RECATEGORIZE_MAX,
+  recategorize,
+  type RecategorizeResult,
+  type RulePrompt,
+  undoRecategorize,
+} from "./recategorize";
 export {
   completeConsent,
   connectionOffer,
@@ -73,11 +97,18 @@ export {
   balanceHistory,
   type BalanceRange,
   PAGE_SIZE,
+  reviewSummary,
   transactionDetail,
   type TransactionsPage,
   transactionsPage,
 } from "./transactions-read";
 export { createProviders, type ProvidersConfig } from "./providers";
+export {
+  isLogoDomain,
+  type LogoSource,
+  logoDevSource,
+  merchantLogo,
+} from "./logos";
 export {
   institutionsLoaded,
   type InstitutionView,

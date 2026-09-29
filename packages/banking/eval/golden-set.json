@@ -1,0 +1,1362 @@
+{
+  "$comment": "Golden set of the categorization ladder, from ramnn (issue #100) with keel keys: hand-authored realistic French/EU bank rows, hand-labelled; expected is a leaf key, or null when the honest answer is abstention. Names of persons are invented. Shares nothing with the prompt examples.",
+  "entries": [
+    {
+      "id": "gs-001",
+      "label": "VIR SEPA STE MARTIN BATIMENT SAS SALAIRE JUIN",
+      "method": "transfer",
+      "amountMinor": 234000,
+      "currency": "EUR",
+      "expected": "income.salary"
+    },
+    {
+      "id": "gs-002",
+      "label": "Vir Salaire",
+      "counterpartyName": "Durand Holding",
+      "method": "transfer",
+      "amountMinor": 285000,
+      "currency": "EUR",
+      "expected": "income.salary"
+    },
+    {
+      "id": "gs-003",
+      "label": "VIR SEPA CP KREATION SAS",
+      "method": "transfer",
+      "amountMinor": 129544,
+      "currency": "EUR",
+      "expected": "income.salary"
+    },
+    {
+      "id": "gs-004",
+      "label": "VIR REGNIER INDUSTRIES",
+      "method": "transfer",
+      "amountMinor": 180179,
+      "currency": "EUR",
+      "expected": "income.salary"
+    },
+    {
+      "id": "gs-005",
+      "label": "VIR CAF DE MEURTHE ET MOSELLE",
+      "counterpartyName": "Caf De Meurthe Et Moselle",
+      "method": "transfer",
+      "amountMinor": 32150,
+      "currency": "EUR",
+      "expected": "income.benefits"
+    },
+    {
+      "id": "gs-006",
+      "label": "VIR FRANCE TRAVAIL",
+      "counterpartyName": "France Travail",
+      "method": "transfer",
+      "amountMinor": 98020,
+      "currency": "EUR",
+      "expected": "income.benefits"
+    },
+    {
+      "id": "gs-007",
+      "label": "VIR CARSAT NORD EST RETRAITE",
+      "counterpartyName": "Carsat Nord Est",
+      "method": "transfer",
+      "amountMinor": 145000,
+      "currency": "EUR",
+      "expected": "income.pension"
+    },
+    {
+      "id": "gs-008",
+      "label": "VIR AGIRC ARRCO RETRAITE COMP",
+      "method": "transfer",
+      "amountMinor": 61000,
+      "currency": "EUR",
+      "expected": "income.pension"
+    },
+    {
+      "id": "gs-009",
+      "label": "VIR SEPA TOTALENERGIES SE DIVIDENDE",
+      "method": "transfer",
+      "amountMinor": 8520,
+      "currency": "EUR",
+      "expected": "income.investments"
+    },
+    {
+      "id": "gs-010",
+      "label": "INTERETS 2025",
+      "method": "interest",
+      "amountMinor": 4512,
+      "currency": "EUR",
+      "expected": "income.investments"
+    },
+    {
+      "id": "gs-011",
+      "label": "VIR M ROBERT LEGRAND LOYER APPT 3 JUILLET",
+      "counterpartyName": "Robert Legrand",
+      "method": "transfer",
+      "amountMinor": 65000,
+      "currency": "EUR",
+      "expected": "income.rental"
+    },
+    {
+      "id": "gs-012",
+      "label": "AMAZON EU SARL REMBOURSEMENT",
+      "method": "other",
+      "amountMinor": 4599,
+      "currency": "EUR",
+      "expected": "shopping.other"
+    },
+    {
+      "id": "gs-013",
+      "label": "VIR WIDILO CASHBACK",
+      "method": "transfer",
+      "amountMinor": 1235,
+      "currency": "EUR",
+      "expected": "income.refunds"
+    },
+    {
+      "id": "gs-014",
+      "label": "RBT CREDIT ASSUR MUT",
+      "method": "transfer",
+      "amountMinor": 48913,
+      "currency": "EUR",
+      "expected": "income.refunds"
+    },
+    {
+      "id": "gs-015",
+      "label": "VIR CPAM DE NANCY",
+      "counterpartyName": "Cpam De Nancy",
+      "method": "transfer",
+      "amountMinor": 2350,
+      "currency": "EUR",
+      "expected": "health.doctor"
+    },
+    {
+      "id": "gs-020",
+      "label": "VIR LIVRET A",
+      "method": "transfer",
+      "amountMinor": -50000,
+      "currency": "EUR",
+      "expected": "movements.savings"
+    },
+    {
+      "id": "gs-021",
+      "label": "VIR LDDS EPARGNE PROGRAMMEE",
+      "method": "transfer",
+      "amountMinor": -15000,
+      "currency": "EUR",
+      "expected": "movements.savings"
+    },
+    {
+      "id": "gs-022",
+      "label": "VIR C C EUROCOMPTE SERENITE CK3 W26090",
+      "method": "transfer",
+      "amountMinor": -40000,
+      "currency": "EUR",
+      "expected": "movements.transfers"
+    },
+    {
+      "id": "gs-023",
+      "label": "VIREMENT INTERNE VERS COMPTE COURANT",
+      "method": "transfer",
+      "amountMinor": 40000,
+      "currency": "EUR",
+      "expected": "movements.transfers"
+    },
+    {
+      "id": "gs-024",
+      "label": "VIR M DUPONT JEAN",
+      "counterpartyName": "Jean Dupont",
+      "method": "transfer",
+      "amountMinor": -7500,
+      "currency": "EUR",
+      "expected": "movements.transfers"
+    },
+    {
+      "id": "gs-025",
+      "label": "VIREMENT RECU",
+      "counterpartyName": "Jean Dupont",
+      "method": "transfer",
+      "amountMinor": 5000,
+      "currency": "EUR",
+      "expected": "movements.transfers"
+    },
+    {
+      "id": "gs-026",
+      "label": "REVOLUT**7723* TOP-UP",
+      "method": "transfer",
+      "amountMinor": -20000,
+      "currency": "EUR",
+      "expected": "movements.transfers"
+    },
+    {
+      "id": "gs-027",
+      "label": "VIR SEPA TRADE REPUBLIC BANK GMBH",
+      "method": "transfer",
+      "amountMinor": -30000,
+      "currency": "EUR",
+      "expected": "movements.securities"
+    },
+    {
+      "id": "gs-028",
+      "label": "VIR PEA BOURSE DIRECT",
+      "method": "transfer",
+      "amountMinor": -50000,
+      "currency": "EUR",
+      "expected": "movements.securities"
+    },
+    {
+      "id": "gs-029",
+      "label": "VIR SEPA COINBASE PAYMENTS",
+      "method": "transfer",
+      "amountMinor": -15000,
+      "currency": "EUR",
+      "expected": "movements.securities"
+    },
+    {
+      "id": "gs-030",
+      "label": "PRLV SEPA FONCIA GROUPE LOYER",
+      "counterpartyName": "Foncia Groupe",
+      "method": "direct_debit",
+      "amountMinor": -95000,
+      "currency": "EUR",
+      "expected": "housing.rent"
+    },
+    {
+      "id": "gs-031",
+      "label": "VIR AGENCE ORPI LOYER JUILLET",
+      "method": "transfer",
+      "amountMinor": -78000,
+      "currency": "EUR",
+      "expected": "housing.rent"
+    },
+    {
+      "id": "gs-032",
+      "label": "ECHEANCE PRET HABITAT 00123456",
+      "method": "direct_debit",
+      "amountMinor": -124530,
+      "currency": "EUR",
+      "expected": "housing.mortgage"
+    },
+    {
+      "id": "gs-033",
+      "label": "PRLV SEPA EDF CLIENTS PARTICULIERS",
+      "counterpartyName": "Edf",
+      "method": "direct_debit",
+      "amountMinor": -8740,
+      "currency": "EUR",
+      "expected": "housing.energy"
+    },
+    {
+      "id": "gs-034",
+      "label": "PRLV ENGIE SA",
+      "counterpartyName": "Engie",
+      "method": "direct_debit",
+      "amountMinor": -9520,
+      "currency": "EUR",
+      "expected": "housing.energy"
+    },
+    {
+      "id": "gs-035",
+      "label": "PRLV TOTALENERGIES ELECTRICITE ET GAZ",
+      "method": "direct_debit",
+      "amountMinor": -11000,
+      "currency": "EUR",
+      "expected": "housing.energy"
+    },
+    {
+      "id": "gs-036",
+      "label": "PRLV ILEK FOURNISSEUR ENERGIE",
+      "method": "direct_debit",
+      "amountMinor": -7500,
+      "currency": "EUR",
+      "expected": "housing.energy"
+    },
+    {
+      "id": "gs-037",
+      "label": "PRLV VEOLIA EAU",
+      "counterpartyName": "Veolia Eau",
+      "method": "direct_debit",
+      "amountMinor": -2860,
+      "currency": "EUR",
+      "expected": "housing.water"
+    },
+    {
+      "id": "gs-038",
+      "label": "PRLV SEPA NEXITY SYNDIC CHARGES T3",
+      "method": "direct_debit",
+      "amountMinor": -18000,
+      "currency": "EUR",
+      "expected": "housing.charges"
+    },
+    {
+      "id": "gs-039",
+      "label": "PRLV MAIF ASSURANCE HABITATION",
+      "counterpartyName": "Maif",
+      "method": "direct_debit",
+      "amountMinor": -2290,
+      "currency": "EUR",
+      "expected": "housing.insurance"
+    },
+    {
+      "id": "gs-040",
+      "label": "PAIEMENT CB 2606 NANCY LEROY MERLIN CARTE 01234",
+      "method": "other",
+      "amountMinor": -17850,
+      "currency": "EUR",
+      "expected": "housing.renovation"
+    },
+    {
+      "id": "gs-041",
+      "label": "PAIEMENT CB 1206 CASTORAMA ESSEY CARTE 01234",
+      "method": "other",
+      "amountMinor": -6420,
+      "currency": "EUR",
+      "expected": "housing.renovation"
+    },
+    {
+      "id": "gs-042",
+      "label": "PAIEMENT CB PLOMBERIE MARTIN ET FILS",
+      "method": "other",
+      "amountMinor": -22000,
+      "currency": "EUR",
+      "expected": "housing.renovation"
+    },
+    {
+      "id": "gs-043",
+      "label": "PAIEMENT CB 0506 STRASBOURG IKEA CARTE 01234",
+      "method": "other",
+      "amountMinor": -41280,
+      "currency": "EUR",
+      "expected": "housing.furniture"
+    },
+    {
+      "id": "gs-044",
+      "label": "PAIEMENT CB CONFORAMA HOUDEMONT",
+      "method": "other",
+      "amountMinor": -39900,
+      "currency": "EUR",
+      "expected": "housing.furniture"
+    },
+    {
+      "id": "gs-050",
+      "label": "PAIEMENT CB 2806 PARIS CARREFOUR CITY CARTE 01234",
+      "method": "card",
+      "amountMinor": -3250,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-051",
+      "label": "PAIEMENT CB AUCHAN VAL D EUROPE",
+      "method": "card",
+      "amountMinor": -11245,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-052",
+      "label": "PAIEMENT CB 1506 NANCY LIDL CARTE 01234",
+      "method": "card",
+      "amountMinor": -4830,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-053",
+      "label": "PAIEMENT CB E LECLERC LAXOU",
+      "mcc": "5411",
+      "method": "card",
+      "amountMinor": -15680,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-054",
+      "label": "PAIEMENT CB MONOPRIX 1122",
+      "method": "card",
+      "amountMinor": -2790,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-055",
+      "label": "PAIEMENT CB PICARD 234",
+      "method": "card",
+      "amountMinor": -3460,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-056",
+      "label": "PAIEMENT CB BOULANGERIE AUX DELICES",
+      "method": "card",
+      "amountMinor": -480,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-057",
+      "label": "PAIEMENT CB BIOCOOP LE PLATEAU",
+      "method": "card",
+      "amountMinor": -4125,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-058",
+      "label": "PAIEMENT CB HELLOFRESH FRANCE",
+      "method": "card",
+      "amountMinor": -6499,
+      "currency": "EUR",
+      "expected": "food.groceries"
+    },
+    {
+      "id": "gs-059",
+      "label": "PAIEMENT CB 0207 NANCY MCDONALDS CARTE 01234",
+      "method": "card",
+      "amountMinor": -1190,
+      "currency": "EUR",
+      "expected": "food.restaurants"
+    },
+    {
+      "id": "gs-060",
+      "label": "PAIEMENT CB BURGER KING HOUDEMONT",
+      "method": "card",
+      "amountMinor": -1450,
+      "currency": "EUR",
+      "expected": "food.restaurants"
+    },
+    {
+      "id": "gs-061",
+      "label": "PAIEMENT CB LE BISTROT GOURMAND",
+      "method": "card",
+      "amountMinor": -6840,
+      "currency": "EUR",
+      "expected": "food.restaurants"
+    },
+    {
+      "id": "gs-062",
+      "label": "PAIEMENT CB STARBUCKS COFFEE 1837",
+      "method": "card",
+      "amountMinor": -675,
+      "currency": "EUR",
+      "expected": "food.restaurants"
+    },
+    {
+      "id": "gs-063",
+      "label": "Uber Eats",
+      "method": "card",
+      "amountMinor": -2490,
+      "currency": "EUR",
+      "expected": "food.delivery"
+    },
+    {
+      "id": "gs-064",
+      "label": "PRLV DELIVEROO FRANCE SAS",
+      "method": "direct_debit",
+      "amountMinor": -3120,
+      "currency": "EUR",
+      "expected": "food.delivery"
+    },
+    {
+      "id": "gs-065",
+      "label": "PAIEMENT CB SUSHI SHOP NANCY",
+      "method": "card",
+      "amountMinor": -2980,
+      "currency": "EUR",
+      "expected": "food.restaurants"
+    },
+    {
+      "id": "gs-070",
+      "label": "PAIEMENT CB TOTALENERGIES RELAIS A31",
+      "method": "card",
+      "amountMinor": -6850,
+      "currency": "EUR",
+      "expected": "transport.fuel"
+    },
+    {
+      "id": "gs-071",
+      "label": "PAIEMENT CB ESSO MONTPARNASSE",
+      "mcc": "5541",
+      "method": "card",
+      "amountMinor": -5520,
+      "currency": "EUR",
+      "expected": "transport.fuel"
+    },
+    {
+      "id": "gs-072",
+      "label": "PAIEMENT CB 1106 METZ SHELL CARTE 01234",
+      "method": "card",
+      "amountMinor": -7210,
+      "currency": "EUR",
+      "expected": "transport.fuel"
+    },
+    {
+      "id": "gs-073",
+      "label": "PRLV SEPA ILE DE FRANCE MOBILITES NAVIGO",
+      "counterpartyName": "Ile De France Mobilites",
+      "method": "direct_debit",
+      "amountMinor": -8640,
+      "currency": "EUR",
+      "expected": "transport.transit"
+    },
+    {
+      "id": "gs-074",
+      "label": "PAIEMENT CB RATP",
+      "mcc": "4111",
+      "method": "card",
+      "amountMinor": -215,
+      "currency": "EUR",
+      "expected": "transport.transit"
+    },
+    {
+      "id": "gs-075",
+      "label": "PAIEMENT CB SNCF TER GRAND EST",
+      "method": "card",
+      "amountMinor": -1860,
+      "currency": "EUR",
+      "expected": "transport.transit"
+    },
+    {
+      "id": "gs-076",
+      "label": "UBER *TRIP HELP.UBER.COM",
+      "method": "card",
+      "amountMinor": -2340,
+      "currency": "EUR",
+      "expected": "transport.taxi"
+    },
+    {
+      "id": "gs-077",
+      "label": "PAIEMENT CB BOLT.EU/O/2406",
+      "method": "card",
+      "amountMinor": -1480,
+      "currency": "EUR",
+      "expected": "transport.taxi"
+    },
+    {
+      "id": "gs-078",
+      "label": "PAIEMENT CB INDIGO PARK NANCY",
+      "method": "card",
+      "amountMinor": -360,
+      "currency": "EUR",
+      "expected": "transport.parking"
+    },
+    {
+      "id": "gs-079",
+      "label": "PAIEMENT CB APRR AUTOROUTE",
+      "method": "card",
+      "amountMinor": -2490,
+      "currency": "EUR",
+      "expected": "transport.parking"
+    },
+    {
+      "id": "gs-080",
+      "label": "PAIEMENT AMENDE.GOUV.FR",
+      "method": "card",
+      "amountMinor": -3500,
+      "currency": "EUR",
+      "expected": "transport.parking"
+    },
+    {
+      "id": "gs-081",
+      "label": "PAIEMENT CB NORAUTO 456",
+      "method": "card",
+      "amountMinor": -18990,
+      "currency": "EUR",
+      "expected": "transport.maintenance"
+    },
+    {
+      "id": "gs-082",
+      "label": "PAIEMENT CB FEU VERT CONTROLE TECHNIQUE",
+      "method": "card",
+      "amountMinor": -8500,
+      "currency": "EUR",
+      "expected": "transport.maintenance"
+    },
+    {
+      "id": "gs-083",
+      "label": "PRLV MATMUT ASSURANCE AUTO",
+      "counterpartyName": "Matmut",
+      "method": "direct_debit",
+      "amountMinor": -5430,
+      "currency": "EUR",
+      "expected": "transport.insurance"
+    },
+    {
+      "id": "gs-084",
+      "label": "PRLV DIAC SA LOCATION VEHICULE",
+      "method": "direct_debit",
+      "amountMinor": -32000,
+      "currency": "EUR",
+      "expected": "transport.loan"
+    },
+    {
+      "id": "gs-090",
+      "label": "PAIEMENT CB PHARMACIE CENTRALE",
+      "method": "card",
+      "amountMinor": -3540,
+      "currency": "EUR",
+      "expected": "health.pharmacy"
+    },
+    {
+      "id": "gs-091",
+      "label": "PAIEMENT CB PHARMACIE DE LA GARE",
+      "mcc": "5912",
+      "method": "card",
+      "amountMinor": -1280,
+      "currency": "EUR",
+      "expected": "health.pharmacy"
+    },
+    {
+      "id": "gs-092",
+      "label": "PAIEMENT CB DR MARTIN SOPHIE",
+      "method": "card",
+      "amountMinor": -3000,
+      "currency": "EUR",
+      "expected": "health.doctor"
+    },
+    {
+      "id": "gs-093",
+      "label": "PAIEMENT CB CABINET DENTAIRE DU SOURIRE",
+      "method": "card",
+      "amountMinor": -12000,
+      "currency": "EUR",
+      "expected": "health.doctor"
+    },
+    {
+      "id": "gs-094",
+      "label": "PRLV ALAN SA",
+      "counterpartyName": "Alan",
+      "method": "direct_debit",
+      "amountMinor": -4890,
+      "currency": "EUR",
+      "expected": "health.insurance"
+    },
+    {
+      "id": "gs-095",
+      "label": "PRLV HARMONIE MUTUELLE",
+      "method": "direct_debit",
+      "amountMinor": -6240,
+      "currency": "EUR",
+      "expected": "health.insurance"
+    },
+    {
+      "id": "gs-096",
+      "label": "PAIEMENT CB OPTICIEN KRYS NANCY",
+      "method": "card",
+      "amountMinor": -23000,
+      "currency": "EUR",
+      "expected": "health.other"
+    },
+    {
+      "id": "gs-100",
+      "label": "PAIEMENT CB 1906 PARIS ZARA FRANCE CARTE 01234",
+      "method": "card",
+      "amountMinor": -5990,
+      "currency": "EUR",
+      "expected": "shopping.clothing"
+    },
+    {
+      "id": "gs-101",
+      "label": "PAIEMENT CB KIABI HOUDEMONT",
+      "mcc": "5651",
+      "method": "card",
+      "amountMinor": -3470,
+      "currency": "EUR",
+      "expected": "shopping.clothing"
+    },
+    {
+      "id": "gs-102",
+      "label": "PAIEMENT CB NIKE STORE",
+      "method": "card",
+      "amountMinor": -8999,
+      "currency": "EUR",
+      "expected": "shopping.clothing"
+    },
+    {
+      "id": "gs-103",
+      "label": "PAIEMENT CB MANGO FRANCE",
+      "method": "card",
+      "amountMinor": -4500,
+      "currency": "EUR",
+      "expected": "shopping.clothing"
+    },
+    {
+      "id": "gs-104",
+      "label": "PAIEMENT CB FNAC PARIS 09",
+      "method": "card",
+      "amountMinor": -34900,
+      "currency": "EUR",
+      "expected": "shopping.electronics"
+    },
+    {
+      "id": "gs-105",
+      "label": "PAIEMENT CB BOULANGER NANCY",
+      "method": "card",
+      "amountMinor": -79900,
+      "currency": "EUR",
+      "expected": "shopping.electronics"
+    },
+    {
+      "id": "gs-106",
+      "label": "AMZN Mktp FR*2A1B3C",
+      "method": "card",
+      "amountMinor": -4599,
+      "currency": "EUR",
+      "expected": "shopping.other"
+    },
+    {
+      "id": "gs-107",
+      "label": "PAIEMENT CB SEPHORA 512",
+      "method": "card",
+      "amountMinor": -4230,
+      "currency": "EUR",
+      "expected": "shopping.beauty"
+    },
+    {
+      "id": "gs-108",
+      "label": "PAIEMENT CB COIFF AND CO",
+      "method": "card",
+      "amountMinor": -2800,
+      "currency": "EUR",
+      "expected": "shopping.beauty"
+    },
+    {
+      "id": "gs-109",
+      "label": "PAIEMENT CB PASSAGE BLEU NANCY",
+      "method": "card",
+      "amountMinor": -2400,
+      "currency": "EUR",
+      "expected": "shopping.beauty"
+    },
+    {
+      "id": "gs-110",
+      "label": "PAIEMENT CB INTERFLORA",
+      "method": "card",
+      "amountMinor": -4990,
+      "currency": "EUR",
+      "expected": "shopping.gifts"
+    },
+    {
+      "id": "gs-111",
+      "label": "PAIEMENT CB MAXI ZOO LAXOU",
+      "method": "card",
+      "amountMinor": -3860,
+      "currency": "EUR",
+      "expected": "shopping.pets"
+    },
+    {
+      "id": "gs-112",
+      "label": "PAIEMENT CB CLINIQUE VETERINAIRE DES LILAS",
+      "method": "card",
+      "amountMinor": -8500,
+      "currency": "EUR",
+      "expected": "shopping.pets"
+    },
+    {
+      "id": "gs-113",
+      "label": "PAIEMENT CB LE KHEDIVE TABAC PRESSE",
+      "method": "card",
+      "amountMinor": -1120,
+      "currency": "EUR",
+      "expected": "shopping.tobacco"
+    },
+    {
+      "id": "gs-114",
+      "label": "PAIEMENT CB ACTION FRANCE 1893",
+      "method": "card",
+      "amountMinor": -2385,
+      "currency": "EUR",
+      "expected": "shopping.other"
+    },
+    {
+      "id": "gs-120",
+      "label": "PRLV NETFLIX SERVICES FRANCE",
+      "counterpartyName": "Netflix",
+      "method": "direct_debit",
+      "amountMinor": -1799,
+      "currency": "EUR",
+      "expected": "leisure.streaming"
+    },
+    {
+      "id": "gs-121",
+      "label": "PRLV SPOTIFY AB",
+      "method": "direct_debit",
+      "amountMinor": -1112,
+      "currency": "EUR",
+      "expected": "leisure.streaming"
+    },
+    {
+      "id": "gs-122",
+      "label": "PAIEMENT CB DISNEY PLUS",
+      "method": "card",
+      "amountMinor": -899,
+      "currency": "EUR",
+      "expected": "leisure.streaming"
+    },
+    {
+      "id": "gs-123",
+      "label": "PRLV SEPA CANAL PLUS",
+      "method": "direct_debit",
+      "amountMinor": -3490,
+      "currency": "EUR",
+      "expected": "leisure.streaming"
+    },
+    {
+      "id": "gs-124",
+      "label": "PRLV SEPA BASIC FIT FRANCE",
+      "counterpartyName": "Basic Fit",
+      "method": "direct_debit",
+      "amountMinor": -2999,
+      "currency": "EUR",
+      "expected": "leisure.sport"
+    },
+    {
+      "id": "gs-125",
+      "label": "PAIEMENT CB DECATHLON HOUDEMONT",
+      "method": "card",
+      "amountMinor": -7430,
+      "currency": "EUR",
+      "expected": "leisure.sport"
+    },
+    {
+      "id": "gs-126",
+      "label": "PAIEMENT CB UGC CINE CITE LUDRES",
+      "method": "card",
+      "amountMinor": -1250,
+      "currency": "EUR",
+      "expected": "leisure.outings"
+    },
+    {
+      "id": "gs-127",
+      "label": "PAIEMENT CB SHOTGUN BILLETTERIE",
+      "method": "card",
+      "amountMinor": -3500,
+      "currency": "EUR",
+      "expected": "leisure.outings"
+    },
+    {
+      "id": "gs-128",
+      "label": "PAIEMENT CB MUSEE DU LOUVRE",
+      "method": "card",
+      "amountMinor": -1700,
+      "currency": "EUR",
+      "expected": "leisure.outings"
+    },
+    {
+      "id": "gs-129",
+      "label": "STEAMGAMES.COM 4259522",
+      "method": "card",
+      "amountMinor": -1999,
+      "currency": "EUR",
+      "expected": "leisure.gaming"
+    },
+    {
+      "id": "gs-130",
+      "label": "PLAYSTATION NETWORK",
+      "method": "card",
+      "amountMinor": -999,
+      "currency": "EUR",
+      "expected": "leisure.gaming"
+    },
+    {
+      "id": "gs-131",
+      "label": "GAMEBOOST",
+      "method": "card",
+      "amountMinor": -1499,
+      "currency": "EUR",
+      "expected": "leisure.gaming"
+    },
+    {
+      "id": "gs-132",
+      "label": "PAIEMENT CB CULTURA ESSEY",
+      "method": "card",
+      "amountMinor": -3140,
+      "currency": "EUR",
+      "expected": "leisure.hobbies"
+    },
+    {
+      "id": "gs-133",
+      "label": "PAIEMENT CB LIBRAIRIE LE FURET DU NORD",
+      "method": "card",
+      "amountMinor": -2250,
+      "currency": "EUR",
+      "expected": "leisure.hobbies"
+    },
+    {
+      "id": "gs-140",
+      "label": "PAIEMENT CB AIR FRANCE",
+      "method": "card",
+      "amountMinor": -23450,
+      "currency": "EUR",
+      "expected": "travel.transport"
+    },
+    {
+      "id": "gs-141",
+      "label": "PAIEMENT CB SNCF CONNECT TGV INOUI",
+      "method": "card",
+      "amountMinor": -8900,
+      "currency": "EUR",
+      "expected": "travel.transport"
+    },
+    {
+      "id": "gs-142",
+      "label": "RYANAIR AB1CD2",
+      "method": "card",
+      "amountMinor": -6798,
+      "currency": "EUR",
+      "expected": "travel.transport"
+    },
+    {
+      "id": "gs-143",
+      "label": "PAIEMENT CB BOOKING.COM",
+      "method": "card",
+      "amountMinor": -31240,
+      "currency": "EUR",
+      "expected": "travel.lodging"
+    },
+    {
+      "id": "gs-144",
+      "label": "AIRBNB * HMFJ2K34X9",
+      "method": "card",
+      "amountMinor": -25830,
+      "currency": "EUR",
+      "expected": "travel.lodging"
+    },
+    {
+      "id": "gs-145",
+      "label": "PAIEMENT CB HOTEL IBIS LYON PART DIEU",
+      "method": "card",
+      "amountMinor": -9500,
+      "currency": "EUR",
+      "expected": "travel.lodging"
+    },
+    {
+      "id": "gs-146",
+      "label": "PAIEMENT CB EUROPCAR FRANCE",
+      "method": "card",
+      "amountMinor": -18040,
+      "currency": "EUR",
+      "expected": "travel.rental"
+    },
+    {
+      "id": "gs-147",
+      "label": "PAIEMENT CB GETYOURGUIDE",
+      "method": "card",
+      "amountMinor": -5400,
+      "currency": "EUR",
+      "expected": "travel.activities"
+    },
+    {
+      "id": "gs-150",
+      "label": "PRLV CRECHE LES PETITS LOUPS",
+      "method": "direct_debit",
+      "amountMinor": -42000,
+      "currency": "EUR",
+      "expected": "family.childcare"
+    },
+    {
+      "id": "gs-151",
+      "label": "PAIEMENT CB CENTRE DE LOISIRS MUNICIPAL",
+      "method": "card",
+      "amountMinor": -4500,
+      "currency": "EUR",
+      "expected": "family.childcare"
+    },
+    {
+      "id": "gs-152",
+      "label": "PRLV REGIE CANTINE VILLE DE NANCY",
+      "method": "direct_debit",
+      "amountMinor": -6320,
+      "currency": "EUR",
+      "expected": "family.school"
+    },
+    {
+      "id": "gs-153",
+      "label": "VIR UNIVERSITE DE LORRAINE DROITS INSCRIPTION",
+      "method": "transfer",
+      "amountMinor": -17000,
+      "currency": "EUR",
+      "expected": "family.school"
+    },
+    {
+      "id": "gs-154",
+      "label": "PAIEMENT CB SUPERPROF",
+      "method": "card",
+      "amountMinor": -2500,
+      "currency": "EUR",
+      "expected": "family.lessons"
+    },
+    {
+      "id": "gs-155",
+      "label": "PRLV ACADOMIA",
+      "method": "direct_debit",
+      "amountMinor": -18000,
+      "currency": "EUR",
+      "expected": "family.lessons"
+    },
+    {
+      "id": "gs-156",
+      "label": "VIR PENSION ALIMENTAIRE M FISCHER",
+      "method": "transfer",
+      "amountMinor": -35000,
+      "currency": "EUR",
+      "expected": "family.support"
+    },
+    {
+      "id": "gs-160",
+      "label": "PRLV FREE MOBILE",
+      "counterpartyName": "Free Mobile",
+      "method": "direct_debit",
+      "amountMinor": -1999,
+      "currency": "EUR",
+      "expected": "telecom.mobile"
+    },
+    {
+      "id": "gs-161",
+      "label": "PRLV ORANGE MOBILE",
+      "counterpartyName": "Orange",
+      "method": "direct_debit",
+      "amountMinor": -2199,
+      "currency": "EUR",
+      "expected": "telecom.mobile"
+    },
+    {
+      "id": "gs-162",
+      "label": "PRLV BOUYGUES TELECOM",
+      "method": "direct_debit",
+      "amountMinor": -1599,
+      "currency": "EUR",
+      "expected": "telecom.mobile"
+    },
+    {
+      "id": "gs-163",
+      "label": "PRLV FREE TELECOM FREEBOX",
+      "method": "direct_debit",
+      "amountMinor": -3999,
+      "currency": "EUR",
+      "expected": "telecom.internet"
+    },
+    {
+      "id": "gs-164",
+      "label": "PRLV SFR BOX FIBRE",
+      "method": "direct_debit",
+      "amountMinor": -3490,
+      "currency": "EUR",
+      "expected": "telecom.internet"
+    },
+    {
+      "id": "gs-165",
+      "label": "RAILWAY*PROD",
+      "method": "card",
+      "amountMinor": -2000,
+      "currency": "USD",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-166",
+      "label": "CLOUDFLARE",
+      "method": "card",
+      "amountMinor": -845,
+      "currency": "USD",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-167",
+      "label": "VERCEL INC",
+      "method": "card",
+      "amountMinor": -2000,
+      "currency": "USD",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-168",
+      "label": "GITHUB, INC.",
+      "method": "card",
+      "amountMinor": -400,
+      "currency": "USD",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-169",
+      "label": "OPENAI *CHATGPT SUBSCR",
+      "method": "card",
+      "amountMinor": -2300,
+      "currency": "USD",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-170",
+      "label": "NOTION LABS INC",
+      "method": "card",
+      "amountMinor": -1000,
+      "currency": "USD",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-171",
+      "label": "FINANCIALMODELINGPREP.COM",
+      "method": "card",
+      "amountMinor": -2900,
+      "currency": "USD",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-172",
+      "label": "GOOGLE *GOOGLE ONE",
+      "method": "card",
+      "amountMinor": -199,
+      "currency": "EUR",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-173",
+      "label": "ADOBE SYSTEMS SOFTWARE",
+      "method": "card",
+      "amountMinor": -2399,
+      "currency": "EUR",
+      "expected": "telecom.software"
+    },
+    {
+      "id": "gs-180",
+      "label": "PRLV DGFIP PAS PRELEVEMENT A LA SOURCE",
+      "counterpartyName": "Dgfip",
+      "method": "direct_debit",
+      "amountMinor": -41200,
+      "currency": "EUR",
+      "expected": "taxes.income"
+    },
+    {
+      "id": "gs-181",
+      "label": "PAS DGFIP",
+      "method": "direct_debit",
+      "amountMinor": -38960,
+      "currency": "EUR",
+      "expected": "taxes.income"
+    },
+    {
+      "id": "gs-182",
+      "label": "PRELEVEMENT IMPOT TAXE FONCIERE",
+      "counterpartyName": "Dgfip",
+      "method": "direct_debit",
+      "amountMinor": -18000,
+      "currency": "EUR",
+      "expected": "taxes.property"
+    },
+    {
+      "id": "gs-183",
+      "label": "VIR DGFIP REMB IMPOT REVENUS",
+      "method": "transfer",
+      "amountMinor": 21500,
+      "currency": "EUR",
+      "expected": "taxes.income"
+    },
+    {
+      "id": "gs-184",
+      "label": "PRLV URSSAF LORRAINE",
+      "counterpartyName": "Urssaf",
+      "method": "direct_debit",
+      "amountMinor": -23000,
+      "currency": "EUR",
+      "expected": "taxes.social"
+    },
+    {
+      "id": "gs-185",
+      "label": "PRLV SEPA URSSAF COTISATIONS",
+      "method": "direct_debit",
+      "amountMinor": -15600,
+      "currency": "EUR",
+      "expected": "taxes.social"
+    },
+    {
+      "id": "gs-190",
+      "label": "F COTIS CP START JEUNES ACTIFS",
+      "counterpartyName": "Start Jeunes Actifs",
+      "method": "fee",
+      "amountMinor": -1130,
+      "currency": "EUR",
+      "expected": "bank.fees"
+    },
+    {
+      "id": "gs-191",
+      "label": "COTISATION JAZZ",
+      "method": "fee",
+      "amountMinor": -890,
+      "currency": "EUR",
+      "expected": "bank.fees"
+    },
+    {
+      "id": "gs-192",
+      "label": "FRAIS TENUE DE COMPTE",
+      "method": "fee",
+      "amountMinor": -250,
+      "currency": "EUR",
+      "expected": "bank.fees"
+    },
+    {
+      "id": "gs-193",
+      "label": "AGIOS 2EME TRIMESTRE",
+      "method": "fee",
+      "amountMinor": -1243,
+      "currency": "EUR",
+      "expected": "bank.fees"
+    },
+    {
+      "id": "gs-194",
+      "label": "COMMISSION INTERVENTION",
+      "method": "fee",
+      "amountMinor": -800,
+      "currency": "EUR",
+      "expected": "bank.fees"
+    },
+    {
+      "id": "gs-195",
+      "label": "ECH PRET CONSO CETELEM",
+      "method": "direct_debit",
+      "amountMinor": -14560,
+      "currency": "EUR",
+      "expected": "bank.loan"
+    },
+    {
+      "id": "gs-196",
+      "label": "PRLV COFIDIS",
+      "method": "direct_debit",
+      "amountMinor": -8930,
+      "currency": "EUR",
+      "expected": "bank.loan"
+    },
+    {
+      "id": "gs-197",
+      "label": "PRLV YOUNITED CREDIT",
+      "method": "direct_debit",
+      "amountMinor": -21045,
+      "currency": "EUR",
+      "expected": "bank.loan"
+    },
+    {
+      "id": "gs-200",
+      "label": "PRLV SEPA CROIX ROUGE FRANCAISE",
+      "method": "direct_debit",
+      "amountMinor": -1000,
+      "currency": "EUR",
+      "expected": "other.donations"
+    },
+    {
+      "id": "gs-201",
+      "label": "PRLV MEDECINS SANS FRONTIERES",
+      "method": "direct_debit",
+      "amountMinor": -1500,
+      "currency": "EUR",
+      "expected": "other.donations"
+    },
+    {
+      "id": "gs-202",
+      "label": "PRLV WIKIMEDIA FOUNDATION",
+      "method": "direct_debit",
+      "amountMinor": -500,
+      "currency": "EUR",
+      "expected": "other.donations"
+    },
+    {
+      "id": "gs-203",
+      "label": "PAIEMENT CB LA POSTE AFFRANCHISSEMENT",
+      "method": "card",
+      "amountMinor": -890,
+      "currency": "EUR",
+      "expected": "other.misc"
+    },
+    {
+      "id": "gs-204",
+      "label": "PAIEMENT CB VISTAPRINT CARTES DE VISITE",
+      "method": "card",
+      "amountMinor": -3400,
+      "currency": "EUR",
+      "expected": "other.professional"
+    },
+    {
+      "id": "gs-210",
+      "label": "PAIEMENT CB MARIE BELLE PARIS",
+      "method": "card",
+      "amountMinor": -5000,
+      "currency": "EUR",
+      "expected": null
+    },
+    {
+      "id": "gs-211",
+      "label": "PAIEMENT CB LE 27",
+      "method": "card",
+      "amountMinor": -1840,
+      "currency": "EUR",
+      "expected": null
+    },
+    {
+      "id": "gs-212",
+      "label": "PAIEMENT CB SARL BJM 54",
+      "method": "card",
+      "amountMinor": -7560,
+      "currency": "EUR",
+      "expected": null
+    },
+    {
+      "id": "gs-213",
+      "label": "VIR SEPA REF 883921A",
+      "method": "transfer",
+      "amountMinor": 7500,
+      "currency": "EUR",
+      "expected": null
+    },
+    {
+      "id": "gs-214",
+      "label": "PAIEMENT CB SNC LE GLACIS",
+      "method": "card",
+      "amountMinor": -2200,
+      "currency": "EUR",
+      "expected": null
+    },
+    {
+      "id": "gs-215",
+      "label": "CHEQUE 0004512",
+      "method": "other",
+      "amountMinor": -23000,
+      "currency": "EUR",
+      "expected": null
+    },
+    {
+      "id": "gs-216",
+      "label": "PAIEMENT CB ETS ROBERT",
+      "method": "card",
+      "amountMinor": -14000,
+      "currency": "EUR",
+      "expected": null
+    },
+    {
+      "id": "gs-217",
+      "label": "PRLV SEPA GESTION PLUS",
+      "method": "direct_debit",
+      "amountMinor": -4900,
+      "currency": "EUR",
+      "expected": null
+    },
+    {
+      "id": "gs-218",
+      "label": "PAIEMENT CB WINAMAX PARIS",
+      "method": "card",
+      "amountMinor": -5000,
+      "currency": "EUR",
+      "expected": "leisure.betting"
+    },
+    {
+      "id": "gs-219",
+      "label": "VIR INST WINAMAX",
+      "method": "transfer",
+      "amountMinor": 6154,
+      "currency": "EUR",
+      "expected": "leisure.betting"
+    },
+    {
+      "id": "gs-220",
+      "label": "PRLV SEPA FDJ LA FRANCAISE DES JEUX",
+      "method": "direct_debit",
+      "amountMinor": -1500,
+      "currency": "EUR",
+      "expected": "leisure.betting"
+    }
+  ]
+}

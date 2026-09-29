@@ -10,7 +10,9 @@ import {
   getAccount,
   getTransaction,
   listTransactions,
+  merchantsByIds,
   readBalanceHistory,
+  reviewCount,
 } from "@keel/db/banking";
 import { getHousehold } from "@keel/db/members";
 import { addDays, type Day, todayIn } from "@keel/finance/dates";
@@ -108,7 +110,11 @@ export function transactionDetail(
       if (row === null || row.deletedAt !== null || account === null) {
         throw new BankingError("not_found", "Unknown transaction");
       }
-      return transactionView(row, account);
+      const [merchant] = await merchantsByIds(
+        tx,
+        row.merchantId === null ? [] : [row.merchantId],
+      );
+      return transactionView(row, account, merchant ?? null);
     },
     deps.database,
   );
@@ -155,6 +161,18 @@ export function balanceHistory(
         series: rows.map((row) => ({ day: row.day, minor: row.balanceMinor })),
       };
     },
+    deps.database,
+  );
+}
+
+/** The "to review" queue's size, for the shell's dock (R3). */
+export function reviewSummary(
+  deps: Pick<BankingDeps, "database">,
+  scope: Scope,
+): Promise<{ readonly count: number }> {
+  return withScope(
+    scope,
+    async ({ tx }) => ({ count: await reviewCount(tx, scope) }),
     deps.database,
   );
 }

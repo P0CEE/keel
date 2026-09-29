@@ -2,6 +2,7 @@ import { Redis } from "ioredis";
 
 import { env } from "./env";
 import { logger } from "./logger";
+import { createGatewayCategorizationModel } from "@keel/ai/categorize";
 import {
   type BankingDeps,
   createProviders,
@@ -17,7 +18,7 @@ import {
 
 export type WorkerBankingDeps = Pick<
   BankingDeps,
-  "providers" | "emit" | "dispatch" | "limits" | "now"
+  "providers" | "emit" | "dispatch" | "limits" | "model" | "now"
 >;
 
 let deps: WorkerBankingDeps | undefined;
@@ -63,6 +64,12 @@ export function workerBanking(): WorkerBankingDeps {
       emit: createEmitter({ store, schemas: eventSchemas, onError: report }),
       dispatch: enqueue,
       limits: createRedisSyncLimits(limitsRedis),
+      model:
+        env.AI_GATEWAY_API_KEY === undefined
+          ? null
+          : createGatewayCategorizationModel({
+              zeroDataRetention: env.AI_ZERO_DATA_RETENTION,
+            }),
       now: () => new Date(),
     };
   }

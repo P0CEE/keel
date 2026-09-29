@@ -96,6 +96,12 @@ export const jobs = {
       })
       .strict(),
   },
+  // After an arrival or an entry (ADR 0007): whatever waits for a category,
+  // through the ladder then the model. Debounced per household.
+  "bank.categorize": {
+    queue: "bank-pipeline",
+    schema: z.object({ householdId: z.uuid() }).strict(),
+  },
   // After a write (ADR 0008): the household's derived state, recomputed.
   // Debounced per household; for now the balance history only.
   "bank.reconcile": {

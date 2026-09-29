@@ -50,9 +50,29 @@ export const eventSchemas = {
       accountIds: z.array(z.uuid()).min(1).max(200),
       from: z.iso.date(),
       to: z.iso.date(),
-      cause: z.enum(["arrival", "entry", "edited", "deleted", "restored"]),
+      cause: z.enum([
+        "arrival",
+        "entry",
+        "edited",
+        "deleted",
+        "restored",
+        "recategorized",
+        "reviewed",
+      ]),
     })
     .strict(),
+  /**
+   * The categorization job decided rows of these accounts: the lists, the
+   * review queue and (later) the aggregates refetch.
+   */
+  "transactions.categorized": z
+    .object({
+      accountIds: z.array(z.uuid()).min(1).max(200),
+      count: z.number().int().positive(),
+    })
+    .strict(),
+  /** The household's subcategories or merchant mappings changed. */
+  "categories.changed": z.object({}).strict(),
   /**
    * A reconciliation rewrote derived state (lot 3: the balance history of
    * these accounts).

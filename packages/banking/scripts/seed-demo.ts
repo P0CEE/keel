@@ -12,6 +12,7 @@ import { eq } from "drizzle-orm";
 import {
   accountsOverview,
   type BankingDeps,
+  categorizeHousehold,
   completeConsent,
   connectionOffer,
   createManualAccount,
@@ -26,6 +27,7 @@ import {
   syncAccount,
   syncConnection,
 } from "../src/index";
+import { createGatewayCategorizationModel } from "@keel/ai/categorize";
 import { createFakeProvider } from "@keel/bank-providers/fake";
 import { closePool, db, resolveScope, user } from "@keel/db";
 import { todayIn } from "@keel/finance/dates";
@@ -62,6 +64,11 @@ async function main(): Promise<void> {
       );
     } else if (name === "bank.sync-account") {
       await syncAccount(deps, payload as Parameters<typeof syncAccount>[1]);
+    } else if (name === "bank.categorize") {
+      await categorizeHousehold(
+        deps,
+        (payload as { householdId: string }).householdId,
+      );
     } else if (name === "bank.reconcile") {
       await reconcileHousehold(
         deps,
@@ -76,6 +83,13 @@ async function main(): Promise<void> {
     emit: () => undefined,
     dispatch,
     limits: createMemorySyncLimits(),
+    // The Gateway when a key is set (apps/worker/.env), else the ladder alone.
+    model:
+      process.env.AI_GATEWAY_API_KEY === undefined
+        ? null
+        : createGatewayCategorizationModel({
+            zeroDataRetention: process.env.AI_ZERO_DATA_RETENTION !== "false",
+          }),
     now: () => new Date(),
   };
   await refreshInstitutions(deps);

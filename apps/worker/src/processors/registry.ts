@@ -6,6 +6,7 @@ import {
 } from "./banking";
 import { purgeSessions } from "./purge-sessions";
 import {
+  categorizeJob,
   reconcileJob,
   syncAccountJob,
   syncConnectionJob,
@@ -38,6 +39,7 @@ export type JobProcessor<N extends JobName = JobName> = (
 const processors: { readonly [N in JobName]: JobProcessor<N> } = {
   "auth.purge-sessions": purgeSessions,
   "bank.institutions-refresh": refreshInstitutionsJob,
+  "bank.categorize": categorizeJob,
   "bank.purge": purgeConnectionsJob,
   "bank.reconcile": reconcileJob,
   "bank.sync-account": syncAccountJob,

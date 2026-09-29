@@ -139,27 +139,29 @@ describe("settlement through the database", () => {
         meta: {},
       },
     ]);
-    expect(h.jobs.recorded().slice(before)).toEqual([
-      {
-        name: "bank.reconcile",
+    expect(h.jobs.recorded().slice(before)).toEqual(
+      ["bank.categorize", "bank.reconcile"].map((name) => ({
+        name,
         payload: { householdId: HOUSEHOLD },
         options: {
-          debounce: { id: `bank.reconcile:${HOUSEHOLD}`, windowMs: 5000 },
+          debounce: { id: `${name}:${HOUSEHOLD}`, windowMs: 5000 },
         },
-      },
-    ]);
+      })),
+    );
   });
 
-  test("every cause of lot 3 plans the reconcile", () => {
+  test("new rows are categorized before the household is reconciled", () => {
+    expect(followUps("arrival")).toEqual(["bank.categorize", "bank.reconcile"]);
+    expect(followUps("entry")).toEqual(["bank.categorize", "bank.reconcile"]);
     for (const cause of [
-      "arrival",
-      "entry",
       "edited",
       "deleted",
       "restored",
+      "recategorized",
     ] as const) {
       expect(followUps(cause)).toEqual(["bank.reconcile"]);
     }
+    expect(followUps("reviewed")).toEqual([]);
   });
 });
 

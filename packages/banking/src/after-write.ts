@@ -5,15 +5,17 @@ import type { Day } from "@keel/finance/dates";
 
 /**
  * Why transactions changed (ADR 0008): a bank or CSV arrival, a member's
- * entry, edit, deletion or undo. Recategorization, account changes and
- * declared balances join with the lots that bring them.
+ * entry, edit, deletion or undo, a recategorization, a review cleared.
+ * Account changes and declared balances join with the lots that need them.
  */
 export type ChangeCause =
   | "arrival"
   | "entry"
   | "edited"
   | "deleted"
-  | "restored";
+  | "restored"
+  | "recategorized"
+  | "reviewed";
 
 export type Change = {
   readonly cause: ChangeCause;
@@ -30,20 +32,26 @@ export type Change = {
 export const PIPELINE_DEBOUNCE_MS = 5_000;
 
 /** The jobs a write plans; each takes the household id only. */
-export type PipelineJob = "bank.reconcile";
+export type PipelineJob = "bank.categorize" | "bank.reconcile";
 
 /**
- * What each cause plans, in order. The one place the order lives: lot 4
- * puts categorization before reconciliation for arrivals and entries.
+ * What each cause plans, in order: the one place the order lives. New rows
+ * are categorized before the household is reconciled (the flow reads the
+ * category); an entry the member already categorized leaves nothing
+ * pending, and the categorize run then finds nothing to do.
  */
 export function followUps(cause: ChangeCause): readonly PipelineJob[] {
   switch (cause) {
     case "arrival":
     case "entry":
+      return ["bank.categorize", "bank.reconcile"];
     case "edited":
     case "deleted":
     case "restored":
+    case "recategorized":
       return ["bank.reconcile"];
+    case "reviewed":
+      return [];
   }
 }
 

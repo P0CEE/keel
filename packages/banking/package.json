@@ -10,7 +10,8 @@
     "lint": "oxlint .",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "db:seed-demo": "bun --env-file=../db/.env scripts/seed-demo.ts"
+    "db:seed-demo": "bun --env-file=../db/.env --env-file=../../apps/worker/.env scripts/seed-demo.ts",
+    "eval:categorization": "bun --env-file=../db/.env --env-file=../../apps/worker/.env eval/run-eval.ts"
   },
   "dependencies": {
     "@keel/bank-providers": "workspace:*",
@@ -18,10 +19,12 @@
     "@keel/finance": "workspace:*",
     "@keel/jobs": "workspace:*",
     "@keel/realtime": "workspace:*",
-    "drizzle-orm": "catalog:"
+    "drizzle-orm": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@electric-sql/pglite": "catalog:",
+    "@keel/ai": "workspace:*",
     "@keel/tsconfig": "workspace:*",
     "@types/bun": "catalog:",
     "typescript": "catalog:"

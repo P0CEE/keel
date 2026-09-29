@@ -32,6 +32,8 @@ export function bankingDeps(): BankingDeps {
     emit: getRealtime().emit,
     dispatch: enqueue,
     limits: createRedisSyncLimits(getRedis()),
+    // The model runs in the worker (bank.categorize), never on a request.
+    model: null,
     now: () => new Date(),
   };
   return deps;
