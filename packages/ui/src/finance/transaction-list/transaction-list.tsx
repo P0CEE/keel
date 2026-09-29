@@ -2,6 +2,7 @@
 
 import { type ReactNode, useId } from "react";
 
+import { Checkbox } from "../../mint/checkbox/checkbox";
 import { RepeatIcon } from "../../mint/icons/icons";
 import { MerchantLogo } from "../../mint/logo/merchant-logo";
 import { CategoryTag } from "../category-tag/category-tag";
@@ -44,6 +45,17 @@ export type TransactionListLabels = {
   readonly status: Readonly<Record<TransactionStatus, string>>;
 };
 
+/**
+ * Rows the member picks for a bulk action (categorize several at once).
+ * Each row then leads with a checkbox; the row itself still opens.
+ */
+export type TransactionSelection = {
+  readonly selected: ReadonlySet<string>;
+  readonly onToggle: (id: string) => void;
+  /** The checkbox's name ("Select Monoprix, −42,15 €"). */
+  readonly label: (item: TransactionListItem) => string;
+};
+
 export type TransactionListProps = {
   readonly items: readonly TransactionListItem[];
   /** Today in the household's calendar: what "Aujourd'hui" and "Hier" count from. */
@@ -52,6 +64,7 @@ export type TransactionListProps = {
   readonly labels: TransactionListLabels;
   /** Given, each row is a button. */
   readonly onSelect?: (item: TransactionListItem) => void;
+  readonly selection?: TransactionSelection;
 };
 
 /**
@@ -65,6 +78,7 @@ export function TransactionList({
   locale,
   labels,
   onSelect,
+  selection,
 }: TransactionListProps) {
   return (
     <div className={styles.list}>
@@ -76,6 +90,7 @@ export function TransactionList({
           locale={locale}
           labels={labels}
           onSelect={onSelect}
+          selection={selection}
         />
       ))}
     </div>
@@ -88,9 +103,10 @@ type DayProps = {
   readonly locale: string;
   readonly labels: TransactionListLabels;
   readonly onSelect?: (item: TransactionListItem) => void;
+  readonly selection?: TransactionSelection | undefined;
 };
 
-function Day({ name, items, locale, labels, onSelect }: DayProps) {
+function Day({ name, items, locale, labels, onSelect, selection }: DayProps) {
   const id = useId();
   const net = dayNet(items);
   return (
@@ -108,12 +124,30 @@ function Day({ name, items, locale, labels, onSelect }: DayProps) {
       <ul className={styles.rows}>
         {items.map((item) => (
           <li key={item.id} className={styles.item}>
-            <TransactionRow
-              item={item}
-              locale={locale}
-              labels={labels}
-              onSelect={onSelect}
-            />
+            {selection === undefined ? (
+              <TransactionRow
+                item={item}
+                locale={locale}
+                labels={labels}
+                onSelect={onSelect}
+              />
+            ) : (
+              // The checkbox sits beside the row, never inside it: a row that
+              // opens is a button, and a control cannot nest in one.
+              <div className={styles.selectable}>
+                <Checkbox
+                  checked={selection.selected.has(item.id)}
+                  onCheckedChange={() => selection.onToggle(item.id)}
+                  aria-label={selection.label(item)}
+                />
+                <TransactionRow
+                  item={item}
+                  locale={locale}
+                  labels={labels}
+                  onSelect={onSelect}
+                />
+              </div>
+            )}
           </li>
         ))}
       </ul>

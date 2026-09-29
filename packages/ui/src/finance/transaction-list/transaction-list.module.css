@@ -117,6 +117,14 @@ button.row:active::before {
   opacity: 0;
 }
 
+/* Selecting: the checkbox leads, the row keeps its own grid beside it. */
+.selectable {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-s1-50);
+}
+
 /* Narrow: the merchant over its tag and account, the amount over its status. */
 .who {
   display: flex;

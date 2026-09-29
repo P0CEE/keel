@@ -1,0 +1,292 @@
+/* mint-pocs' Icon picker, rule for rule, its palette read from the roles in
+   tokens.css. One colour, `--tone` (set inline from the categorical palette,
+   or the ink for Neutral), drives the tile and each swatch. */
+
+.picker {
+  position: relative;
+  flex: none;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- The tile: the icon in its colour over a wash of it ---- */
+.tile {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+  color: var(--tone);
+  font-family: inherit;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      color-mix(in srgb, var(--tone) 14%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--tone) 16%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 10%, transparent);
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--duration-moderate) ease,
+    background var(--duration-moderate) ease,
+    box-shadow var(--duration-moderate) ease,
+    transform var(--duration-instant) ease;
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.tile:active {
+  transform: scale(0.98);
+}
+
+.tileArt {
+  display: grid;
+}
+
+.tileArt > *,
+.tileCurrent > * {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+}
+
+.tileCurrent {
+  transition:
+    opacity var(--duration-fast) ease,
+    scale var(--duration-moderate) var(--ease-enter);
+}
+
+.tileIcon {
+  display: grid;
+  place-items: center;
+}
+
+.tileEdit {
+  opacity: 0;
+  scale: 0.8;
+  transition:
+    opacity var(--duration-fast) ease,
+    scale var(--duration-moderate) var(--ease-enter);
+}
+
+@media (hover: hover) {
+  .tile:hover .tileCurrent {
+    opacity: 0;
+    scale: 0.8;
+  }
+  .tile:hover .tileEdit {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.tile:focus-visible .tileCurrent {
+  opacity: 0;
+  scale: 0.8;
+}
+
+.tile:focus-visible .tileEdit {
+  opacity: 1;
+  scale: 1;
+}
+
+/* ---- The popover: the date time input's, the set's popup dress. It rests
+   on `transform: none`, so at rest the icons are on no soft 3D layer. ---- */
+.layer {
+  display: contents;
+}
+
+.positioner {
+  z-index: var(--z-popup);
+}
+
+.panel {
+  box-sizing: border-box;
+  width: min(400px, calc(100vw - 32px));
+  padding: var(--space-s1-50);
+  border-radius: 18px;
+  background: var(--popup);
+  box-shadow: var(--shadow-float);
+  outline: none;
+  backdrop-filter: blur(56px);
+  transform-origin: var(--transform-origin);
+  transform: none;
+  transition:
+    opacity var(--duration-instant) ease-out,
+    transform var(--duration-fast) var(--ease-overshoot);
+}
+
+.panel *,
+.panel *::before,
+.panel *::after {
+  box-sizing: border-box;
+}
+
+.panel[data-starting-style],
+.panel[data-ending-style] {
+  opacity: 0;
+  transform: perspective(800px) scale(0.96) translateY(-4px) rotateX(-4deg);
+}
+
+.panel[data-side="top"][data-starting-style],
+.panel[data-side="top"][data-ending-style] {
+  transform: perspective(800px) scale(0.96) translateY(4px) rotateX(4deg);
+}
+
+.panel[data-ending-style] {
+  transition:
+    opacity var(--duration-instant) ease-in,
+    transform var(--duration-instant) ease-in;
+}
+
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-s0-50);
+}
+
+.cell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--ink-2);
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.cell[aria-checked="true"] {
+  color: var(--ink);
+}
+
+/* Focus shows on the ring (the focused cell is always the checked one): the
+   set's ring around it. */
+.grid[data-variant="icons"]:has(:focus-visible) .ring,
+.grid[data-variant="colors"]:has(:focus-visible) .ring::after {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .grid[data-variant="icons"] .cell:hover {
+    background: var(--hover);
+    color: var(--ink);
+  }
+}
+
+/* The ring: one per group, moved a whole cell at a time
+   (col x (its width + the gap)). */
+.ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc((100% - 6 * var(--space-s0-50)) / 7);
+  aspect-ratio: 1;
+  pointer-events: none;
+  translate: calc(var(--col) * (100% + var(--space-s0-50)))
+    calc(var(--row) * (100% + var(--space-s0-50)));
+  transition: translate 280ms var(--ease-sheet);
+}
+
+.grid[data-variant="icons"] .ring {
+  border-radius: 14px;
+  background: var(--hover);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.rule {
+  height: 1px;
+  margin: var(--space-s2) var(--space-s1);
+  background: var(--line);
+}
+
+/* A colour lit from above, the palette's rule. */
+.swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--tone) 78%, white),
+    var(--tone)
+  );
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: scale var(--duration-moderate) var(--ease-pop);
+}
+
+@media (hover: hover) {
+  .grid[data-variant="colors"] .cell:hover .swatch {
+    scale: 1.08;
+  }
+}
+
+.grid[data-variant="colors"] .cell:active .swatch {
+  scale: 0.94;
+}
+
+/* The colour's ring hugs the swatch: 38px, 2px clear of it. */
+.grid[data-variant="colors"] .ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .tileCurrent,
+  .tileEdit,
+  .cell,
+  .ring,
+  .swatch {
+    transition: none;
+  }
+  .panel {
+    transition: opacity var(--duration-instant) ease-out;
+  }
+  .panel[data-starting-style],
+  .panel[data-ending-style] {
+    transform: none;
+  }
+  .tile:active {
+    transform: none;
+  }
+  .grid[data-variant="colors"] .cell:active .swatch,
+  .grid[data-variant="colors"] .cell:hover .swatch {
+    scale: none;
+  }
+}

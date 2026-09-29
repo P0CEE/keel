@@ -55,6 +55,7 @@
     "./finance/category-tag": "./src/finance/category-tag/category-tag.tsx",
     "./finance/category-glyphs": "./src/finance/category-tag/category-glyphs.tsx",
     "./finance/category-colors": "./src/finance/category-tag/category-colors.ts",
+    "./finance/icon-picker": "./src/finance/icon-picker/icon-picker.tsx",
     "./finance/transaction-list": "./src/finance/transaction-list/transaction-list.tsx",
     "./finance/cash-flow": "./src/finance/cash-flow/cash-flow.tsx",
     "./finance/privacy": "./src/finance/privacy/privacy.tsx",
