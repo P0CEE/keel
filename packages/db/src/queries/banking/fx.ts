@@ -1,4 +1,4 @@
-import { and, desc, inArray, lte, max, sql } from "drizzle-orm";
+import { and, asc, desc, gte, inArray, lte, max, sql } from "drizzle-orm";
 
 import { fxRates } from "../../schema";
 import type { Database, Transaction } from "../../scope";
@@ -29,6 +29,37 @@ export function latestRates(
     .from(fxRates)
     .where(and(inArray(fxRates.currency, [...wanted]), lte(fxRates.day, day)))
     .orderBy(fxRates.currency, desc(fxRates.day));
+}
+
+/**
+ * The rates in force over [from, to] for each currency asked: every rate
+ * published in the range, and the last one before it (the range may open
+ * on a weekend), oldest first (R18).
+ */
+export async function ratesBetween(
+  tx: Transaction | Database,
+  currencies: readonly string[],
+  range: { readonly from: string; readonly to: string },
+): Promise<FxRateRow[]> {
+  const wanted = currencies.filter((currency) => currency !== "EUR");
+  if (wanted.length === 0) return [];
+  const before = await latestRates(tx, wanted, range.from);
+  const within = await tx
+    .select({
+      currency: fxRates.currency,
+      day: fxRates.day,
+      perEur: fxRates.perEur,
+    })
+    .from(fxRates)
+    .where(
+      and(
+        inArray(fxRates.currency, [...wanted]),
+        gte(fxRates.day, range.from),
+        lte(fxRates.day, range.to),
+      ),
+    )
+    .orderBy(asc(fxRates.currency), asc(fxRates.day));
+  return [...before.filter((row) => row.day < range.from), ...within];
 }
 
 /** Insert or correct published rates on (currency, day). */

@@ -49,6 +49,7 @@ export type TransactionPatch = Partial<
     | "labelsVersion"
     | "displayName"
     | "note"
+    | "transferDismissed"
     | "deletedAt"
   >
 >;

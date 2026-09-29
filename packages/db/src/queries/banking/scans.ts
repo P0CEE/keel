@@ -1,19 +1,7 @@
 import { sql } from "drizzle-orm";
 
 import type { Database } from "../../scope";
-
-// Both drivers (node-postgres, PGlite) answer a raw statement with `rows`.
-function rowsOf<T>(result: unknown): readonly T[] {
-  if (
-    typeof result === "object" &&
-    result !== null &&
-    "rows" in result &&
-    Array.isArray(result.rows)
-  ) {
-    return result.rows as readonly T[];
-  }
-  throw new Error("A raw statement answered without rows");
-}
+import { rowsOf } from "./rows";
 
 export type DueConnection = {
   readonly householdId: string;
@@ -60,4 +48,20 @@ export async function householdMemberIds(
     ),
   );
   return rows.map((row) => row.keel_household_member_ids);
+}
+
+/**
+ * The households whose day begins at this hour in their own time zone:
+ * `bank.daily-advance` reconciles them, ids only (migration 0013).
+ */
+export async function householdsStartingDay(
+  database: Database,
+  at: Date,
+): Promise<string[]> {
+  const rows = rowsOf<{ readonly keel_households_starting_day: string }>(
+    await database.execute(
+      sql`select keel_households_starting_day(0, ${at.toISOString()}::timestamptz)`,
+    ),
+  );
+  return rows.map((row) => row.keel_households_starting_day);
 }

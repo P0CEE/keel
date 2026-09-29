@@ -1,5 +1,6 @@
 import { type SQL, sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   bigint,
   boolean,
   char,
@@ -36,6 +37,22 @@ export const transactionOrigin = pgEnum("transaction_origin", [
   "provider",
   "csv",
   "manual",
+]);
+
+/**
+ * What a transaction means for the month's money (ADR 0010), decided once
+ * by `@keel/finance/flow` and stored: every aggregate reads this column.
+ */
+export const transactionFlow = pgEnum("transaction_flow", [
+  "income",
+  "expense",
+  "savings_in",
+  "savings_out",
+  "transfer_in",
+  "transfer_out",
+  "internal",
+  "outside",
+  "unclassified",
 ]);
 
 export const transactionMethod = pgEnum("transaction_method", [
@@ -123,6 +140,28 @@ export const transactions = pgTable(
     needsReview: boolean("needs_review").notNull().default(false),
     displayName: text("display_name"),
     note: text("note"),
+    // The household account on the other side of an internal transfer
+    // (ADR 0009), known even when that account has no matching row.
+    counterpartAccountId: uuid("counterpart_account_id").references(
+      () => bankAccounts.id,
+      { onDelete: "set null" },
+    ),
+    // The mirrored leg, when it exists.
+    transferPeerId: uuid("transfer_peer_id").references(
+      (): AnyPgColumn => transactions.id,
+      { onDelete: "set null" },
+    ),
+    // The member said "this is not an internal transfer": recognition
+    // leaves the row alone from then on.
+    transferDismissed: boolean("transfer_dismissed").notNull().default(false),
+    // Written by the reconciliation only; a new row waits as unclassified.
+    flow: transactionFlow("flow").notNull().default("unclassified"),
+    excludedFromBudget: boolean("excluded_from_budget")
+      .notNull()
+      .default(false),
+    excludedFromAnalysis: boolean("excluded_from_analysis")
+      .notNull()
+      .default(false),
     // What the search reads (R2): accents and case dropped, one trigram index.
     searchText: text("search_text").generatedAlwaysAs(
       (): SQL =>
@@ -162,6 +201,13 @@ export const transactions = pgTable(
     index("transactions_review_idx")
       .on(table.householdId)
       .where(sql`${table.needsReview} AND ${table.deletedAt} IS NULL`),
+    // R4: a transfer's detail finds its peer; the peer's deletion unlinks it.
+    index("transactions_peer_idx")
+      .on(table.transferPeerId)
+      .where(sql`${table.transferPeerId} IS NOT NULL`),
+    index("transactions_counterpart_idx")
+      .on(table.counterpartAccountId)
+      .where(sql`${table.counterpartAccountId} IS NOT NULL`),
     index("transactions_mapping_idx")
       .on(table.categoryMappingId)
       .where(sql`${table.categoryMappingId} IS NOT NULL`),

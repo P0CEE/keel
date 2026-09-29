@@ -2,6 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 
 import { bankConnections, institutions } from "../../schema";
 import type { Database, Scope, Transaction } from "../../scope";
+import { rowsOf } from "./rows";
 
 export type Connection = typeof bankConnections.$inferSelect;
 export type NewConnection = typeof bankConnections.$inferInsert;
@@ -121,19 +122,6 @@ export async function deleteConnection(
         eq(bankConnections.householdId, scope.householdId),
       ),
     );
-}
-
-// Both drivers (node-postgres, PGlite) answer a raw statement with `rows`.
-function rowsOf<T>(result: unknown): readonly T[] {
-  if (
-    typeof result === "object" &&
-    result !== null &&
-    "rows" in result &&
-    Array.isArray(result.rows)
-  ) {
-    return result.rows as readonly T[];
-  }
-  throw new Error("A raw statement answered without rows");
 }
 
 type PurgeRow = {
