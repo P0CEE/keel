@@ -1,24 +1,34 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import type { ReactNode } from "react";
 
 import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
-// Geist — self-hosted via next/font. Exposed as `--font-geist-sans`, which
-// `globals.css` wires into the `--font-sans` design token.
-const geist = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Wealthsimple Sans, the app's face (regular, medium, bold), exposed as
+// --font-app, which the Mint tokens read.
+const appFont = localFont({
+  src: [
+    {
+      path: "./fonts/wealthsimple-sans-display-regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/wealthsimple-sans-display-medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/wealthsimple-sans-display-bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-app",
   display: "swap",
-});
-
-// Geist Mono — wired into the `--font-mono` token; used by the clone command.
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
+  fallback: ["-apple-system", "Segoe UI", "Roboto", "sans-serif"],
 });
 
 // Title, description and per-locale metadata are owned by `[locale]/layout.tsx`
@@ -30,15 +40,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geist.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="font-sans antialiased">
+    <html lang="en" className={appFont.variable} suppressHydrationWarning>
+      <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

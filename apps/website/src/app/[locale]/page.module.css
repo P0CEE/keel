@@ -1,0 +1,41 @@
+/* The placeholder landing: one column in the middle of the page. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 0 var(--space-s3);
+  text-align: center;
+}
+
+.mark {
+  width: 62px;
+  height: 48px;
+  color: var(--ink);
+}
+
+.name {
+  margin-top: var(--space-s4);
+  font-size: var(--text-xxlarge);
+  line-height: var(--leading-xxlarge);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  margin-top: var(--space-s1);
+  color: var(--ink-2);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+}
+
+.open {
+  margin-top: var(--space-s4);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

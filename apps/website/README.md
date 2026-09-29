@@ -1,12 +1,13 @@
 # @keel/website
 
-The public landing and marketing site for **keel**, a production-grade monorepo starter.
+The public site for **Ramnn**. For now a placeholder page (the mark, the
+promise, the way into the app) until the real landing is designed.
 
 ## Stack
 
 - Next.js 16 (App Router, React Compiler)
 - `next-international` for i18n
-- Tailwind v4 via the shared `@keel/ui` design system
+- The Mint tokens and reset from `@keel/ui`, CSS Modules
 - SEO-first: `robots.ts`, `sitemap.ts` with hreflang alternates, per-locale metadata
 
 ## Internationalization

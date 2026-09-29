@@ -1,0 +1,41 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  max-width: 672px;
+  margin: 0 auto;
+  padding: 0 var(--space-s3);
+  text-align: center;
+}
+
+.mark {
+  width: 41px;
+  height: 32px;
+  color: var(--ink);
+}
+
+.title {
+  margin-top: var(--space-s4);
+  font-size: var(--text-xlarge);
+  line-height: var(--leading-xlarge);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.description {
+  margin-top: var(--space-s1-50);
+  color: var(--ink-2);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+}
+
+.link {
+  margin-top: var(--space-s4);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

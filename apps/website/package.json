@@ -21,12 +21,10 @@
   },
   "devDependencies": {
     "@keel/tsconfig": "workspace:*",
-    "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
-    "tailwindcss": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import styles from "./not-found.module.css";
 import { RamnnPicto } from "@keel/ui/brand/ramnn";
 
 export const metadata: Metadata = {
@@ -10,18 +11,13 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center px-6 text-center">
-      <RamnnPicto className="text-primary h-8 w-[41px]" title="ramnn" />
-      <h1 className="text-foreground mt-8 text-3xl font-semibold tracking-tight">
-        Page not found
-      </h1>
-      <p className="text-muted-foreground mt-3">
+    <main className={styles.page}>
+      <RamnnPicto className={styles.mark} title="ramnn" />
+      <h1 className={styles.title}>Page not found</h1>
+      <p className={styles.description}>
         The page you are looking for does not exist or has moved.
       </p>
-      <Link
-        href="/"
-        className="bg-primary text-primary-foreground mt-8 rounded-lg px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
-      >
+      <Link href="/" className={styles.link}>
         Back to home
       </Link>
     </main>

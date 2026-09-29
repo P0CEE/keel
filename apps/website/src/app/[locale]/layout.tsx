@@ -6,13 +6,13 @@ import { HtmlLangSync } from "@/components/html-lang-sync";
 import { SITE_URL, type SupportedLocale, urlFor } from "@/lib/seo";
 
 const titles = {
-  en: "keel | Production-grade monorepo starter",
-  fr: "keel | Starter monorepo prêt pour la production",
+  en: "Ramnn",
+  fr: "Ramnn",
 } as const;
 
 const descriptions = {
-  en: "An opinionated TypeScript monorepo: typed APIs, background jobs, auth, and a shared design system, wired together and ready to extend.",
-  fr: "Un monorepo TypeScript opinionné : API typées, tâches de fond, authentification et design system partagé, déjà connectés et prêts à étendre.",
+  en: "The modern way to manage your wealth.",
+  fr: "La façon moderne de gérer votre patrimoine.",
 } as const;
 
 const ogLocales = {
@@ -36,7 +36,7 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(SITE_URL),
     // Plain string: the landing is a single page. Add a `{ template, default }`
-    // here if the site grows sub-pages that should read "<page> | keel".
+    // here if the site grows sub-pages that should read "<page> | Ramnn".
     title,
     description,
     alternates: {
@@ -56,7 +56,7 @@ export async function generateMetadata({
       title,
       description,
       url: urlFor(locale, ""),
-      siteName: "keel",
+      siteName: "Ramnn",
       locale: ogLocales[locale],
       type: "website",
     },

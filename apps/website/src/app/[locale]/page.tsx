@@ -1,9 +1,15 @@
 import { setStaticParamsLocale } from "next-international/server";
 
-import { Hero } from "@/components/hero";
-import { SiteHeader } from "@/components/site-header";
-import { XCredit } from "@/components/x-credit";
+import styles from "./page.module.css";
+import { getScopedI18n } from "@/locales/server";
+import { RamnnPicto } from "@keel/ui/brand/ramnn";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3173";
+
+/**
+ * A placeholder until the real landing: the mark, the name, the promise and
+ * the way into the app.
+ */
 export default async function LandingPage({
   params,
 }: {
@@ -11,14 +17,16 @@ export default async function LandingPage({
 }) {
   const { locale } = await params;
   setStaticParamsLocale(locale);
+  const t = await getScopedI18n("home");
 
   return (
-    <div className="bg-canvas relative flex min-h-[100svh] flex-col overflow-hidden">
-      <SiteHeader />
-      <section className="relative flex flex-1 items-center justify-center px-6 pb-32">
-        <Hero />
-      </section>
-      <XCredit />
-    </div>
+    <main className={styles.page}>
+      <RamnnPicto className={styles.mark} />
+      <h1 className={styles.name}>Ramnn</h1>
+      <p className={styles.tagline}>{t("tagline")}</p>
+      <a href={appUrl} className={styles.open}>
+        {t("openApp")}
+      </a>
+    </main>
   );
 }
