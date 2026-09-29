@@ -1,0 +1,109 @@
+/* mint-pocs' SpendAndSave (src/demos/spend-save/SpendAndSave.tsx), rule for
+   rule: its values, its palette read from the roles in tokens.css. This
+   month is the single-series blue, last month the muted ink. The strokes and
+   dots are the balance chart's, so every line chart of the set draws alike. */
+
+.root {
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+.root :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---- Balance, chart, caption ---- */
+.head {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-s3);
+}
+
+.title {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+.balance {
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* the caption swaps as every rolling value of the set does, both in one
+   grid cell */
+.caption {
+  display: grid;
+  margin: var(--space-s1-50) 0 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.caption > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Chart ---- */
+/* the height is CHART_H in spend-line.ts */
+.chart {
+  position: relative;
+  height: 112px;
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.chart:focus-visible {
+  outline-offset: -2px;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.line.previous {
+  stroke: var(--ink-muted);
+  opacity: 0.6;
+}
+
+.line.current {
+  stroke: var(--category-blue);
+}
+
+.dotFill {
+  fill: var(--category-blue);
+  opacity: 0.75;
+}
+
+.end {
+  fill: var(--category-blue);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.scrubDot {
+  fill: var(--category-blue);
+  stroke: var(--page);
+  stroke-width: 2;
+}
+
+.hairline {
+  stroke: var(--line-heavy);
+  stroke-width: 1;
+}

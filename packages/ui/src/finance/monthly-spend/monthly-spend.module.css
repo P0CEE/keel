@@ -1,0 +1,104 @@
+.root {
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+/* ---- Bars ---- */
+/* The palette sits on the bars, so they paint the same used alone. The blue
+   is Mint's single-series blue, the same value as the categorical blue. */
+.bars {
+  --blue: var(--category-blue);
+  --track-fill: color-mix(in srgb, var(--blue) 7%, var(--page));
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: var(--space-s2);
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-16);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* every bar in a track of the full height: the empty part reads as room
+   left, and the columns keep one size whatever the values */
+.track {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 260px;
+  border-radius: var(--radius-16);
+  background: var(--track-fill);
+  overflow: hidden;
+}
+
+.bar {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-16);
+  overflow: hidden;
+  transform-origin: bottom;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--duration-moderate) var(--ease-enter);
+}
+
+/* pale: the blue mixed into the page, so it follows the appearance */
+.pale {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--blue) 14%, var(--page)),
+    color-mix(in srgb, var(--blue) 24%, var(--page))
+  );
+}
+
+/* solid: lit from the top, the light every chart of the set uses */
+.solid {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--blue), white 18%),
+    var(--blue)
+  );
+  opacity: 0;
+}
+
+.month[data-focus] .solid {
+  opacity: 1;
+}
+
+/* the source's 18px rather than the set's caption: under 25px amounts, the
+   month's name is the column's heading, not a note */
+.label {
+  margin-top: var(--space-s2);
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  color: var(--ink-3);
+}
+
+.amount {
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}

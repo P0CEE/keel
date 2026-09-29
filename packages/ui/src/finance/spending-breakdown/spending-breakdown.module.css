@@ -1,0 +1,301 @@
+/* mint-pocs' Spending breakdown (src/demos/spending-breakdown/
+   SpendingBreakdown.tsx), rule for rule: its palette read from the roles in
+   tokens.css, each slice painted with its categorical role (--slice-color,
+   set per slice from the component). */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+/* ---- Tabs: large bold words heading the gauge, no underline ---- */
+.tabs {
+  align-self: flex-start;
+  margin-bottom: var(--space-s5);
+}
+
+.tabList {
+  display: flex;
+  gap: var(--space-s2-50);
+}
+
+.tab {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+  color: var(--ink-3);
+  transition: color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--ink);
+  }
+}
+
+.tab[aria-selected="true"] {
+  color: var(--ink);
+}
+
+/* ---- Gauge ---- */
+.gauge {
+  position: relative;
+  flex: none;
+  max-width: 100%;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+/* each slice lit from the top: its colour mixed with white, down to it */
+.lit {
+  stop-color: color-mix(in srgb, var(--slice-color), white 18%);
+}
+
+.tint {
+  stop-color: var(--slice-color);
+}
+
+.wedge {
+  cursor: pointer;
+}
+
+.arrow {
+  fill: var(--ink);
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+/* the badge: glass, one even translucent fill over a blur (the slice shows
+   through all of it) and a shadow; no frame, which reads as a white edge on
+   colour */
+.badge {
+  position: absolute;
+  z-index: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: var(--radius-12);
+  background: var(--glass-badge);
+  backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow:
+    inset 0 0 0 1px var(--dock-edge),
+    var(--shadow-dock);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.badgeIcon {
+  display: grid;
+  place-items: center;
+  color: var(--slice-color);
+}
+
+.badgeShare {
+  display: inline-grid;
+}
+
+.badgeShare > span {
+  grid-area: 1 / 1;
+}
+
+.middle {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  display: grid;
+  text-align: center;
+  pointer-events: none;
+}
+
+.middleStack {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.amount {
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  margin-top: 2px;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+/* ---- List ---- */
+.list {
+  align-self: stretch;
+  margin: var(--space-s5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* the row's content sits on the column, its tint 12px out on either side; the
+   line under a row runs under the content only, and fades beside the tinted
+   row */
+.list li {
+  position: relative;
+  margin: 0 calc(-1 * var(--space-s1-50));
+}
+
+.list li::after {
+  content: "";
+  position: absolute;
+  left: var(--space-s1-50);
+  right: var(--space-s1-50);
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+  transition: opacity var(--duration-fast) ease;
+}
+
+.list li:has(.row[data-active])::after,
+.list li:has(+ li .row[data-active])::after {
+  opacity: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s2);
+  width: 100%;
+  padding: var(--space-s2) var(--space-s1-50);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+  transition: background-color var(--duration-fast) ease;
+}
+
+.row[data-active] {
+  background: var(--hover);
+}
+
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-12);
+  color: var(--slice-color);
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.monogram {
+  font-size: var(--text-small);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+}
+
+.badgeIcon .monogram {
+  font-size: var(--text-xsmall);
+}
+
+.rowText,
+.rowFigures {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rowText {
+  flex: 1;
+}
+
+.rowFigures {
+  align-items: flex-end;
+}
+
+.rowName {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowAmount {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.rowMeta {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.all {
+  align-self: flex-start;
+  margin-top: var(--space-s1-50);
+  height: 32px;
+  padding: 0 var(--space-s1);
+  border: 0;
+  border-radius: var(--radius-8);
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-instant) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .all:hover {
+    background: var(--hover);
+  }
+}
+
+.all:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .all:active {
+    transform: none;
+  }
+}

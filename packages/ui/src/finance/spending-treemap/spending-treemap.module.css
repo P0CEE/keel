@@ -1,0 +1,178 @@
+/* The Spending treemap demo's stylesheet, measured on the app's capture (at
+   2x): tiles 3px apart with an 8px radius, the name 12/16 medium in white 8px
+   in from the left and the bottom; the total 40/48 bold over "Spent in" 14/20
+   bold ink-3, 16px above the map; the average 12/16 bold ink-3 after a 12px
+   dot, over its figure 16/22 bold, the pair centred on the total's block. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+/* ---- Header: the total, the average ---- */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s2);
+}
+
+.total,
+.average {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.average {
+  flex: none;
+  align-items: flex-end;
+}
+
+/* a value swapped in place: the leaving and the arriving one share one cell */
+.swap {
+  display: grid;
+}
+
+.swap > * {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.average .swap > * {
+  justify-self: end;
+}
+
+.figure {
+  font-size: var(--text-xxlarge);
+  line-height: var(--leading-xxlarge);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-bold);
+  color: var(--ink-3);
+}
+
+.label > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.averageLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s0-75);
+  color: var(--ink-3);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-bold);
+}
+
+/* the pill fill at rest, the chosen category's colour: whose average it is */
+.dot {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--dot-color, var(--pill));
+  transition: background-color var(--duration-moderate) var(--ease-standard);
+}
+
+.averageFigure {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Map ---- */
+.map {
+  position: relative;
+  min-height: 240px;
+}
+
+/* lit from the top, the light every chart of the set uses */
+.tile {
+  position: absolute;
+  display: flex;
+  align-items: flex-end;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-8);
+  overflow: hidden;
+  background: linear-gradient(
+    color-mix(in srgb, var(--tile-color), white 18%),
+    var(--tile-color)
+  );
+  color: var(--on-accent);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition:
+    opacity var(--duration-moderate) var(--ease-standard),
+    transform var(--duration-instant) ease;
+  animation: tileIn 400ms var(--ease-enter) var(--tile-delay) backwards;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* reduced motion: the tiles only fade in */
+@keyframes tileFade {
+  from {
+    opacity: 0;
+  }
+}
+
+.tile[data-state="dim"] {
+  opacity: 0.4;
+}
+
+.tile:active {
+  transform: scale(0.98);
+}
+
+.tile:focus-visible {
+  outline-offset: -2px;
+}
+
+/* one line, or two where the tile is tall enough; an ellipsis past them */
+.name {
+  --lines: 1;
+  min-width: 0;
+  margin: 0 var(--space-s1) var(--space-s1);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--lines);
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-medium);
+}
+
+.name[data-lines="2"] {
+  --lines: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    animation-name: tileFade;
+  }
+
+  .tile:active {
+    transform: none;
+  }
+}

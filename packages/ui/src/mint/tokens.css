@@ -272,6 +272,10 @@
     light-dark(#ffffff, rgba(255, 255, 255, 0.25)) 100%
   );
   --shadow-glass: 0 9px 32px light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.2));
+  /* the set's glass badge (the calendar's Today pill, the spending gauge's
+     share): white in light, black in dark, dense enough that a figure reads
+     over a coloured wedge, where --glass would let the colour through */
+  --glass-badge: light-dark(rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.6));
 
   /* ---- The account card: a material, drawn the same in both appearances
      ---- */
