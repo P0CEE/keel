@@ -5,12 +5,17 @@ import { useEffect } from "react";
 import { useHousehold, useSettings } from "./queries";
 import { useAccountsOverview } from "@/components/accounts/queries";
 import { useReviewCount, useTaxonomy } from "@/components/categories/queries";
+import {
+  useRecurringList,
+  useRecurringOutlook,
+} from "@/components/recurring/queries";
 import { useChangeLocale, useCurrentLocale } from "@/locales/client";
 
 /**
  * Mounted by the signed-in layout: primes the household, the member's
- * settings and the accounts overview, so Settings, Household and Accounts
- * open from the cache with no loading state. The stored language wins over the browser's: on a new device the
+ * settings, the accounts overview and the recurring series with their
+ * outlook, so Settings, Household, Accounts, Recurring and the dock open
+ * from the cache with no loading state. The stored language wins over the browser's: on a new device the
  * app starts in the Accept-Language guess, then switches once the settings
  * are known. Renders nothing.
  */
@@ -19,6 +24,8 @@ export function MemberData() {
   useAccountsOverview();
   useTaxonomy();
   useReviewCount();
+  useRecurringList();
+  useRecurringOutlook();
   const { data } = useSettings();
   const current = useCurrentLocale();
   const changeLocale = useChangeLocale();

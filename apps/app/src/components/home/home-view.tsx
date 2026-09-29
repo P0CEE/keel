@@ -9,13 +9,14 @@ import {
   SpendLineBlock,
   TreemapBlock,
 } from "./spending-blocks";
+import { UpcomingBlock } from "./upcoming-block";
 
 /**
  * Home: net worth and what is left this month, the cash flow, the month's
- * spending three ways, the months' spending, the latest transactions. Each
- * block reads its own figures (`insights.*`), so the layout can move
- * without touching them; this arrangement is a placeholder until the
- * pages are redesigned.
+ * spending three ways, the months' spending, the latest transactions and
+ * the dues ahead. Each block reads its own figures (`insights.*`,
+ * `recurring.*`), so the layout can move without touching them; this
+ * arrangement is a placeholder until the pages are redesigned.
  */
 export function HomeView() {
   return (
@@ -43,6 +44,7 @@ export function HomeView() {
 
       <aside className={styles.aside}>
         <LatestTransactions />
+        <UpcomingBlock />
       </aside>
     </div>
   );

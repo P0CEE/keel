@@ -16,6 +16,10 @@ import { EditStep, NoteStep, RenameStep } from "./transaction-steps";
 import styles from "./transactions.module.css";
 import { TransferFact } from "./transfer-fact";
 import type { TransactionView } from "./types";
+import {
+  RecurrenceFact,
+  TrackStep,
+} from "@/components/recurring/recurrence-fact";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/client";
 import { formatDayLabel } from "@keel/finance/dates";
@@ -32,7 +36,7 @@ import {
 } from "@keel/ui/mint/sheet";
 import { useToasts } from "@keel/ui/mint/toast";
 
-type Mode = "view" | "rename" | "note" | "edit" | "category";
+type Mode = "view" | "rename" | "note" | "edit" | "category" | "recurring";
 
 // A key typed into a field is the field's, not the sheet's.
 function typing(target: EventTarget | null): boolean {
@@ -139,6 +143,8 @@ export function TransactionSheet({
             if (offered !== null) setPrompt({ id: item.id, prompt: offered });
           }}
         />
+      ) : mode === "recurring" ? (
+        <TrackStep item={item} onDone={() => setMode("view")} />
       ) : mode === "rename" ? (
         <RenameStep item={item} onDone={() => setMode("view")} />
       ) : mode === "note" ? (
@@ -283,6 +289,7 @@ function Details({
             <Row term={t("method")}>{t(`methods.${item.method}`)}</Row>
           )}
           <TransferFact item={item} />
+          <RecurrenceFact item={item} onTrack={() => onMode("recurring")} />
           <Row term={t("origin")}>{t(`origins.${item.origin}`)}</Row>
           {item.note === null ? null : <Row term={t("note")}>{item.note}</Row>}
         </dl>

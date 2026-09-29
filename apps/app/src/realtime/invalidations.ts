@@ -30,7 +30,10 @@ export const invalidations = {
     trpc.accounts.overview.queryKey(),
     trpc.connections.offer.queryKey({ connectionId }),
   ],
-  "accounts.changed": (_payload, trpc) => [trpc.accounts.overview.queryKey()],
+  "accounts.changed": (_payload, trpc) => [
+    trpc.accounts.overview.queryKey(),
+    trpc.recurring.outlook.queryKey(),
+  ],
   // The run's own state is kept by `sync-status`; its end moves the
   // connection's last sync.
   "sync.progress": ({ phase }, trpc) =>
@@ -56,9 +59,18 @@ export const invalidations = {
     trpc.mappings.list.queryKey(),
     trpc.insights.pathKey(),
   ],
+  // Series found, refitted, advanced or changed by a member: the series,
+  // their dues and calendar, and the rows marked as members.
+  "recurring.changed": (_payload, trpc) => [
+    trpc.recurring.pathKey(),
+    trpc.transactions.page.pathKey(),
+    trpc.transactions.get.pathKey(),
+  ],
   // Flows, transfer links and manual balances moved: the figures, the rows
-  // that show a transfer, the accounts and their curves.
+  // that show a transfer, the accounts and their curves, and the balance
+  // the series project from.
   "household.reconciled": ({ accountIds }, trpc) => [
+    trpc.recurring.outlook.queryKey(),
     trpc.insights.pathKey(),
     trpc.transactions.page.pathKey(),
     trpc.transactions.get.pathKey(),

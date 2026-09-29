@@ -1,4 +1,9 @@
-import { AccountsIcon, ActivityIcon, HomeIcon } from "@keel/ui/mint/icons";
+import {
+  AccountsIcon,
+  ActivityIcon,
+  CalendarIcon,
+  HomeIcon,
+} from "@keel/ui/mint/icons";
 import type { NavItem } from "@keel/ui/mint/nav";
 
 export type NavigationLabels = {
@@ -8,13 +13,14 @@ export type NavigationLabels = {
   readonly accountsHint: string;
   readonly transactions: string;
   readonly transactionsHint: string;
+  readonly recurring: string;
+  readonly recurringHint: string;
 };
 
 /**
  * The pages the rail lists, with Mint's icons and their filled twins for the
  * current page, as mint-pocs' Sidebar draws them (20px; the phone tab bar
- * asks for 24). Budgets, recurring series and analysis join the list with
- * their features.
+ * asks for 24). Budgets and analysis join the list with their features.
  */
 export function navigation(labels: NavigationLabels, iconSize = 20): NavItem[] {
   return [
@@ -45,6 +51,16 @@ export function navigation(labels: NavigationLabels, iconSize = 20): NavItem[] {
       icon: <ActivityIcon size={iconSize} />,
       activeIcon: <ActivityIcon size={iconSize} filled />,
       shortcut: "y",
+      match: "prefix",
+    },
+    {
+      id: "recurring",
+      href: "/recurring",
+      label: labels.recurring,
+      hint: labels.recurringHint,
+      icon: <CalendarIcon size={iconSize} />,
+      activeIcon: <CalendarIcon size={iconSize} filled />,
+      shortcut: "r",
       match: "prefix",
     },
   ];

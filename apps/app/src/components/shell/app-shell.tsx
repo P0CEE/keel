@@ -123,6 +123,8 @@ export function AppShell({
       accountsHint: t("accounts_hint"),
       transactions: t("transactions"),
       transactionsHint: t("transactions_hint"),
+      recurring: t("recurring"),
+      recurringHint: t("recurring_hint"),
     };
     return [navigation(labels), navigation(labels, 24)];
   }, [t]);

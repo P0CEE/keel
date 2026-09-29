@@ -86,6 +86,9 @@
 }
 
 .aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s3);
   min-width: 0;
 }
 

@@ -1,0 +1,444 @@
+/* Recurring: the home's grid, a main column and the side panel beside it. */
+.page {
+  display: grid;
+  gap: var(--space-s5);
+}
+
+@media (min-width: 1180px) {
+  .page {
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+    column-gap: 64px;
+    align-items: start;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s5);
+  min-width: 0;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s3);
+  min-width: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+  min-width: 0;
+}
+
+/* The month's two figures, as the home's header sets its total: the label,
+   the total at 40 / 48, then what it is made of. Side by side once there
+   is room. */
+.heroPair {
+  display: grid;
+  gap: var(--space-s3);
+}
+
+@media (min-width: 720px) {
+  .heroPair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+}
+
+.total {
+  color: var(--ink);
+  font-size: var(--text-xxlarge);
+  line-height: var(--leading-xxlarge);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.total[data-direction="in"] {
+  color: var(--positive);
+}
+
+.split {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.help {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+}
+
+/* A group's heading: its kind, then its monthly weight at the right. */
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s2);
+  padding-bottom: var(--space-s0-50);
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+
+.groupTotal {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rows as the accounts list draws them: the mark, the name and its line,
+   the amount; a hairline between two rows, gone under the hover. */
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+}
+
+.item + .item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  transition: opacity var(--duration-fast) ease;
+}
+
+.row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-s1-50);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-s1) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(-1 * var(--space-s1));
+  z-index: -1;
+  border-radius: var(--radius-12);
+  background: var(--hover);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .row:hover::before {
+    opacity: 1;
+  }
+  .item:has(.row:hover)::before,
+  .item:has(.row:hover) + .item::before {
+    opacity: 0;
+  }
+}
+
+.row:active::before {
+  opacity: 1;
+  background: var(--pill);
+}
+
+.row:focus-visible {
+  outline: none;
+}
+
+.row:focus-visible::before {
+  opacity: 1;
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-50);
+  min-width: 0;
+}
+
+.name,
+.meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: var(--weight-medium);
+}
+
+.meta {
+  color: var(--ink-3);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.meta[data-tone="negative"] {
+  color: var(--negative);
+}
+
+.end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-s0-50);
+}
+
+.amount {
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* an ended series reads quieter */
+.row[data-ended] .name,
+.row[data-ended] .amount {
+  color: var(--ink-3);
+}
+
+/* The side panel of dues: the home's white card, its list inside. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  padding: var(--space-s3);
+  border-radius: var(--radius-24);
+  background: var(--panel);
+}
+
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s2);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+
+.seeAll {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+
+.seeAll:hover {
+  color: var(--ink);
+}
+
+.seeAll:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: var(--radius-4);
+}
+
+.empty {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+/* The suggestions: mint-pocs' cards-inset composition. The card's column
+   is the demo's (8px apart), its title the demo's 18 / 28 bold. */
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+  text-wrap: balance;
+}
+
+.cardText {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+/* the button inside the well, 12px under the card */
+.buttonRow {
+  display: flex;
+  padding-top: var(--space-s1-50);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-s2);
+  max-width: 560px;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-semibold);
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+/* The series' sheet, as the transaction's: the mark, the name, the amount,
+   the notices, the facts, then its occurrences. */
+.sheetHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-s2);
+}
+
+.sheetName {
+  margin: var(--space-s1-50) 0 0;
+  font-size: var(--text-medium);
+  line-height: var(--leading-medium);
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.sheetAmount {
+  display: block;
+  margin-top: var(--space-s0-50);
+  font-size: var(--text-xlarge);
+  line-height: var(--leading-xlarge);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+  margin-top: var(--space-s1);
+}
+
+.notices:empty {
+  display: none;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  margin: var(--space-s2) 0 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: center;
+  gap: var(--space-s2);
+  padding-block: var(--space-s1);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.term {
+  color: var(--ink-2);
+}
+
+.value {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.members {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+  margin-top: var(--space-s3);
+}
+
+.membersTitle {
+  margin: 0;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  padding-bottom: var(--space-s1);
+}
+
+/* Tracking a row: the rhythm's label, the cycle input at its right. */
+.trackField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s2);
+  padding-block: var(--space-s2);
+}
+
+/* The schedule fills its frame, as mint-pocs' earnings calendar fills the
+   demo's 720px one: its six rows share that height. Its phone layout sizes
+   itself. */
+.schedule {
+  height: 720px;
+}
+
+.schedule:has(> [data-compact]) {
+  height: auto;
+}
