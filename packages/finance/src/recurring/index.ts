@@ -7,5 +7,6 @@ export * from "./attach";
 export * from "./calendar";
 export * from "./discover";
 export * from "./fit";
+export * from "./payday";
 export * from "./project";
 export * from "./series";

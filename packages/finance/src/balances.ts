@@ -91,3 +91,92 @@ export function manualMoves(
       : [];
   });
 }
+
+/** One account's balances, oldest first, in its own currency. */
+export type AccountHistory = {
+  readonly currency: string;
+  readonly points: readonly { readonly day: Day; readonly minor: number }[];
+};
+
+/** What a day's accounts held together, per currency. */
+export type DayTotals = {
+  readonly day: Day;
+  readonly totals: readonly {
+    readonly currency: string;
+    readonly minor: number;
+  }[];
+};
+
+/**
+ * Several accounts' histories summed day by day, per currency, from the
+ * first day any of them knows to `to`. An account counts its first balance
+ * on the days before its history starts (a manual account declared today
+ * held it before) and its last on the days after it stops, so an account
+ * joining the view never draws a jump that did not happen.
+ */
+export function combineHistories(
+  histories: readonly AccountHistory[],
+  to: Day,
+): DayTotals[] {
+  const known = histories.filter((history) => history.points.length > 0);
+  const from = known
+    .map((history) => history.points[0]?.day ?? to)
+    .reduce<Day | null>(
+      (first, day) => (first === null || day < first ? day : first),
+      null,
+    );
+  if (from === null || from > to) return [];
+  const days = Array.from({ length: daysBetween(from, to) + 1 }, (_, index) =>
+    addDays(from, index),
+  );
+  // Each account's balance on every day, carried back and forward.
+  const columns = known.map((history) => {
+    const byDay = new Map(
+      history.points.map((point) => [point.day, point.minor]),
+    );
+    let held = history.points[0]?.minor ?? 0;
+    return {
+      currency: history.currency,
+      values: days.map((day) => {
+        held = byDay.get(day) ?? held;
+        return held;
+      }),
+    };
+  });
+  const currencies = [...new Set(columns.map((column) => column.currency))];
+  return days.map((day, index) => ({
+    day,
+    totals: currencies.map((currency) => ({
+      currency,
+      minor: columns
+        .filter((column) => column.currency === currency)
+        .reduce((sum, column) => sum + (column.values[index] ?? 0), 0),
+    })),
+  }));
+}
+
+/**
+ * The ranges a balance curve offers, as Wealthsimple's pills: a week, a
+ * month, three months, the year to date, a year, and all the history.
+ */
+export const BALANCE_RANGES = ["1W", "1M", "3M", "YTD", "1Y", "ALL"] as const;
+
+export type BalanceRange = (typeof BALANCE_RANGES)[number];
+
+/** The first day of a range ending on `today` (ALL: before any history). */
+export function rangeStart(range: BalanceRange, today: Day): Day {
+  switch (range) {
+    case "1W":
+      return addDays(today, -7);
+    case "1M":
+      return addDays(today, -30);
+    case "3M":
+      return addDays(today, -91);
+    case "YTD":
+      return `${today.slice(0, 4)}-01-01`;
+    case "1Y":
+      return addDays(today, -365);
+    case "ALL":
+      return "1970-01-01";
+  }
+}

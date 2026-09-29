@@ -15,6 +15,7 @@
     "./dictionaries": "./src/dictionaries.ts",
     "./flow": "./src/flow.ts",
     "./fx": "./src/fx.ts",
+    "./home": "./src/home.ts",
     "./labels": "./src/labels.ts",
     "./money": "./src/money.ts",
     "./recurring": "./src/recurring/index.ts",
