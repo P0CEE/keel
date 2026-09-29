@@ -14,6 +14,7 @@ import {
 } from "./transaction-category";
 import { EditStep, NoteStep, RenameStep } from "./transaction-steps";
 import styles from "./transactions.module.css";
+import { TransferFact } from "./transfer-fact";
 import type { TransactionView } from "./types";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/client";
@@ -281,6 +282,7 @@ function Details({
           {item.origin === "manual" ? null : (
             <Row term={t("method")}>{t(`methods.${item.method}`)}</Row>
           )}
+          <TransferFact item={item} />
           <Row term={t("origin")}>{t(`origins.${item.origin}`)}</Row>
           {item.note === null ? null : <Row term={t("note")}>{item.note}</Row>}
         </dl>

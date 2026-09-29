@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { BulkCategorize } from "./bulk-categorize";
 import { EntrySheet } from "./entry-sheet";
+import { useListItem } from "./list-item";
 import { loadedTransactions } from "./page-patch";
 import { usePrefetchTransactions, useTransactions } from "./queries";
 import { type FilterAccount, TransactionFilters } from "./transaction-filters";
@@ -12,12 +13,7 @@ import styles from "./transactions.module.css";
 import type { TransactionView } from "./types";
 import { useTransactionsUrl } from "./use-transactions-url";
 import { useAccountsOverview } from "@/components/accounts/queries";
-import { LeafGlyph } from "@/components/categories/category-picker";
-import { useTaxonomy } from "@/components/categories/queries";
-import { leafOf } from "@/components/categories/taxonomy";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
-import { apiUrl } from "@/trpc/client";
-import { accountDisplayName } from "@keel/finance/accounts";
 import {
   EMPTY_TRANSACTION_FILTER,
   isEmptyTransactionFilter,
@@ -43,7 +39,7 @@ export function TransactionsView() {
   const kinds = useScopedI18n("accounts.kind");
   const appLocale = useCurrentLocale();
   const locale = appLocale === "fr" ? "fr-FR" : "en-US";
-  const taxonomy = useTaxonomy();
+  const toListItem = useListItem();
   // Bulk selection: off until asked for, so a tap on a row opens it.
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
@@ -86,24 +82,7 @@ export function TransactionsView() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const rows: readonly TransactionListItem[] = items.map((item) => {
-    const leaf = leafOf(taxonomy.byId, item.categoryId, appLocale);
-    return {
-      id: item.id,
-      label: item.name,
-      day: item.purchasedOn,
-      amountMinor: item.amount.minor,
-      currency: item.amount.currency,
-      accountLabel:
-        item.accountName ??
-        accountDisplayName(null, null, kinds(item.accountKind)),
-      category:
-        leaf === null
-          ? null
-          : { label: leaf.name, icon: <LeafGlyph icon={leaf.icon} /> },
-      logoUrl: item.logoUrl === null ? null : `${apiUrl}${item.logoUrl}`,
-    };
-  });
+  const rows: readonly TransactionListItem[] = items.map(toListItem);
   const toggle = (id: string) =>
     setSelected((current) =>
       current.has(id)

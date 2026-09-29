@@ -1,0 +1,41 @@
+"use client";
+
+import type { TransactionView } from "./types";
+import { LeafGlyph } from "@/components/categories/category-picker";
+import { useCategoryDisplay } from "@/components/categories/queries";
+import { useScopedI18n } from "@/locales/client";
+import { apiUrl } from "@/trpc/client";
+import { accountDisplayName } from "@keel/finance/accounts";
+import type { TransactionListItem } from "@keel/ui/finance/transaction-list";
+
+/**
+ * How a transaction reads in a list, wherever the list is (the page, the
+ * home): its name, its leaf's glyph, its account, its logo, and whether it
+ * is money between the household's own accounts (ADR 0009).
+ */
+export function useListItem(): (item: TransactionView) => TransactionListItem {
+  const kinds = useScopedI18n("accounts.kind");
+  const display = useCategoryDisplay();
+  return (item) => {
+    const category = display(item.categoryId);
+    return {
+      id: item.id,
+      label: item.name,
+      day: item.purchasedOn,
+      amountMinor: item.amount.minor,
+      currency: item.amount.currency,
+      accountLabel:
+        item.accountName ??
+        accountDisplayName(null, null, kinds(item.accountKind)),
+      category:
+        category === null
+          ? null
+          : {
+              label: category.name,
+              icon: <LeafGlyph display={category} colored={false} />,
+            },
+      logoUrl: item.logoUrl === null ? null : `${apiUrl}${item.logoUrl}`,
+      transfer: item.counterpartAccountId !== null,
+    };
+  };
+}

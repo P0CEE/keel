@@ -36,18 +36,11 @@
 
 /* the total, as Mint sets it: 40 / 48, semibold, tabular figures */
 .balance {
-  align-self: flex-start;
-  padding: 0;
-  border: 0;
-  background: none;
   color: var(--ink);
-  font: inherit;
   font-size: var(--text-xxlarge);
   line-height: var(--leading-xxlarge);
   font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
-  text-align: left;
-  cursor: pointer;
 }
 
 .changeRow {
@@ -62,6 +55,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* a month that spent more than came in */
+.change[data-direction="out"] {
+  color: var(--negative);
+}
+
 .period {
   font-size: var(--text-small);
   line-height: var(--leading-small);
@@ -74,17 +72,17 @@
   gap: var(--space-s1-50);
 }
 
-.sectionTitle {
-  margin: 0;
-  font-size: var(--text-default);
-  line-height: var(--leading-default);
-  font-weight: var(--weight-bold);
+/* two blocks side by side once there is room: the breakdown and the
+   treemap read the same month */
+.pair {
+  display: grid;
+  gap: var(--space-s5);
 }
 
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-s1);
+@media (min-width: 900px) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
 }
 
 .aside {
@@ -102,6 +100,35 @@
   padding: var(--space-s3);
   border-radius: var(--radius-24);
   background: var(--panel);
+}
+
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s2);
+}
+
+.seeAll {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+
+.seeAll:hover {
+  color: var(--ink);
+}
+
+.empty {
+  color: var(--ink-3);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
 }
 
 .panelTitle {

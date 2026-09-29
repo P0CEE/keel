@@ -153,6 +153,31 @@ function optimisticEdit(
   };
 }
 
+/**
+ * "Not an internal transfer", or its undo: the link drops at once; the
+ * reconciliation then gives the row its flow and says so (realtime).
+ */
+export function useDismissTransfer() {
+  const trpc = useTRPC();
+  const pages = usePagesPatch();
+  return useMutation(
+    trpc.transactions.dismissTransfer.mutationOptions({
+      onMutate: (vars) =>
+        pages.apply((data) =>
+          withTransaction(data, vars.id, (item) => ({
+            ...item,
+            transferDismissed: vars.dismissed,
+            ...(vars.dismissed
+              ? { counterpartAccountId: null, transferPeerId: null }
+              : {}),
+          })),
+        ),
+      onError: (_error, _vars, snapshot) => pages.restore(snapshot),
+      onSettled: () => pages.refetch(),
+    }),
+  );
+}
+
 /** Delete at once from every list; `useRestoreTransaction` is the undo. */
 export function useDeleteTransaction() {
   const trpc = useTRPC();

@@ -38,24 +38,35 @@ export const invalidations = {
       ? [trpc.accounts.overview.queryKey()]
       : [],
   // Every cached page of every filter: a row may enter or leave any of them.
+  // The figures move with any row: its amount, its category, its flow.
   "transactions.changed": (_payload, trpc) => [
     trpc.transactions.page.pathKey(),
     trpc.transactions.get.pathKey(),
     trpc.transactions.review.queryKey(),
+    trpc.insights.pathKey(),
   ],
   "transactions.categorized": (_payload, trpc) => [
     trpc.transactions.page.pathKey(),
     trpc.transactions.get.pathKey(),
     trpc.transactions.review.queryKey(),
+    trpc.insights.pathKey(),
   ],
   "categories.changed": (_payload, trpc) => [
     trpc.categories.list.queryKey(),
     trpc.mappings.list.queryKey(),
+    trpc.insights.pathKey(),
   ],
-  "household.reconciled": ({ accountIds }, trpc) =>
-    accountIds.map((accountId) =>
+  // Flows, transfer links and manual balances moved: the figures, the rows
+  // that show a transfer, the accounts and their curves.
+  "household.reconciled": ({ accountIds }, trpc) => [
+    trpc.insights.pathKey(),
+    trpc.transactions.page.pathKey(),
+    trpc.transactions.get.pathKey(),
+    trpc.accounts.overview.queryKey(),
+    ...accountIds.map((accountId) =>
       trpc.accounts.balanceHistory.queryKey({ accountId }),
     ),
+  ],
 } satisfies InvalidationTable<AppEvents, TRPCKeys>;
 
 type TRPCKeys = TRPCOptionsProxy<AppRouter>;

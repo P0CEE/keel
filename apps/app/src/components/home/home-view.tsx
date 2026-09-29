@@ -1,229 +1,48 @@
 "use client";
 
-import { useState } from "react";
-
+import { CashFlowBlock, MonthlySpendBlock } from "./cash-flow-block";
 import styles from "./home-view.module.css";
-import { useCurrentLocale, useScopedI18n } from "@/locales/client";
-import { addDays, todayIn } from "@keel/finance/dates";
-import { AnimatedAmount } from "@keel/ui/finance/animated-amount";
-import { CashFlow } from "@keel/ui/finance/cash-flow";
+import { LatestTransactions } from "./latest-transactions";
+import { NetWorthHero } from "./net-worth-hero";
 import {
-  CategoryGlyph,
-  type CategoryGlyphName,
-} from "@keel/ui/finance/category-glyphs";
-import { CategoryTag } from "@keel/ui/finance/category-tag";
-import {
-  TransactionList,
-  type TransactionListItem,
-} from "@keel/ui/finance/transaction-list";
-
-// Sample data for looking at the foundation, and only here: no feature reads it.
-const glyph = (name: CategoryGlyphName) => <CategoryGlyph name={name} />;
-const CATEGORIES: { label: string; icon: React.ReactNode }[] = [
-  { label: "Logement", icon: glyph("housing") },
-  { label: "Alimentation", icon: glyph("dining") },
-  { label: "Loisirs", icon: glyph("entertainment") },
-  { label: "Transports", icon: glyph("transport") },
-  { label: "Shopping", icon: glyph("shopping") },
-  { label: "Santé", icon: glyph("health") },
-  { label: "Revenus", icon: glyph("income") },
-];
-
-// mint-pocs' balance move: a few hundred euros either way (whole euros, so
-// only the integer digits roll), bounced back inside a band so the number
-// keeps its five integer digits and its width.
-function nextBalance(current: number): number {
-  const step = (1 + Math.floor(Math.random() * 999)) * 100;
-  const signed = Math.random() < 0.5 ? -step : step;
-  const next = current + signed;
-  return next < 1_040_000 || next > 1_940_000 ? current - signed : next;
-}
-
-function category(label: string) {
-  return CATEGORIES.find((entry) => entry.label === label) ?? null;
-}
-
-function sampleTransactions(today: string): TransactionListItem[] {
-  return [
-    {
-      id: "1",
-      label: "Monoprix",
-      day: today,
-      amountMinor: -2_418,
-      currency: "EUR",
-      accountLabel: "Compte courant",
-      category: category("Alimentation"),
-      status: "pending",
-    },
-    {
-      id: "1b",
-      label: "Uber",
-      day: today,
-      amountMinor: -1_850,
-      currency: "EUR",
-      accountLabel: "Carte ··· 4821",
-      category: category("Transports"),
-      status: "declined",
-    },
-    {
-      id: "2",
-      label: "Salaire",
-      day: today,
-      amountMinor: 284_500,
-      currency: "EUR",
-      accountLabel: "Compte courant",
-      category: category("Revenus"),
-      recurrence: "Mensuel",
-    },
-    {
-      id: "3",
-      label: "Navigo",
-      day: addDays(today, -1),
-      amountMinor: -8_880,
-      currency: "EUR",
-      accountLabel: "Compte courant",
-      category: category("Transports"),
-      recurrence: "Mensuel",
-    },
-    {
-      id: "4",
-      label: "Boulangerie du Marché",
-      day: addDays(today, -1),
-      amountMinor: -640,
-      currency: "EUR",
-      accountLabel: "Carte ··· 4821",
-      category: null,
-    },
-    {
-      id: "5",
-      label: "Virement vers Livret A",
-      day: addDays(today, -1),
-      amountMinor: -30_000,
-      currency: "EUR",
-      accountLabel: "Compte courant",
-      category: { label: "Virement", icon: glyph("transfer") },
-      transfer: true,
-    },
-    {
-      id: "6",
-      label: "Loyer",
-      day: addDays(today, -4),
-      amountMinor: -98_000,
-      currency: "EUR",
-      accountLabel: "Compte courant",
-      category: category("Logement"),
-      recurrence: "Mensuel",
-    },
-    {
-      id: "7",
-      label: "Pharmacie Lafayette",
-      day: addDays(today, -4),
-      amountMinor: -1_290,
-      currency: "EUR",
-      accountLabel: "Carte ··· 4821",
-      category: category("Santé"),
-    },
-    {
-      id: "8",
-      label: "Remboursement Fnac",
-      day: addDays(today, -4),
-      amountMinor: 4_999,
-      currency: "EUR",
-      accountLabel: "Carte ··· 4821",
-      category: category("Shopping"),
-    },
-  ];
-}
-
-const FLOWS = [
-  { month: "2026-07-01", inMinor: 291_240, outMinor: 268_095 },
-  { month: "2026-08-01", inMinor: 290_512, outMinor: 312_044 },
-  { month: "2026-09-01", inMinor: 289_450, outMinor: 243_600 },
-];
+  BreakdownBlock,
+  SpendLineBlock,
+  TreemapBlock,
+} from "./spending-blocks";
 
 /**
- * Home: the balance, the month's cash flow, the categories and the latest
- * transactions. Sample data until the banking read models exist.
+ * Home: net worth and what is left this month, the cash flow, the month's
+ * spending three ways, the months' spending, the latest transactions. Each
+ * block reads its own figures (`insights.*`), so the layout can move
+ * without touching them; this arrangement is a placeholder until the
+ * pages are redesigned.
  */
 export function HomeView() {
-  const t = useScopedI18n("home");
-  const locale = useCurrentLocale() === "fr" ? "fr-FR" : "en-US";
-  const [today] = useState(() => todayIn("Europe/Paris"));
-  const [balance, setBalance] = useState(1_284_732);
-
   return (
     <div className={styles.page}>
       <div className={styles.main}>
-        <section className={styles.hero}>
-          <span className={styles.label}>{t("balance")}</span>
-          <button
-            type="button"
-            className={styles.balance}
-            aria-label={t("reroll")}
-            onClick={() => setBalance(nextBalance)}
-          >
-            <AnimatedAmount minor={balance} currency="EUR" locale={locale} />
-          </button>
-          <span className={styles.changeRow}>
-            <span className={styles.change}>
-              <AnimatedAmount
-                minor={45_850}
-                currency="EUR"
-                locale={locale}
-                sign="always"
-              />
-            </span>
-            <span className={styles.period}>{t("this_month")}</span>
-          </span>
-        </section>
-
+        <NetWorthHero />
         <section className={styles.section}>
-          <CashFlow
-            months={FLOWS}
-            currency="EUR"
-            locale={locale}
-            labels={{
-              name: t("cash_flow_name"),
-              title: t("cash_flow"),
-              moneyIn: t("money_in"),
-              moneyOut: t("money_out"),
-              chart: t("cash_flow_chart"),
-            }}
-          />
+          <CashFlowBlock />
         </section>
-
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t("categories")}</h2>
-          <div className={styles.tags}>
-            {CATEGORIES.map((entry) => (
-              <CategoryTag
-                key={entry.label}
-                label={entry.label}
-                icon={entry.icon}
-              />
-            ))}
-            <CategoryTag
-              label={t("uncategorized")}
-              icon={glyph("uncategorized")}
-            />
-          </div>
+          <SpendLineBlock />
+        </section>
+        <div className={styles.pair}>
+          <section className={styles.section}>
+            <BreakdownBlock />
+          </section>
+          <section className={styles.section}>
+            <TreemapBlock />
+          </section>
+        </div>
+        <section className={styles.section}>
+          <MonthlySpendBlock />
         </section>
       </div>
 
       <aside className={styles.aside}>
-        <div className={styles.panel}>
-          <h2 className={styles.panelTitle}>{t("transactions")}</h2>
-          <TransactionList
-            items={sampleTransactions(today)}
-            today={today}
-            locale={locale}
-            labels={{
-              uncategorized: t("uncategorized"),
-              status: { pending: t("pending"), declined: t("declined") },
-            }}
-            onSelect={() => {}}
-          />
-        </div>
+        <LatestTransactions />
       </aside>
     </div>
   );

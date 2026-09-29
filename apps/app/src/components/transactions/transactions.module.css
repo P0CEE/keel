@@ -132,6 +132,14 @@
   overflow-wrap: anywhere;
 }
 
+/* An action under a fact's value (the transfer's "it is not one"), flush
+   with the value's right edge. */
+.factAction {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: calc(-1 * var(--space-s1));
+}
+
 .locked {
   margin: var(--space-s1) 0 0;
   font-size: var(--text-small);
