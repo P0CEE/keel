@@ -3,39 +3,34 @@
 import { useMemo, useState } from "react";
 
 import styles from "./categories.module.css";
-import { useTaxonomy } from "./queries";
-import { categoryTree, searchTree } from "./taxonomy";
+import { useCategoryDisplay, useTaxonomy } from "./queries";
+import { type CategoryDisplay, categoryTree, searchTree } from "./taxonomy";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { signFits } from "@keel/finance/taxonomy";
-import { isCategoryColor } from "@keel/finance/taxonomy";
 import { categoryVar } from "@keel/ui/finance/category-colors";
-import {
-  CategoryGlyph,
-  isCategoryGlyphName,
-} from "@keel/ui/finance/category-glyphs";
+import { CategoryGlyph } from "@keel/ui/finance/category-glyphs";
 import { CheckIcon } from "@keel/ui/mint/icons";
 import { TextField } from "@keel/ui/mint/text-field";
 
-/** A category's glyph in its colour, or the neutral "to categorize" one. */
+/**
+ * A category's glyph in its colour (`CategoryDisplay`), or the neutral "to
+ * categorize" one without a display.
+ */
 export function LeafGlyph({
-  icon,
-  color,
+  display,
+  colored = true,
 }: {
-  readonly icon: string | null;
-  readonly color?: string | null;
+  readonly display: CategoryDisplay | null;
+  /** The list sets its glyphs in ink; the other screens in their colour. */
+  readonly colored?: boolean;
 }) {
-  const name =
-    icon !== null && isCategoryGlyphName(icon) ? icon : "uncategorized";
+  const color = colored ? (display?.color ?? null) : null;
   return (
     <span
       className={styles.glyph}
-      style={
-        color != null && isCategoryColor(color)
-          ? { color: categoryVar(color) }
-          : undefined
-      }
+      style={color === null ? undefined : { color: categoryVar(color) }}
     >
-      <CategoryGlyph name={name} />
+      <CategoryGlyph name={display?.glyph ?? "uncategorized"} />
     </span>
   );
 }
@@ -57,6 +52,7 @@ export function CategoryPicker({
   const t = useScopedI18n("categories");
   const locale = useCurrentLocale();
   const { views } = useTaxonomy();
+  const display = useCategoryDisplay();
   const [query, setQuery] = useState("");
   const tree = useMemo(() => {
     const full = categoryTree(views, locale).filter(
@@ -91,7 +87,7 @@ export function CategoryPicker({
                     aria-pressed={leaf.id === selected}
                     onClick={() => onPick(leaf.id)}
                   >
-                    <LeafGlyph icon={leaf.icon} color={leaf.color} />
+                    <LeafGlyph display={display(leaf.id)} />
                     <span className={styles.leafName}>{name}</span>
                     {leaf.id === selected ? (
                       <CheckIcon className={styles.check} />

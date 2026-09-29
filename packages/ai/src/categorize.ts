@@ -1,4 +1,4 @@
-import { generateText, Output } from "ai";
+import { generateText, NoObjectGeneratedError, Output } from "ai";
 import { z } from "zod";
 
 import { modelFor } from "./models";
@@ -50,7 +50,7 @@ On an incoming transfer (label starting with VIR, VIR INST, VRST or RBT, and no 
 
 <field_definitions>
 reasoning: A 3-8 word phrase naming the real company/identity behind the transaction (e.g. "Railway, cloud hosting company"). Commit to this BEFORE choosing a category.
-merchant: The clean, common brand name. Remove store numbers, city names, payment processor prefixes (TST*, SQ*, PAY*), and reference codes. null for a personal transfer between people.
+merchant: The clean, common brand name. Remove store numbers, city names, payment processor prefixes (TST*, SQ*, PAY*, PAYPAL *, SUMUP *, ZETTLE_), and reference codes. null for a personal transfer between people.
 domain: The merchant's official website domain. No protocol, no path, bare domain. Use the merchant's primary country domain (carrefour.fr, tesco.co.uk); for global tech companies use .com. Only return a domain you are confident exists for THIS exact merchant; never fabricate one from the name (a local salon, shop or restaurant usually has none: return null). null for an unidentifiable merchant or a personal transfer.
 category: One of the allowed category keys, or null if unsure.
 confidence: 0-1. 1.0 = certain, 0.5 = unsure, 0.2 = very uncertain.
@@ -119,6 +119,10 @@ ${taxonomyBlock()}
 - "bank.loan" = consumer/personal loan repayments you PAY OUT (negative amount): installments, e.g. "Echeance Pret", "Pret Cap". A housing loan is "housing.mortgage"; a car loan is "transport.loan".
 - "bank.fees" = the BANK's own charges on the account: account/card package fees (FR "cotisation", "frais de tenue de compte"), card fees, commissions, overdraft interest ("agios"), wire fees. A bank package sold under a product name ("Start Jeunes Actifs", "Jazz", "Esprit Libre", "Eko") is still a bank fee.
 - "shopping.beauty" = personal-care SERVICES & products: hairdresser/barber ("coiffeur"), beauty/nail salon, spa, cosmetics. NOT medical care ("health.*"); a gym is "leisure.sport".
+- A cash withdrawal (RETRAIT DAB, method cash_withdrawal) or a cash deposit is "other.cash", whatever bank runs the machine; only the bank's fee for it is "bank.fees".
+- A deferred-debit card's monthly settlement (FACTURE CARTE, RELEVE CB, DEBIT DIFFERE) is "movements.transfers": the card's purchases are counted on their own. A loan disbursement (DEBLOCAGE PRET) is "movements.other".
+- An employer paying back an expense report (NOTE DE FRAIS, REMBOURSEMENT FRAIS) nets into "other.professional". A second-hand sale payout (Vinted, Leboncoin) is "income.other".
+- URSSAF CESU pays home help ("housing.charges") and PAJEMPLOI pays a nanny ("family.childcare"): neither is "taxes.social". A DGFiP or Trésor public debit is a tax only when it says IMPOT, PAS or TAXE; otherwise it may be water, a canteen or a nursery billed by the municipality.
 - Do NOT guess a business type for an unidentifiable local merchant (a generic name, or a card line with only a city and no recognizable brand). Return category=null instead of inventing an activity.
 </category_rules>
 
@@ -192,11 +196,38 @@ export function toAnswer(raw: RawAnswer): ModelAnswer {
 }
 
 /**
+ * Ask each model in turn until one answers in shape. The Gateway falls back
+ * on its own when a provider fails; it does not when the model answers but
+ * its text is not the JSON asked for (a degenerate generation, seen on
+ * `gpt-6-luna`: the object, then repeated fragments). Such an answer is
+ * asked again, then of the next model; any other error is thrown at once,
+ * for the job's own retries.
+ */
+export async function firstInShape<T>(
+  models: readonly string[],
+  ask: (model: string) => Promise<T>,
+  malformed: (error: unknown) => boolean = (error) =>
+    NoObjectGeneratedError.isInstance(error),
+): Promise<T> {
+  let last: unknown = new Error("No model to ask");
+  for (const model of models) {
+    try {
+      return await ask(model);
+    } catch (error) {
+      if (!malformed(error)) throw error;
+      last = error;
+    }
+  }
+  throw last;
+}
+
+/**
  * The categorization model on the Vercel AI Gateway: one structured call per
  * lot of rows, reasoning off, the fallback provider declared to the Gateway,
  * no training on the prompts, and zero data retention unless turned off (the
  * Gateway sells it with its Pro plan only; a Hobby key used in development
- * is refused with it). Answers are matched back by ref.
+ * is refused with it). Answers are matched back by ref. An answer out of
+ * shape is asked again, then of the fallback (`firstInShape`).
  */
 export function createGatewayCategorizationModel(
   options: {
@@ -212,20 +243,26 @@ export function createGatewayCategorizationModel(
     id: model,
     categorize: async (rows) => {
       if (rows.length === 0) return [];
-      const { output } = await generateText({
-        model,
-        system: SYSTEM_PROMPT,
-        prompt: userPrompt(rows),
-        output: Output.array({ element: answerSchema }),
-        providerOptions: {
-          openai: { reasoningEffort: "none" },
-          gateway: {
-            models: [fallback],
-            zeroDataRetention,
-            disallowPromptTraining: true,
-          },
+      const output = await firstInShape(
+        [model, model, fallback],
+        async (id) => {
+          const result = await generateText({
+            model: id,
+            system: SYSTEM_PROMPT,
+            prompt: userPrompt(rows),
+            output: Output.array({ element: answerSchema }),
+            providerOptions: {
+              openai: { reasoningEffort: "none" },
+              gateway: {
+                models: id === fallback ? [] : [fallback],
+                zeroDataRetention,
+                disallowPromptTraining: true,
+              },
+            },
+          });
+          return result.output;
         },
-      });
+      );
       const byRef = new Map(output.map((raw) => [raw.ref, toAnswer(raw)]));
       return rows.map((row) => byRef.get(row.ref));
     },

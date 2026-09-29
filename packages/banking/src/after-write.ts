@@ -19,7 +19,10 @@ export type ChangeCause =
 
 export type Change = {
   readonly cause: ChangeCause;
-  /** Per account: the earliest booking day touched, for the balance history. */
+  /**
+   * Per account: the earliest booking day touched, for the balance history
+   * (read only when the cause moves money, `movesBalances`).
+   */
   readonly accounts: ReadonlyMap<string, Day>;
   /** The purchase days the change covers, for the screens' invalidation. */
   readonly days: { readonly from: Day; readonly to: Day };
@@ -56,8 +59,28 @@ export function followUps(cause: ChangeCause): readonly PipelineJob[] {
 }
 
 /**
+ * Whether a cause changes what an account held: an arrival, an entry, an
+ * edit, a deletion or its undo does; a category or a review does not, and
+ * rebuilding a whole balance history for it would be wasted work.
+ */
+export function movesBalances(cause: ChangeCause): boolean {
+  switch (cause) {
+    case "arrival":
+    case "entry":
+    case "edited":
+    case "deleted":
+    case "restored":
+      return true;
+    case "recategorized":
+    case "reviewed":
+      return false;
+  }
+}
+
+/**
  * Report a committed-to-be write: inside the writer's scoped transaction,
- * mark the accounts' balance history dirty from the day touched and queue,
+ * mark the accounts' balance history dirty from the day touched (when the
+ * cause moves money) and queue,
  * for after the commit, the realtime event and the follow-up jobs. Jobs
  * carry the household id only and are debounced per household, so a lost
  * or repeated one is harmless: the next run finds the same state.
@@ -69,8 +92,10 @@ export async function transactionsChanged(
 ): Promise<void> {
   const accountIds = [...change.accounts.keys()];
   if (accountIds.length === 0) return;
-  for (const [accountId, from] of change.accounts) {
-    await markHistoryDirty(unit.tx, unit.scope, accountId, from);
+  if (movesBalances(change.cause)) {
+    for (const [accountId, from] of change.accounts) {
+      await markHistoryDirty(unit.tx, unit.scope, accountId, from);
+    }
   }
   deps.emit(
     unit,

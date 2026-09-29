@@ -1,5 +1,4 @@
-import { planPipeline, transactionsChanged } from "./after-write";
-import { overwritable } from "./categorize";
+import { assignCategories, releaseCategories } from "./category-writer";
 import type { BankingDeps } from "./deps";
 import { BankingError } from "./errors";
 import { loadTaxonomy } from "./taxonomy";
@@ -11,10 +10,8 @@ import {
   mappingCandidates,
   type MappingRow,
   merchantsByKeys,
-  requeueCategorization,
   transactionsForCategory,
   upsertMapping,
-  writeCategory,
 } from "@keel/db/banking";
 import { matchMapping } from "@keel/finance/categorization";
 import { labelTokens, nameFromMerchantKey } from "@keel/finance/labels";
@@ -121,70 +118,35 @@ async function apply(
     );
     return winner?.id === mapping.id && signFits(nature, row.amountMinor);
   });
-  let moved: typeof rows = [];
-  for (const row of claimed) {
-    if (
-      row.categoryId === mapping.categoryId &&
-      row.categoryMappingId === mapping.id
-    ) {
-      continue;
-    }
-    const wrote = await writeCategory(
-      unit.tx,
-      scope,
-      {
+  const moved = await assignCategories(deps, unit, {
+    cause: "recategorized",
+    assignments: claimed
+      .filter(
+        (row) =>
+          row.categoryId !== mapping.categoryId ||
+          row.categoryMappingId !== mapping.id,
+      )
+      .map((row) => ({
         id: row.id,
         categoryId: mapping.categoryId,
-        source: "mapping",
+        source: "mapping" as const,
         mappingId: mapping.id,
-        confidence: null,
-        needsReview: false,
-      },
-      overwritable("mapping"),
-      deps.now(),
-    );
-    if (wrote) moved = [...moved, row];
-  }
+      })),
+    ...(input.originClientId === undefined
+      ? {}
+      : { originClientId: input.originClientId }),
+  });
   // Rows it owned but no longer claims go back to the ladder.
-  const released = rows
-    .filter(
-      (row) => row.categoryMappingId === mapping.id && !claimed.includes(row),
-    )
-    .map((row) => row.id);
-  await requeueCategorization(unit.tx, scope, released);
-  if (released.length > 0) planPipeline(deps, unit, ["bank.categorize"]);
-  await announce(deps, unit, moved, input);
+  await releaseCategories(
+    deps,
+    unit,
+    rows
+      .filter(
+        (row) => row.categoryMappingId === mapping.id && !claimed.includes(row),
+      )
+      .map((row) => row.id),
+  );
   return moved.length;
-}
-
-async function announce(
-  deps: Pick<BankingDeps, "dispatch" | "emit">,
-  unit: ScopedWork,
-  rows: Awaited<ReturnType<typeof transactionsForCategory>>,
-  input: Origin,
-): Promise<void> {
-  const groups = new Map<string, typeof rows>();
-  for (const row of rows) {
-    const key = `${row.accountId}|${row.privateTo ?? ""}`;
-    groups.set(key, [...(groups.get(key) ?? []), row]);
-  }
-  for (const members of groups.values()) {
-    const [first] = members;
-    if (first === undefined) continue;
-    const days = members.map((row) => row.purchasedOn).toSorted();
-    await transactionsChanged(deps, unit, {
-      cause: "recategorized",
-      accounts: new Map([[first.accountId, first.bookedOn]]),
-      days: {
-        from: days[0] ?? first.purchasedOn,
-        to: days.at(-1) ?? first.purchasedOn,
-      },
-      ...(first.privateTo === null ? {} : { privateTo: first.privateTo }),
-      ...(input.originClientId === undefined
-        ? {}
-        : { originClientId: input.originClientId }),
-    });
-  }
 }
 
 /**
@@ -243,15 +205,14 @@ export function deleteMapping(
         (row) => row.id,
       );
       const rows = await transactionsForCategory(unit.tx, scope, owned);
-      await requeueCategorization(
-        unit.tx,
-        scope,
+      await releaseCategories(
+        deps,
+        unit,
         rows
           .filter((row) => row.categoryMappingId === mapping.id)
           .map((row) => row.id),
       );
       await deleteRow(unit.tx, scope, mapping.id);
-      planPipeline(deps, unit, ["bank.categorize"]);
       deps.emit(unit, "categories.changed", {}, originOf(input));
     },
     deps.database,

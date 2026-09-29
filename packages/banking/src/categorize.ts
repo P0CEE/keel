@@ -1,9 +1,8 @@
-import { planPipeline } from "./after-write";
+import { assignCategories } from "./category-writer";
 import type { BankingDeps } from "./deps";
 import { loadTaxonomy } from "./taxonomy";
 import { db, type Scope, withScope } from "@keel/db";
 import {
-  type CategorySourceValue,
   householdMemberIds,
   incomeSince,
   listMappings,
@@ -13,17 +12,14 @@ import {
   type PendingRow,
   pendingTransactions,
   upsertMerchants,
-  writeCategory,
 } from "@keel/db/banking";
 import { getHousehold } from "@keel/db/members";
 import {
-  CATEGORY_SOURCES,
-  type CategorySource,
+  type CategorizationModel,
   type Decision,
   finalize,
   ladder,
   type LadderRow,
-  mayOverwrite,
   type MerchantHistory,
   type ModelAnswer,
   type ModelGroup,
@@ -47,14 +43,6 @@ type Deps = Pick<
   "database" | "dispatch" | "emit" | "model" | "now"
 >;
 
-/** The sources a decision of `source` may replace, for the SQL guard. */
-export function overwritable(
-  source: Exclude<CategorySource, "user"> | "user" | null,
-): CategorySourceValue[] {
-  if (source === null) return [];
-  return CATEGORY_SOURCES.filter((current) => mayOverwrite(current, source));
-}
-
 function toLadderRow(row: PendingRow): LadderRow {
   return {
     id: row.id,
@@ -63,6 +51,7 @@ function toLadderRow(row: PendingRow): LadderRow {
     counterpartyName: row.counterpartyName,
     amountMinor: row.amountMinor,
     mcc: row.mcc,
+    method: row.method,
   };
 }
 
@@ -107,11 +96,20 @@ type Planned = {
 };
 
 /** Load a batch and run the deterministic rungs on it. */
-async function plan(deps: Deps, scope: Scope): Promise<Planned | null> {
+async function plan(
+  deps: Deps,
+  scope: Scope,
+  after: string | null,
+): Promise<Planned | null> {
   return withScope(
     scope,
     async ({ tx }) => {
-      const rows = await pendingTransactions(tx, scope, CATEGORIZE_BATCH);
+      const rows = await pendingTransactions(
+        tx,
+        scope,
+        CATEGORIZE_BATCH,
+        after,
+      );
       if (rows.length === 0) return null;
       const taxonomy = await loadTaxonomy(tx, scope);
       const mappings = (await listMappings(tx, scope)).flatMap((mapping) => {
@@ -170,14 +168,12 @@ async function plan(deps: Deps, scope: Scope): Promise<Planned | null> {
   );
 }
 
-/** Ask the model, a lot at a time; no model configured is an abstention. */
+/** Ask the model, a lot at a time. */
 async function askModel(
-  deps: Deps,
+  model: CategorizationModel,
   groups: readonly ModelGroup[],
   rows: ReadonlyMap<string, PendingRow>,
 ): Promise<(ModelAnswer | undefined)[]> {
-  const { model } = deps;
-  if (model === null) return groups.map(() => undefined);
   const lots = Array.from(
     { length: Math.ceil(groups.length / MODEL_LOT) },
     (_, index) => groups.slice(index * MODEL_LOT, (index + 1) * MODEL_LOT),
@@ -232,77 +228,60 @@ async function write(
         ...planned.knownMerchants,
         ...saved.map((merchant) => [merchant.key, merchant.id] as const),
       ]);
-      let written: string[] = [];
-      for (const decision of decisions) {
-        const row = byId.get(decision.id);
-        if (row === undefined) continue;
-        const merchantId =
-          row.merchantKey === null
-            ? undefined
-            : merchantIds.get(row.merchantKey);
-        const wrote = await writeCategory(
-          unit.tx,
-          scope,
-          {
-            id: decision.id,
-            categoryId: decision.categoryId,
-            source: decision.source,
-            mappingId: decision.mappingId,
-            confidence: decision.confidence,
-            needsReview: decision.needsReview,
-            ...(merchantId === undefined ? {} : { merchantId }),
-          },
-          overwritable(decision.source),
-          deps.now(),
-        );
-        if (wrote) written = [...written, decision.id];
-      }
-      announce(
-        deps,
-        unit,
-        written.flatMap((id) => byId.get(id) ?? []),
-      );
+      const written = await assignCategories(deps, unit, {
+        cause: "categorized",
+        assignments: decisions.flatMap((decision) => {
+          const row = byId.get(decision.id);
+          if (row === undefined) return [];
+          const merchantId =
+            row.merchantKey === null
+              ? undefined
+              : merchantIds.get(row.merchantKey);
+          return [
+            {
+              id: decision.id,
+              categoryId: decision.categoryId,
+              source: decision.source,
+              mappingId: decision.mappingId,
+              confidence: decision.confidence,
+              needsReview: decision.needsReview,
+              ...(merchantId === undefined ? {} : { merchantId }),
+            },
+          ];
+        }),
+      });
       return written.length;
     },
     deps.database,
   );
 }
 
-function announce(
-  deps: Deps,
-  unit: Parameters<Parameters<typeof withScope>[1]>[0],
-  rows: readonly PendingRow[],
-): void {
-  if (rows.length === 0) return;
-  // A private account's ids go to its owner only.
-  const groups = new Map<string | null, PendingRow[]>();
-  for (const row of rows) {
-    groups.set(row.privateTo, [...(groups.get(row.privateTo) ?? []), row]);
-  }
-  for (const [privateTo, members] of groups) {
-    deps.emit(
-      unit,
-      "transactions.categorized",
-      {
-        accountIds: [...new Set(members.map((row) => row.accountId))].slice(
-          0,
-          200,
-        ),
-        count: members.length,
-      },
-      privateTo === null ? {} : { privateTo },
-    );
-  }
-  planPipeline(deps, unit, ["bank.reconcile"]);
-}
+type Batch = {
+  readonly decided: number;
+  /** The rows read, and the last one's id: where the next batch starts. */
+  readonly read: number;
+  readonly last: string | null;
+};
 
-/** One batch for one member: the ladder, the model, the writes. */
-async function categorizeBatch(deps: Deps, scope: Scope): Promise<number> {
-  const planned = await plan(deps, scope);
-  if (planned === null) return 0;
+/**
+ * One batch for one member: the ladder, the model, the writes. Without a
+ * model configured, what the ladder cannot decide stays pending rather
+ * than being written as an abstention, so the model decides it once a key
+ * is set (an abstention is final).
+ */
+async function categorizeBatch(
+  deps: Deps,
+  scope: Scope,
+  after: string | null,
+): Promise<Batch> {
+  const planned = await plan(deps, scope, after);
+  if (planned === null) return { decided: 0, read: 0, last: null };
+  const read = planned.rows.length;
+  const last = planned.rows.at(-1)?.id ?? null;
   const rows = new Map(planned.rows.map((row) => [row.id, row]));
   const decidedCount = await write(deps, scope, planned, planned.decided);
-  const answers = await askModel(deps, planned.groups, rows);
+  if (deps.model === null) return { decided: decidedCount, read, last };
+  const answers = await askModel(deps.model, planned.groups, rows);
   const decisions = finalize(
     planned.groups,
     answers,
@@ -314,7 +293,11 @@ async function categorizeBatch(deps: Deps, scope: Scope): Promise<number> {
       reviewAbove: planned.reviewAbove,
     },
   );
-  return decidedCount + (await write(deps, scope, planned, decisions));
+  return {
+    decided: decidedCount + (await write(deps, scope, planned, decisions)),
+    read,
+    last,
+  };
 }
 
 /**
@@ -333,10 +316,12 @@ export async function categorizeHousehold(
   let continued = false;
   for (const memberId of members) {
     const scope = { householdId, memberId };
+    let after: string | null = null;
     for (let batch = 0; batch < MAX_BATCHES; batch += 1) {
-      const count = await categorizeBatch(deps, scope);
-      decided += count;
-      if (count < CATEGORIZE_BATCH) break;
+      const run: Batch = await categorizeBatch(deps, scope, after);
+      decided += run.decided;
+      after = run.last;
+      if (run.read < CATEGORIZE_BATCH) break;
       if (batch === MAX_BATCHES - 1) continued = true;
     }
   }

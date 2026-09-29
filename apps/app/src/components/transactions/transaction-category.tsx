@@ -7,14 +7,13 @@ import {
   LeafGlyph,
 } from "@/components/categories/category-picker";
 import {
+  useCategoryDisplay,
   useConfirmCategories,
   useRecategorize,
   useSaveMapping,
-  useTaxonomy,
   useUndoRecategorize,
 } from "@/components/categories/queries";
-import { categoryName } from "@/components/categories/taxonomy";
-import { useCurrentLocale, useScopedI18n } from "@/locales/client";
+import { useScopedI18n } from "@/locales/client";
 import { Callout } from "@keel/ui/mint/callout";
 import { SheetBody, SheetTitle } from "@keel/ui/mint/sheet";
 import { useToasts } from "@keel/ui/mint/toast";
@@ -80,12 +79,10 @@ export function CategoryLine({
   readonly onChange: () => void;
 }) {
   const t = useScopedI18n("transaction");
-  const locale = useCurrentLocale();
-  const { byId } = useTaxonomy();
-  const leaf = item.categoryId === null ? undefined : byId.get(item.categoryId);
+  const leaf = useCategoryDisplay()(item.categoryId);
   const name =
-    leaf !== undefined
-      ? categoryName(leaf, locale)
+    leaf !== null
+      ? leaf.name
       : item.categorized
         ? t("uncategorized")
         : t("categorizing");
@@ -96,9 +93,9 @@ export function CategoryLine({
       aria-label={`${t("change_category")} : ${name}`}
       onClick={onChange}
     >
-      <LeafGlyph icon={leaf?.icon ?? null} color={leaf?.color ?? null} />
+      <LeafGlyph display={leaf} />
       <span className={styles.categoryName}>{name}</span>
-      {item.categorySource === null || leaf === undefined ? null : (
+      {item.categorySource === null || leaf === null ? null : (
         <span className={styles.categorySource}>
           {t(`sources.${item.categorySource}`)}
         </span>
@@ -136,13 +133,11 @@ export function RuleNotice({
   readonly onDone: () => void;
 }) {
   const t = useScopedI18n("transaction");
-  const locale = useCurrentLocale();
-  const { byId } = useTaxonomy();
+  const leaf = useCategoryDisplay()(prompt.categoryId);
   const save = useSaveMapping();
   const toasts = useToasts();
-  const leaf = byId.get(prompt.categoryId);
-  if (leaf === undefined) return null;
-  const category = categoryName(leaf, locale);
+  if (leaf === null) return null;
+  const category = leaf.name;
   return (
     <Callout
       tone="info"

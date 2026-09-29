@@ -5,16 +5,16 @@ import { useState } from "react";
 import styles from "./categories-settings.module.css";
 import { LeafGlyph } from "./category-picker";
 import {
+  useCategoryDisplay,
   useCreateSubcategory,
   useDeleteMapping,
   useMappings,
   useTaxonomy,
   useUpdateSubcategory,
 } from "./queries";
-import { categoryName, categoryTree, type CategoryView } from "./taxonomy";
+import { categoryTree, type CategoryView } from "./taxonomy";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
-import { isCategoryColor } from "@keel/finance/taxonomy";
 import {
   ICON_PICKER_GLYPHS,
   type IconPickerGlyph,
@@ -69,7 +69,8 @@ function pickerGlyph(icon: string): IconPickerGlyph {
 export function CategoriesSettings() {
   const t = useScopedI18n("categories");
   const locale = useCurrentLocale();
-  const { views, byId, loaded } = useTaxonomy();
+  const { views, loaded } = useTaxonomy();
+  const display = useCategoryDisplay();
   const mappings = useMappings();
   const remove = useDeleteMapping();
   const [editing, setEditing] = useState<CategoryView | "new" | null>(null);
@@ -86,7 +87,7 @@ export function CategoriesSettings() {
           <ul className={styles.rows}>
             {own.map(({ leaf, name, parent }) => (
               <li key={leaf.id} className={styles.row}>
-                <LeafGlyph icon={leaf.icon} color={leaf.color} />
+                <LeafGlyph display={display(leaf.id)} />
                 <span className={styles.who}>
                   <span className={styles.name}>{name}</span>
                   <span className={styles.meta}>
@@ -119,22 +120,17 @@ export function CategoriesSettings() {
         ) : (
           <ul className={styles.rows}>
             {mappings.map((mapping) => {
-              const leaf = byId.get(mapping.categoryId);
+              const leaf = display(mapping.categoryId);
               return (
                 <li key={mapping.id} className={styles.row}>
-                  <LeafGlyph
-                    icon={leaf?.icon ?? null}
-                    color={leaf?.color ?? null}
-                  />
+                  <LeafGlyph display={leaf} />
                   <span className={styles.who}>
                     <span className={styles.name}>
                       {mapping.matcher === "merchant"
                         ? mapping.label
                         : t("keyword", { pattern: mapping.pattern })}
                     </span>
-                    <span className={styles.meta}>
-                      {leaf === undefined ? "" : categoryName(leaf, locale)}
-                    </span>
+                    <span className={styles.meta}>{leaf?.name ?? ""}</span>
                   </span>
                   <RoundButton
                     label={t("delete_mapping")}
@@ -195,6 +191,7 @@ function SubcategorySheet({
   const t = useScopedI18n("categories");
   const locale = useCurrentLocale();
   const { views } = useTaxonomy();
+  const display = useCategoryDisplay();
   const create = useCreateSubcategory();
   const update = useUpdateSubcategory();
   const existing = editing === "new" || editing === null ? null : editing;
@@ -257,10 +254,7 @@ function SubcategorySheet({
               value={{
                 icon: shownIcon,
                 // A subcategory wears its category's colour: no colour row.
-                color:
-                  parentView !== undefined && isCategoryColor(parentView.color)
-                    ? parentView.color
-                    : "neutral",
+                color: display(parent)?.color ?? "neutral",
               }}
               onChange={(choice) => setIcon(choice.icon)}
               labels={labels}

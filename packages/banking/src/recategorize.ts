@@ -1,13 +1,12 @@
 import { z } from "zod";
 
 import { transactionsChanged } from "./after-write";
-import { overwritable } from "./categorize";
+import { assignCategories } from "./category-writer";
 import type { BankingDeps } from "./deps";
 import { BankingError } from "./errors";
 import { loadTaxonomy } from "./taxonomy";
 import { type Scope, type ScopedWork, withScope } from "@keel/db";
 import {
-  type CategorySourceValue,
   clearReview,
   insertCorrections,
   insertUndo,
@@ -15,7 +14,6 @@ import {
   merchantsByIds,
   takeUndo,
   transactionsForCategory,
-  writeCategory,
 } from "@keel/db/banking";
 import { nameFromMerchantKey } from "@keel/finance/labels";
 import { signFits } from "@keel/finance/taxonomy";
@@ -59,42 +57,45 @@ export type RecategorizeResult = {
 
 type Rows = Awaited<ReturnType<typeof transactionsForCategory>>;
 
-async function report(
+function origin(input: Origin): { readonly originClientId?: string } {
+  return input.originClientId === undefined
+    ? {}
+    : { originClientId: input.originClientId };
+}
+
+/** Confirmed rows move no money and no category: the screens refresh. */
+async function reportReviewed(
   deps: Pick<BankingDeps, "dispatch" | "emit">,
   unit: ScopedWork,
   rows: Rows,
-  cause: "recategorized" | "reviewed",
   input: Origin,
 ): Promise<void> {
-  // One report per account and privacy, as the pipeline tracks them.
-  const groups = new Map<string, Rows>();
-  for (const row of rows) {
-    const key = `${row.accountId}|${row.privateTo ?? ""}`;
-    groups.set(key, [...(groups.get(key) ?? []), row]);
-  }
-  for (const members of groups.values()) {
-    const [first] = members;
+  const audiences = rows.reduce(
+    (groups, row) =>
+      groups.set(row.privateTo, [...(groups.get(row.privateTo) ?? []), row]),
+    new Map<string | null, Rows>(),
+  );
+  for (const [privateTo, members] of audiences) {
+    const first = members[0];
     if (first === undefined) continue;
     const days = members.map((row) => row.purchasedOn).toSorted();
-    const booked = members.map((row) => row.bookedOn).toSorted();
     await transactionsChanged(deps, unit, {
-      cause,
-      accounts: new Map([[first.accountId, booked[0] ?? first.bookedOn]]),
+      cause: "reviewed",
+      accounts: new Map(members.map((row) => [row.accountId, row.bookedOn])),
       days: {
         from: days[0] ?? first.purchasedOn,
         to: days.at(-1) ?? first.purchasedOn,
       },
-      ...(first.privateTo === null ? {} : { privateTo: first.privateTo }),
-      ...(input.originClientId === undefined
-        ? {}
-        : { originClientId: input.originClientId }),
+      ...(privateTo === null ? {} : { privateTo }),
+      ...origin(input),
     });
   }
 }
 
 /**
- * The one writer of a member's category (ADR 0006): move the selected rows
- * to a leaf, as the member's word (it outranks everything). Each automatic
+ * A member's recategorization (ADR 0006): move the selected rows to a leaf,
+ * as the member's word (it outranks everything), through the category
+ * writer. Each automatic
  * decision it replaces is kept as a correction, for the eval; the previous
  * state is kept server-side for the undo. When every moved row is one
  * merchant with no rule to this leaf yet, the answer offers to make one.
@@ -132,24 +133,20 @@ export function recategorize(
       const moving = fitting.filter(
         (row) => row.categoryId !== target.id || row.categorySource !== "user",
       );
-      let moved: Rows = [];
-      for (const row of moving) {
-        const wrote = await writeCategory(
-          unit.tx,
-          scope,
-          {
-            id: row.id,
-            categoryId: target.id,
-            source: "user",
-            mappingId: null,
-            confidence: null,
-            needsReview: false,
-          },
-          overwritable("user"),
-          deps.now(),
-        );
-        if (wrote) moved = [...moved, row];
-      }
+      const written = new Set(
+        (
+          await assignCategories(deps, unit, {
+            cause: "recategorized",
+            assignments: moving.map((row) => ({
+              id: row.id,
+              categoryId: target.id,
+              source: "user" as const,
+            })),
+            ...origin(input),
+          })
+        ).map((row) => row.id),
+      );
+      const moved = moving.filter((row) => written.has(row.id));
       await insertCorrections(
         unit.tx,
         scope,
@@ -188,9 +185,6 @@ export function recategorize(
                 needsReview: row.needsReview,
               })),
             );
-      if (moved.length > 0) {
-        await report(deps, unit, moved, "recategorized", input);
-      }
       return {
         moved: moved.map((row) => row.id),
         refused,
@@ -253,35 +247,29 @@ export function undoRecategorize(
         changes.map((change) => change.id),
       );
       const current = new Map(rows.map((row) => [row.id, row]));
-      let restored: Rows = [];
-      for (const change of changes) {
+      // A row moved again since keeps its later change.
+      const still = changes.filter((change) => {
         const row = current.get(change.id);
-        if (
-          row === undefined ||
-          row.categoryId !== change.to ||
-          row.categorySource !== "user"
-        ) {
-          continue;
-        }
-        const wrote = await writeCategory(
-          unit.tx,
-          scope,
-          {
-            id: change.id,
-            categoryId: change.categoryId,
-            source: change.source as CategorySourceValue | null,
-            mappingId: change.mappingId,
-            confidence: change.confidence,
-            needsReview: change.needsReview,
-          },
-          overwritable("user"),
-          deps.now(),
+        return (
+          row !== undefined &&
+          row.categoryId === change.to &&
+          row.categorySource === "user"
         );
-        if (wrote) restored = [...restored, row];
-      }
-      if (restored.length > 0) {
-        await report(deps, unit, restored, "recategorized", input);
-      }
+      });
+      const restored = await assignCategories(deps, unit, {
+        cause: "recategorized",
+        // the member's word undoes itself, writing back the older source
+        authority: "user",
+        assignments: still.map((change) => ({
+          id: change.id,
+          categoryId: change.categoryId,
+          source: change.source,
+          mappingId: change.mappingId,
+          confidence: change.confidence,
+          needsReview: change.needsReview,
+        })),
+        ...origin(input),
+      });
       return { restored: restored.map((row) => row.id) };
     },
     deps.database,
@@ -304,7 +292,7 @@ export function confirmCategories(
         ...new Set(input.ids),
       ]);
       const rows = await transactionsForCategory(unit.tx, scope, confirmed);
-      if (rows.length > 0) await report(deps, unit, rows, "reviewed", input);
+      await reportReviewed(deps, unit, rows, input);
       return { confirmed };
     },
     deps.database,

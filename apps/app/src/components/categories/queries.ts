@@ -6,13 +6,14 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
-import type { CategoryView } from "./taxonomy";
+import { type CategoryDisplay, type CategoryView, displayOf } from "./taxonomy";
 import {
   type TransactionPages,
   withTransaction,
 } from "@/components/transactions/page-patch";
+import { useCurrentLocale } from "@/locales/client";
 import { useTRPC } from "@/trpc/client";
 
 /**
@@ -35,6 +36,18 @@ export function useTaxonomy() {
     [views],
   );
   return { views: views ?? [], byId, loaded: views !== undefined };
+}
+
+/**
+ * How a category or subcategory shows (name, colour, glyph, category), from
+ * the taxonomy the app holds, in the member's language (`displayOf`).
+ */
+export function useCategoryDisplay(): (
+  id: string | null,
+) => CategoryDisplay | null {
+  const locale = useCurrentLocale();
+  const { byId } = useTaxonomy();
+  return useCallback((id) => displayOf(byId, id, locale), [byId, locale]);
 }
 
 /** The review queue's size, for the dock. */

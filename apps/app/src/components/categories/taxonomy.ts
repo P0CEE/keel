@@ -6,7 +6,17 @@ import type { inferRouterOutputs } from "@trpc/server";
 
 import type { AppRouter } from "@keel/api";
 import { labelTokens } from "@keel/finance/labels";
-import { SYSTEM_TAXONOMY, systemLabel } from "@keel/finance/taxonomy";
+import {
+  type CategoryColor,
+  isCategoryColor,
+  SYSTEM_TAXONOMY,
+  systemDescription,
+  systemLabel,
+} from "@keel/finance/taxonomy";
+import {
+  type CategoryGlyphName,
+  isCategoryGlyphName,
+} from "@keel/ui/finance/category-glyphs";
 
 // The system's order, by key: categories as keel lists them, then leaves.
 const ORDER = new Map(
@@ -93,22 +103,39 @@ export function searchTree(
   });
 }
 
-/** What the list shows for a row: its leaf's name and glyph, or null. */
-export function leafOf(
-  views: ReadonlyMap<string, CategoryView>,
-  categoryId: string | null,
-  locale: "fr" | "en",
-): {
+/**
+ * How a category or a subcategory shows, wherever it shows (the list, the
+ * sheet, the picker, the settings, the charts): its name in the member's
+ * language, its colour and its glyph, both checked (an unknown glyph is the
+ * neutral "to categorize" one, an unknown colour none), and the category it
+ * sits in (itself for a category). Null for an id the member does not see.
+ */
+export type CategoryDisplay = {
+  readonly id: string;
   readonly name: string;
-  readonly icon: string;
-  readonly color: string;
-} | null {
-  if (categoryId === null) return null;
-  const leaf = views.get(categoryId);
-  if (leaf === undefined) return null;
+  readonly color: CategoryColor | null;
+  readonly glyph: CategoryGlyphName;
+  /** What a system node covers, in the language; null for the household's own. */
+  readonly description: string | null;
+  readonly group: { readonly id: string; readonly name: string };
+};
+
+export function displayOf(
+  views: ReadonlyMap<string, CategoryView>,
+  id: string | null,
+  locale: "fr" | "en",
+): CategoryDisplay | null {
+  if (id === null) return null;
+  const view = views.get(id);
+  if (view === undefined) return null;
+  const group =
+    view.parentId === null ? view : (views.get(view.parentId) ?? view);
   return {
-    name: categoryName(leaf, locale),
-    icon: leaf.icon,
-    color: leaf.color,
+    id: view.id,
+    name: categoryName(view, locale),
+    color: isCategoryColor(view.color) ? view.color : null,
+    glyph: isCategoryGlyphName(view.icon) ? view.icon : "uncategorized",
+    description: view.key === null ? null : systemDescription(view.key, locale),
+    group: { id: group.id, name: categoryName(group, locale) },
   };
 }

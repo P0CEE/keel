@@ -4,7 +4,7 @@ import {
   categoryName,
   categoryTree,
   type CategoryView,
-  leafOf,
+  displayOf,
   searchTree,
 } from "../src/components/categories/taxonomy";
 
@@ -72,13 +72,36 @@ describe("the taxonomy as the app reads it", () => {
     expect(searchTree(tree, "zzz")).toEqual([]);
   });
 
-  test("a row's leaf, or nothing", () => {
+  test("how a node shows: its name, colour, glyph and category", () => {
     const byId = new Map(views.map((view) => [view.id, view]));
-    expect(leafOf(byId, "groceries", "fr")).toEqual({
+    expect(displayOf(byId, "groceries", "fr")).toEqual({
+      id: "groceries",
       name: "Courses",
-      icon: "dining",
       color: "orange",
+      glyph: "dining",
+      description: expect.stringContaining("Supermarchés"),
+      group: { id: "food", name: "Alimentation" },
     });
-    expect(leafOf(byId, null, "fr")).toBeNull();
+    expect(displayOf(byId, "bakery", "fr")?.description).toBeNull();
+    expect(displayOf(byId, "food", "en")?.group).toEqual({
+      id: "food",
+      name: "Food & Groceries",
+    });
+    expect(displayOf(byId, null, "fr")).toBeNull();
+    expect(displayOf(byId, "unknown", "fr")).toBeNull();
+  });
+
+  test("an unknown glyph or colour falls back, never reaches the screen", () => {
+    const odd = node({
+      id: "odd",
+      parentId: "food",
+      color: "teal",
+      icon: "zz",
+    });
+    const byId = new Map([...views, odd].map((view) => [view.id, view]));
+    expect(displayOf(byId, "odd", "fr")).toMatchObject({
+      color: null,
+      glyph: "uncategorized",
+    });
   });
 });
