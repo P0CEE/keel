@@ -1,10 +1,23 @@
 // The switch knob's geometry and beats, kept pure.
 
-/** Px the knob moves: 40 track - 18 knob - 2 x 2 inset. */
-export const TRAVEL = 18;
+/**
+ * Mint's 40x22 switch, and the small 32x18 one mint-pocs' Earnings calendar
+ * sets beside 12px labels, where 40x22 outweighed them.
+ */
+export type SwitchSize = "default" | "small";
+
+/** Px the knob moves: the track less the knob and two 2px insets. */
+export const TRAVELS: Readonly<Record<SwitchSize, number>> = {
+  default: 40 - 18 - 2 * 2,
+  small: 32 - 14 - 2 * 2,
+};
+
+/** The default switch's travel: 18px. */
+export const TRAVEL = TRAVELS.default;
 
 /** Where the knob rests, on or off. */
-export const knobX = (checked: boolean): number => (checked ? TRAVEL : 0);
+export const knobX = (checked: boolean, size: SwitchSize = "default"): number =>
+  checked ? TRAVELS[size] : 0;
 
 export type ToggleBeats = {
   /** The edge the knob stretches from: the one it leaves. */
@@ -20,9 +33,12 @@ export const STRETCH = 1.5;
 export const LAND = 0.9;
 
 /** The toggle to `checked`: stretch toward the midpoint, land, spring back. */
-export function toggleBeats(checked: boolean): ToggleBeats {
-  const target = knobX(checked);
-  const from = knobX(!checked);
+export function toggleBeats(
+  checked: boolean,
+  size: SwitchSize = "default",
+): ToggleBeats {
+  const target = knobX(checked, size);
+  const from = knobX(!checked, size);
   return {
     origin: checked ? "left center" : "right center",
     midpoint: (from + target) / 2,

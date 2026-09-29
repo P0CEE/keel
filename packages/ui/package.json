@@ -62,7 +62,9 @@
     "./mint/toast": "./src/mint/toast/toast.tsx",
     "./mint/date-time-input": "./src/mint/date-time-input/date-time-input.tsx",
     "./mint/timeframe-selector": "./src/mint/timeframe-selector/timeframe-selector.tsx",
-    "./finance/balance-chart": "./src/finance/balance-chart/balance-chart.tsx"
+    "./finance/balance-chart": "./src/finance/balance-chart/balance-chart.tsx",
+    "./mint/cycle-input": "./src/mint/cycle-input/cycle-input.tsx",
+    "./finance/due-calendar": "./src/finance/due-calendar/due-calendar.tsx"
   },
   "scripts": {
     "lint": "oxlint .",

@@ -157,6 +157,10 @@
      (card.bg.primary), the row hover in dark */
   --surface: light-dark(#ffffff, #ffffff1a);
   --surface-hover: light-dark(#f9f9f9, #ffffff14);
+  /* closed days, sunk below the open ones in both appearances (the Due
+     calendar's weekends): a 5% ink wash in light, the black of
+     bg.elevation.l1 under the page in dark (bg.secondary would lift them) */
+  --weekend: light-dark(#0000000d, #000000);
   /* the well a card nests in (the Card's inset variant), sunk below the page
      on purpose: states.bg.pressed in light, black (bg.elevation.l1) in dark */
   --recess: light-dark(#0000000a, #000000);
@@ -409,6 +413,14 @@
   --shadow-sunken:
     0 -0.5px 0 light-dark(#00000014, #000000),
     0 1px 0 light-dark(#ffffff, #ffffff24);
+  /* a chip resting on a calendar day, its lift under the pointer (laid
+     under a 1px ring), and the small button that slides in beside it */
+  --shadow-chip:
+    0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.4)),
+    0 2px 6px light-dark(rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.3));
+  --shadow-chip-lift: 0 4px 12px
+    light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.5));
+  --shadow-nub: 0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.4));
   /* the thumb raised in a sunken track */
   --shadow-thumb: 0 1px 4px light-dark(rgba(0, 0, 0, 10%), rgba(0, 0, 0, 40%));
   /* a floating capsule: wide and soft in light, tighter and darker in dark

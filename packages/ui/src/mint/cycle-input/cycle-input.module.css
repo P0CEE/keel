@@ -1,0 +1,100 @@
+/* mint-pocs' Cycle input (src/demos/cycle-input/CycleInput.tsx), rule for
+   rule: Mint's text field at 44px, which clips the rolling value at its
+   edges. The hairline lifts on hover; keyboard focus is the 2px full-ink
+   stroke (the border and an inset 1px), not the ring. */
+
+.field,
+.field *,
+.field *::before,
+.field *::after {
+  box-sizing: border-box;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1);
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  padding: 0 14px;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-12);
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .field:hover:not(:focus-visible) {
+    border-color: var(--line-hover);
+  }
+}
+
+.field:focus-visible {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.roll {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.roll > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.glyph {
+  flex: none;
+  transition: transform var(--duration-instant) ease;
+}
+
+.field:active .glyph {
+  transform: scale(0.9);
+}
+
+.field:disabled:active .glyph {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field,
+  .glyph {
+    transition: none;
+  }
+  .field:active .glyph {
+    transform: none;
+  }
+}

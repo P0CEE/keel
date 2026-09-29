@@ -81,3 +81,24 @@
     transition: none;
   }
 }
+
+/* The small switch (mint-pocs' Earnings calendar): 32x18, a 14px knob that
+   travels 14px (knob.ts); its hit area grows 3px each way to 24px tall. */
+.track[data-size="small"] {
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+}
+
+.track[data-size="small"]::before {
+  inset: -3px;
+}
+
+.track[data-size="small"][data-checked] > svg {
+  transform: translateX(14px);
+}
+
+.track[data-size="small"] > .knob {
+  width: 14px;
+  height: 14px;
+}

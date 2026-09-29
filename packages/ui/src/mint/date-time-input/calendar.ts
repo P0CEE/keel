@@ -140,7 +140,8 @@ export function landingTime(
   return times.find((minutes) => isTimeOpen(rules, day, minutes)) ?? null;
 }
 
-function capitalize(text: string, locale: string): string {
+/** The first letter in the locale's capital ("septembre" -> "Septembre"). */
+export function capitalize(text: string, locale: string): string {
   return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
 }
 
@@ -170,14 +171,18 @@ export function formatClock(minutes: number, locale: string): string {
   }).format(new Date(minutes * 60_000));
 }
 
-/** The week's letters, from its first day ("L M M J V S D"). */
+/**
+ * The week's letters, from its first day ("L M M J V S D"), or its short
+ * names ("lun. mar. ...") with `width` "short".
+ */
 export function weekdayNames(
   locale: string,
   weekStartsOn: WeekStart,
+  width: "narrow" | "short" = "narrow",
 ): string[] {
   const format = new Intl.DateTimeFormat(locale, {
     timeZone: "UTC",
-    weekday: "narrow",
+    weekday: width,
   });
   // 4 January 1970 was a Sunday.
   return Array.from({ length: 7 }, (_, i) =>

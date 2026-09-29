@@ -125,6 +125,25 @@ export function ActivityIcon({ filled = false, ...props }: FilledProps) {
   );
 }
 
+/**
+ * Calendar: Mint's calendar (mint-pocs' Icon set, its 24 master), for the
+ * recurring page. Mint draws no solid twin of it, so the current page
+ * shows the same glyph: inventing one would not be Mint's.
+ */
+export function CalendarIcon({
+  filled: _filled = false,
+  ...props
+}: FilledProps) {
+  return (
+    <Glyph {...props}>
+      <path
+        d="M16 2.5C16.55 2.5 17 2.95 17 3.5V4C17.26 4.01 17.51 4.02 17.72 4.04C18.2 4.08 18.66 4.16 19.09 4.38C19.75 4.72 20.28 5.25 20.62 5.91C20.84 6.34 20.92 6.8 20.96 7.28C21 7.74 21 8.32 21 9V16C21 16.68 21 17.26 20.96 17.72C20.92 18.2 20.84 18.66 20.62 19.09C20.28 19.75 19.75 20.28 19.09 20.62C18.66 20.84 18.2 20.92 17.72 20.96C17.26 21 16.68 21 16 21H8C7.32 21 6.74 21 6.28 20.96C5.8 20.92 5.34 20.84 4.91 20.62C4.25 20.28 3.72 19.75 3.38 19.09C3.16 18.66 3.08 18.2 3.04 17.72C3 17.26 3 16.68 3 16V9C3 8.32 3 7.74 3.04 7.28C3.08 6.8 3.16 6.34 3.38 5.91C3.72 5.25 4.25 4.72 4.91 4.38C5.34 4.16 5.8 4.08 6.28 4.04C6.49 4.02 6.74 4.01 7 4V3.5C7 2.95 7.45 2.5 8 2.5C8.55 2.5 9 2.95 9 3.5V4H15V3.5C15 2.95 15.45 2.5 16 2.5ZM5 11V16C5 16.72 5 17.19 5.03 17.56C5.06 17.92 5.11 18.08 5.16 18.18C5.31 18.46 5.54 18.69 5.82 18.84C5.92 18.89 6.08 18.94 6.44 18.97C6.81 19 7.28 19 8 19H16C16.72 19 17.19 19 17.56 18.97C17.92 18.94 18.08 18.89 18.18 18.84C18.46 18.69 18.69 18.46 18.84 18.18C18.89 18.08 18.94 17.92 18.97 17.56C19 17.19 19 16.72 19 16V11H5ZM8 6C7.28 6 6.81 6 6.44 6.03C6.08 6.06 5.92 6.11 5.82 6.16C5.54 6.31 5.31 6.54 5.16 6.82C5.11 6.92 5.06 7.08 5.03 7.44C5 7.81 5 8.28 5 9H19C19 8.28 19 7.81 18.97 7.44C18.94 7.08 18.89 6.92 18.84 6.82C18.69 6.54 18.46 6.31 18.18 6.16C18.08 6.11 17.92 6.06 17.56 6.03C17.19 6 16.72 6 16 6H8Z"
+        fillRule="evenodd"
+      />
+    </Glyph>
+  );
+}
+
 /** Search: a magnifier. */
 export function SearchIcon(props: IconProps) {
   return (
@@ -849,4 +868,72 @@ export function ChevronBackIcon(props: IconProps) {
 /** A drawn chevron forward: the next month. */
 export function ChevronForwardIcon(props: IconProps) {
   return <Stroke16 {...props} d="M6 4l4 4-4 4" />;
+}
+
+// ---- The Earnings calendar's (mint-pocs), drawn on the 16 master: its
+// previous-month chevron (the next one is ChevronSmallIcon), its filter
+// button's three bars and its day popover's close cross. ----
+
+/** A small drawn chevron back: the calendar's previous month. */
+export function ChevronSmallBackIcon({ size = 14, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M9.5 4L5.5 8L9.5 12"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** Filter: three bars narrowing down, the calendar's filter button. */
+export function FilterIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M2.5 4.5h11M4.5 8h7M6.5 11.5h3"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** A drawn cross: the calendar's day popover closes on it. */
+export function CloseLineIcon({ size = 14, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 4l8 8M12 4l-8 8"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }

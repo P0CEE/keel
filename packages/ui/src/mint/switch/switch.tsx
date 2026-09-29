@@ -26,6 +26,7 @@ import {
   LEAN,
   leanOrigin,
   STRETCH,
+  type SwitchSize,
   toggleBeats,
 } from "./knob";
 import styles from "./switch.module.css";
@@ -33,13 +34,16 @@ import styles from "./switch.module.css";
 // mint-pocs' Switch (src/demos/switch/SwitchDemo.tsx): Mint's 40x22 toggle
 // on Base UI's Switch (keyboard, focus and role="switch" come free). The
 // knob stretches toward the midpoint, lands compressed, then springs back
-// round; hover leans it toward where it would go.
+// round; hover leans it toward where it would go. `size="small"` is the
+// 32x18 one the Earnings calendar sets beside 12px labels.
 
 export type SwitchProps = Omit<
   ComponentPropsWithoutRef<typeof BaseSwitch.Root>,
   "ref" | "className"
 > & {
   readonly ref?: Ref<HTMLSpanElement>;
+  /** 40x22 by default; "small" is 32x18, for a switch beside 12px labels. */
+  readonly size?: SwitchSize;
 };
 
 // Base UI's mouse event, which a caller's own hover handler also receives.
@@ -74,6 +78,7 @@ export function Switch({
   onCheckedChange,
   onMouseEnter,
   onMouseLeave,
+  size = "default",
   ...rest
 }: SwitchProps) {
   const [isChecked, setChecked] = useState(checked ?? defaultChecked ?? false);
@@ -95,7 +100,7 @@ export function Switch({
   }, [checked]);
 
   useEffect(() => {
-    const target = knobX(isChecked);
+    const target = knobX(isChecked, size);
     stopAll(running);
 
     // First paint: place the knob without animating.
@@ -104,7 +109,11 @@ export function Switch({
       animatedFor.current = isChecked;
       return;
     }
-    if (animatedFor.current === isChecked) return;
+    // Same state, new size: the knob rests at the new travel.
+    if (animatedFor.current === isChecked) {
+      x.jump(target);
+      return;
+    }
     if (reduceMotion.current) {
       x.jump(target);
       scaleX.jump(1);
@@ -113,7 +122,7 @@ export function Switch({
     }
 
     // Stretch toward the midpoint, land compressed, spring back round.
-    const beats = toggleBeats(isChecked);
+    const beats = toggleBeats(isChecked, size);
     if (knob.current) knob.current.style.transformOrigin = beats.origin;
     busy.current = true;
     let cancelled = false;
@@ -144,7 +153,7 @@ export function Switch({
       stopAll(running);
       busy.current = false;
     };
-  }, [isChecked, x, scaleX]);
+  }, [isChecked, size, x, scaleX]);
 
   const handleChange = useCallback<NonNullable<SwitchProps["onCheckedChange"]>>(
     (next, details) => {
@@ -179,6 +188,7 @@ export function Switch({
     <BaseSwitch.Root
       ref={ref}
       className={styles.track}
+      data-size={size}
       checked={checked}
       defaultChecked={defaultChecked}
       onCheckedChange={handleChange}
