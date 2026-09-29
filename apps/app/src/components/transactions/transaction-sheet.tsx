@@ -5,6 +5,13 @@ import { type ReactNode, useEffect, useState } from "react";
 
 import { neighbour } from "./page-patch";
 import { useDeleteTransaction, useRestoreTransaction } from "./queries";
+import {
+  CategoryLine,
+  CategoryStep,
+  ReviewNotice,
+  RuleNotice,
+  type RulePrompt,
+} from "./transaction-category";
 import { EditStep, NoteStep, RenameStep } from "./transaction-steps";
 import styles from "./transactions.module.css";
 import type { TransactionView } from "./types";
@@ -13,7 +20,7 @@ import { useTRPC } from "@/trpc/client";
 import { formatDayLabel } from "@keel/finance/dates";
 import { formatMoney } from "@keel/finance/money";
 import { Privacy } from "@keel/ui/finance/privacy";
-import { RoundButton } from "@keel/ui/mint/button";
+import { Button, RoundButton } from "@keel/ui/mint/button";
 import { ChevronBackIcon, ChevronForwardIcon } from "@keel/ui/mint/icons";
 import { MerchantLogo } from "@keel/ui/mint/merchant-logo";
 import {
@@ -24,7 +31,7 @@ import {
 } from "@keel/ui/mint/sheet";
 import { useToasts } from "@keel/ui/mint/toast";
 
-type Mode = "view" | "rename" | "note" | "edit";
+type Mode = "view" | "rename" | "note" | "edit" | "category";
 
 // A key typed into a field is the field's, not the sheet's.
 function typing(target: EventTarget | null): boolean {
@@ -58,6 +65,11 @@ export function TransactionSheet({
 }) {
   const trpc = useTRPC();
   const [mode, setMode] = useState<Mode>("view");
+  // The rule prompt of the row it was offered for, until answered or left.
+  const [prompt, setPrompt] = useState<{
+    readonly id: string;
+    readonly prompt: RulePrompt;
+  } | null>(null);
   const listed = items.find((item) => item.id === openId) ?? null;
   const direct = useQuery({
     ...trpc.transactions.get.queryOptions({ id: openId ?? "" }),
@@ -67,6 +79,7 @@ export function TransactionSheet({
 
   useEffect(() => {
     setMode("view");
+    setPrompt((current) => (current?.id === openId ? current : null));
   }, [openId]);
 
   useEffect(() => {
@@ -114,6 +127,16 @@ export function TransactionSheet({
           onOpen={onOpen}
           onMode={setMode}
           onClose={close}
+          prompt={prompt?.id === item.id ? prompt.prompt : null}
+          onPromptDone={() => setPrompt(null)}
+        />
+      ) : mode === "category" ? (
+        <CategoryStep
+          item={item}
+          onPicked={(offered) => {
+            setMode("view");
+            if (offered !== null) setPrompt({ id: item.id, prompt: offered });
+          }}
         />
       ) : mode === "rename" ? (
         <RenameStep item={item} onDone={() => setMode("view")} />
@@ -149,6 +172,8 @@ function Details({
   onOpen,
   onMode,
   onClose,
+  prompt,
+  onPromptDone,
 }: {
   readonly item: TransactionView;
   readonly today: string;
@@ -157,6 +182,8 @@ function Details({
   readonly onOpen: (id: string) => void;
   readonly onMode: (mode: Mode) => void;
   readonly onClose: () => void;
+  readonly prompt: RulePrompt | null;
+  readonly onPromptDone: () => void;
 }) {
   const t = useScopedI18n("transaction");
   const list = useScopedI18n("transactions");
@@ -228,6 +255,13 @@ function Details({
             sign: "always",
           })}
         </Privacy>
+        <CategoryLine item={item} onChange={() => onMode("category")} />
+        <div className={styles.notices}>
+          <ReviewNotice item={item} />
+          {prompt === null ? null : (
+            <RuleNotice prompt={prompt} onDone={onPromptDone} />
+          )}
+        </div>
         <dl className={styles.facts}>
           <Row term={t("date")}>
             {formatDayLabel(item.purchasedOn, today, locale)}
@@ -253,11 +287,14 @@ function Details({
         {item.editable === "member" ? (
           <p className={styles.locked}>{t("locked")}</p>
         ) : null}
+        {/* Out of the action row: two actions fit a phone, three do not. */}
+        <div className={styles.danger}>
+          <Button variant="transparent" size="small" onClick={onDelete}>
+            {t("delete")}
+          </Button>
+        </div>
       </SheetBody>
       <SheetActions>
-        <SheetAction variant="negative" onClick={onDelete}>
-          {t("delete")}
-        </SheetAction>
         <SheetAction variant="secondary" onClick={() => onMode("note")}>
           {t("edit_note")}
         </SheetAction>

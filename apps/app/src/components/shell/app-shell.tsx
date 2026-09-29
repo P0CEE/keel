@@ -7,7 +7,7 @@ import { type ReactNode, useMemo, useState, useSyncExternalStore } from "react";
 
 import styles from "./app-shell.module.css";
 import { navigation, phonePageOrder } from "./navigation";
-import { REVIEW_ITEMS } from "./review-items";
+import { useReviewItems } from "./review-items";
 import { TopPage } from "./top-pages";
 import { signOut } from "@/lib/auth-client";
 import { useScopedI18n } from "@/locales/client";
@@ -106,7 +106,7 @@ export function AppShell({
   const { theme, resolvedTheme, setTheme } = useTheme();
 
   const mounted = useMounted();
-  const dockItems = REVIEW_ITEMS;
+  const dockItems = useReviewItems();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [dockOpen, setDockOpen] = useState(false);
   const [keysOpen, setKeysOpen] = useState(false);

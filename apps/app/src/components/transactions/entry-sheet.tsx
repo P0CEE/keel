@@ -6,11 +6,14 @@ import { useCreateTransaction } from "./queries";
 import type { FilterAccount } from "./transaction-filters";
 import styles from "./transactions.module.css";
 import { useAccountsOverview } from "@/components/accounts/queries";
+import { useTaxonomy } from "@/components/categories/queries";
+import { categoryTree } from "@/components/categories/taxonomy";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import {
   TRANSACTION_LABEL_MAX as LABEL_MAX,
   TRANSACTION_NOTE_MAX as NOTE_MAX,
 } from "@keel/finance/labels";
+import { signFits } from "@keel/finance/taxonomy";
 import { AmountInput, toMinor } from "@keel/ui/mint/amount-input";
 import { DateTimeInput } from "@keel/ui/mint/date-time-input";
 import { SegmentedControl } from "@keel/ui/mint/segmented-control";
@@ -56,6 +59,23 @@ export function EntrySheet({
   const [day, setDay] = useState<string | null>(null);
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
+  // "auto" leaves the choice to the ladder.
+  const [categoryId, setCategoryId] = useState("auto");
+  const appLocale = useCurrentLocale();
+  const { views } = useTaxonomy();
+  const categoryItems = [
+    { value: "auto", label: t("category_auto") },
+    ...categoryTree(views, appLocale)
+      .filter((group) =>
+        signFits(group.category.nature, direction === "expense" ? -1 : 1),
+      )
+      .flatMap((group) =>
+        group.leaves.map(({ leaf, name }) => ({
+          value: leaf.id,
+          label: `${group.name} · ${name}`,
+        })),
+      ),
+  ];
 
   const chosen = accountId ?? defaultAccountId ?? accounts[0]?.id ?? null;
   const currency =
@@ -78,6 +98,7 @@ export function EntrySheet({
     setDay(null);
     setLabel("");
     setNote("");
+    setCategoryId("auto");
   };
   const items = accounts.map((account) => ({
     value: account.id,
@@ -170,6 +191,27 @@ export function EntrySheet({
               maxLength={LABEL_MAX}
               onChange={(event) => setLabel(event.currentTarget.value)}
             />
+            <Select
+              value={
+                categoryItems.some((item) => item.value === categoryId)
+                  ? categoryId
+                  : "auto"
+              }
+              items={categoryItems}
+              onValueChange={(value) => setCategoryId(value ?? "auto")}
+            >
+              <Select.Trigger label={t("category")} filled>
+                <Select.Value />
+                <Select.Icon />
+              </Select.Trigger>
+              <Select.Content matchTriggerWidth>
+                {categoryItems.map((item) => (
+                  <Select.Item key={item.value} value={item.value}>
+                    {item.label}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
             <TextField
               label={t("note")}
               optionalMark={t("optional")}
@@ -194,6 +236,11 @@ export function EntrySheet({
               purchasedOn: day ?? today,
               label: trimmed,
               note: note.trim() === "" ? null : note.trim(),
+              categoryId:
+                categoryId === "auto" ||
+                !categoryItems.some((item) => item.value === categoryId)
+                  ? null
+                  : categoryId,
             });
             reset();
             onOpenChange(false);

@@ -26,7 +26,13 @@ const STALE_MS = 60_000;
 /** The list's input for a filter: normalized, so equal filters share a key. */
 export function pageInput(filter: TransactionFilter) {
   const normalized = normalizeTransactionFilter(filter);
-  return { filter: { ...normalized, accounts: [...normalized.accounts] } };
+  return {
+    filter: {
+      ...normalized,
+      accounts: [...normalized.accounts],
+      categories: [...normalized.categories],
+    },
+  };
 }
 
 function useInfiniteOptions(filter: TransactionFilter) {

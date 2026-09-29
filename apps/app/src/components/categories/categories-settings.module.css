@@ -1,0 +1,66 @@
+/* The household's subcategories and rules: rows of the settings card. */
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  min-height: 56px;
+  border-top: 1px solid var(--line);
+}
+
+.row:first-child {
+  border-top: 0;
+}
+
+.who {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  color: var(--ink-3);
+}
+
+.empty {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-2);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  padding-bottom: var(--space-s1);
+}
+
+/* The icon tile beside the name, as the icon picker sits in its demo. */
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+}
+
+.nameRow > :last-child {
+  flex: 1;
+  min-width: 0;
+}

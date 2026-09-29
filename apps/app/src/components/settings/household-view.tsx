@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useHousehold, useUpdateHousehold } from "./queries";
 import { SettingsSection } from "./settings-section";
 import styles from "./settings.module.css";
+import { CategoriesSettings } from "@/components/categories/categories-settings";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { CURRENCIES, currencyName, isCurrency } from "@keel/finance/currencies";
 import { listTimeZones, timeZoneLabel } from "@keel/finance/dates";
@@ -107,6 +108,8 @@ export function HouseholdView() {
           </Select.Content>
         </Select>
       </SettingsSection>
+
+      <CategoriesSettings />
     </div>
   );
 }

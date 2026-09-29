@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { BulkCategorize } from "./bulk-categorize";
 import { EntrySheet } from "./entry-sheet";
 import { loadedTransactions } from "./page-patch";
 import { usePrefetchTransactions, useTransactions } from "./queries";
@@ -11,7 +12,11 @@ import styles from "./transactions.module.css";
 import type { TransactionView } from "./types";
 import { useTransactionsUrl } from "./use-transactions-url";
 import { useAccountsOverview } from "@/components/accounts/queries";
+import { LeafGlyph } from "@/components/categories/category-picker";
+import { useTaxonomy } from "@/components/categories/queries";
+import { leafOf } from "@/components/categories/taxonomy";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
+import { apiUrl } from "@/trpc/client";
 import { accountDisplayName } from "@keel/finance/accounts";
 import {
   EMPTY_TRANSACTION_FILTER,
@@ -36,7 +41,12 @@ const PREFETCH_MARGIN = "1200px";
 export function TransactionsView() {
   const t = useScopedI18n("transactions");
   const kinds = useScopedI18n("accounts.kind");
-  const locale = useCurrentLocale() === "fr" ? "fr-FR" : "en-US";
+  const appLocale = useCurrentLocale();
+  const locale = appLocale === "fr" ? "fr-FR" : "en-US";
+  const taxonomy = useTaxonomy();
+  // Bulk selection: off until asked for, so a tap on a row opens it.
+  const [selecting, setSelecting] = useState(false);
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const url = useTransactionsUrl();
   const overview = useAccountsOverview().data;
   const list = useTransactions(url.filter);
@@ -76,18 +86,34 @@ export function TransactionsView() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const rows: readonly TransactionListItem[] = items.map((item) => ({
-    id: item.id,
-    label: item.name,
-    day: item.purchasedOn,
-    amountMinor: item.amount.minor,
-    currency: item.amount.currency,
-    accountLabel:
-      item.accountName ??
-      accountDisplayName(null, null, kinds(item.accountKind)),
-    category: null,
-    logoUrl: item.logoUrl,
-  }));
+  const rows: readonly TransactionListItem[] = items.map((item) => {
+    const leaf = leafOf(taxonomy.byId, item.categoryId, appLocale);
+    return {
+      id: item.id,
+      label: item.name,
+      day: item.purchasedOn,
+      amountMinor: item.amount.minor,
+      currency: item.amount.currency,
+      accountLabel:
+        item.accountName ??
+        accountDisplayName(null, null, kinds(item.accountKind)),
+      category:
+        leaf === null
+          ? null
+          : { label: leaf.name, icon: <LeafGlyph icon={leaf.icon} /> },
+      logoUrl: item.logoUrl === null ? null : `${apiUrl}${item.logoUrl}`,
+    };
+  });
+  const toggle = (id: string) =>
+    setSelected((current) =>
+      current.has(id)
+        ? new Set([...current].filter((other) => other !== id))
+        : new Set([...current, id]),
+    );
+  const stopSelecting = () => {
+    setSelecting(false);
+    setSelected(new Set());
+  };
 
   const open = (item: TransactionView | null) =>
     url.write({ tx: item === null ? null : item.id });
@@ -98,13 +124,22 @@ export function TransactionsView() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>{t("title")}</h1>
-        <Button
-          size="small"
-          variant="secondary"
-          onClick={() => url.write({ entry: true })}
-        >
-          {t("add")}
-        </Button>
+        <div className={styles.headerActions}>
+          <Button
+            size="small"
+            variant="tertiary"
+            onClick={() => (selecting ? stopSelecting() : setSelecting(true))}
+          >
+            {selecting ? t("done_selecting") : t("select")}
+          </Button>
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => url.write({ entry: true })}
+          >
+            {t("add")}
+          </Button>
+        </div>
       </header>
 
       <TransactionFilters
@@ -146,6 +181,16 @@ export function TransactionsView() {
             onSelect={(row) =>
               open(items.find((item) => item.id === row.id) ?? null)
             }
+            {...(selecting
+              ? {
+                  selection: {
+                    selected,
+                    onToggle: toggle,
+                    label: (row: TransactionListItem) =>
+                      t("select_row", { name: row.label }),
+                  },
+                }
+              : {})}
           />
           <div ref={sentinel} className={styles.more}>
             {hasNextPage ? (
@@ -160,6 +205,10 @@ export function TransactionsView() {
           </div>
         </>
       )}
+
+      {selecting ? (
+        <BulkCategorize selected={selected} onDone={stopSelecting} />
+      ) : null}
 
       <TransactionSheet
         openId={url.openId}

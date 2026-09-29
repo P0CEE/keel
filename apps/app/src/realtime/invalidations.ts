@@ -41,6 +41,16 @@ export const invalidations = {
   "transactions.changed": (_payload, trpc) => [
     trpc.transactions.page.pathKey(),
     trpc.transactions.get.pathKey(),
+    trpc.transactions.review.queryKey(),
+  ],
+  "transactions.categorized": (_payload, trpc) => [
+    trpc.transactions.page.pathKey(),
+    trpc.transactions.get.pathKey(),
+    trpc.transactions.review.queryKey(),
+  ],
+  "categories.changed": (_payload, trpc) => [
+    trpc.categories.list.queryKey(),
+    trpc.mappings.list.queryKey(),
   ],
   "household.reconciled": ({ accountIds }, trpc) =>
     accountIds.map((accountId) =>

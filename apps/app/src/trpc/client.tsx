@@ -23,7 +23,9 @@ import type { AppRouter } from "@keel/api";
 
 export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>();
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+/** Where the API lives; also what its relative URLs (logos) resolve against. */
+export const apiUrl =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 let browserQueryClient: QueryClient | undefined;
 

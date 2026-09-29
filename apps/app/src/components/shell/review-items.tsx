@@ -1,40 +1,48 @@
+"use client";
+
+import { useAccountsOverview } from "@/components/accounts/queries";
+import { useReviewCount } from "@/components/categories/queries";
+import { useScopedI18n } from "@/locales/client";
 import { CategoryGlyph } from "@keel/ui/finance/category-glyphs";
-import { RepeatIcon } from "@keel/ui/mint/icons";
 import type { DockAction } from "@keel/ui/mint/sidebar-dock";
 
 /**
- * What waits for the member, shown by the rail's dock. Sample data until the
- * review queue exists: it will then be a household read model the server
- * renders with the shell, so the dock is there from the first paint, never
- * published by a page after hydration.
+ * What waits for the member, shown by the rail's dock: the transactions to
+ * check (the review queue) and the banks to reconnect. Both reads are primed
+ * by the signed-in layout, so the dock is there from the first paint. The
+ * recurring series join with lot 6.
  */
-export const REVIEW_ITEMS: readonly DockAction[] = [
-  {
-    id: "uncategorized",
-    title: "12 transactions à catégoriser",
-    detail: "Depuis le 3 septembre",
-    icon: <CategoryGlyph name="uncategorized" />,
-    href: "/transactions",
-  },
-  {
-    id: "recurring",
-    title: "Navigo revient chaque mois",
-    detail: "Confirmer la série",
-    logo: { name: "Navigo" },
-    href: "/transactions",
-  },
-  {
-    id: "bank",
-    title: "Crédit Mutuel à reconnecter",
-    detail: "Le consentement expire dans 3 jours",
-    logo: { name: "Crédit Mutuel" },
-    href: "/accounts",
-  },
-  {
-    id: "series",
-    title: "Loyer pas encore passé",
-    detail: "Attendu le 5 septembre",
-    icon: <RepeatIcon size={16} />,
-    href: "/transactions",
-  },
-];
+export function useReviewItems(): readonly DockAction[] {
+  const t = useScopedI18n("shell");
+  const count = useReviewCount();
+  const connections = useAccountsOverview().data?.connections ?? [];
+  const banks = connections
+    .filter((row) => row.canManage && row.attention !== "none")
+    .map(
+      (row): DockAction => ({
+        id: `bank-${row.id}`,
+        title: t("reconnect_item", { bank: row.institution.name }),
+        detail:
+          row.attention === "reconnect"
+            ? t("reconnect_detail")
+            : t("expiring_detail", { days: Math.max(row.expiresInDays, 0) }),
+        logo: { name: row.institution.name, src: row.institution.logoUrl },
+        href: "/accounts",
+      }),
+    );
+  return [
+    ...(count === 0
+      ? []
+      : [
+          {
+            id: "review",
+            title:
+              count === 1 ? t("review_item") : t("review_items", { count }),
+            detail: t("review_detail"),
+            icon: <CategoryGlyph name="uncategorized" />,
+            href: "/transactions?review=1",
+          },
+        ]),
+    ...banks,
+  ];
+}

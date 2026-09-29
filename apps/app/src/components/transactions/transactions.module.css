@@ -159,3 +159,94 @@
   font-weight: var(--weight-medium);
   color: var(--ink-2);
 }
+
+/* The sheet's category: a row of its own, tapped to change it. */
+.categoryLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1);
+  width: calc(100% + 2 * var(--space-s1));
+  min-height: 44px;
+  margin: var(--space-s1-50) calc(-1 * var(--space-s1)) 0;
+  padding: var(--space-s0-50) var(--space-s1);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--highlight);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  text-align: start;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .categoryLine:hover {
+    background: var(--hover);
+  }
+}
+
+.categoryLine:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.categoryName {
+  flex: 1;
+  min-width: 0;
+}
+
+.categorySource {
+  color: var(--ink-3);
+  font-weight: var(--weight-regular);
+}
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1);
+  margin-top: var(--space-s1);
+}
+
+.notices:empty {
+  display: none;
+}
+
+/* The selection's bar, kept in view at the bottom of the page. */
+.bulkBar {
+  position: sticky;
+  bottom: var(--space-s2);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s2);
+  padding: var(--space-s1) var(--space-s1) var(--space-s1) var(--space-s2);
+  border-radius: var(--radius-16);
+  background: var(--popup);
+  box-shadow: var(--shadow-float);
+  backdrop-filter: blur(20px);
+}
+
+.bulkCount {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-s1);
+}
+
+.danger {
+  display: flex;
+  justify-content: flex-start;
+  margin: var(--space-s1) 0 0 calc(-1 * var(--space-s1));
+}
+
+.danger > button {
+  color: var(--negative);
+}

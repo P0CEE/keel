@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 
 import { periodOf, periodRange, PERIODS } from "./period";
 import styles from "./transactions.module.css";
-import { useScopedI18n } from "@/locales/client";
+import { useTaxonomy } from "@/components/categories/queries";
+import { categoryTree } from "@/components/categories/taxonomy";
+import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import type { Day } from "@keel/finance/dates";
 import {
   normalizeTransactionFilter,
@@ -12,6 +14,7 @@ import {
   type TransactionFilter,
 } from "@keel/finance/transaction-filter";
 import { Chip, ChipRow } from "@keel/ui/mint/chips";
+import { Select } from "@keel/ui/mint/select";
 import { TextField } from "@keel/ui/mint/text-field";
 
 // Typing waits this long before the list asks the server again.
@@ -40,6 +43,16 @@ export function TransactionFilters({
 }) {
   const t = useScopedI18n("transactions");
   const [query, setQuery] = useState(filter.q);
+  const appLocale = useCurrentLocale();
+  const { views } = useTaxonomy();
+  const ALL = "all";
+  const categoryItems = [
+    { value: ALL, label: t("all_categories") },
+    ...categoryTree(views, appLocale).map((group) => ({
+      value: group.category.id,
+      label: group.name,
+    })),
+  ];
   const period = periodOf(filter, today);
 
   // The URL is the truth: a back button or a cleared filter resets the box.
@@ -105,7 +118,37 @@ export function TransactionFilters({
             </Chip>
           );
         })}
+        <Chip
+          size="small"
+          selected={filter.review}
+          onSelectedChange={(review) => onChange({ ...filter, review })}
+          {...chip({ ...filter, review: !filter.review })}
+        >
+          {t("review")}
+        </Chip>
       </ChipRow>
+      <Select
+        value={filter.categories[0] ?? ALL}
+        items={categoryItems}
+        onValueChange={(value) =>
+          onChange({
+            ...filter,
+            categories: value === null || value === ALL ? [] : [value],
+          })
+        }
+      >
+        <Select.Trigger label={t("category")} filled>
+          <Select.Value />
+          <Select.Icon />
+        </Select.Trigger>
+        <Select.Content>
+          {categoryItems.map((item) => (
+            <Select.Item key={item.value} value={item.value}>
+              {item.label}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
       {accounts.length < 2 ? null : (
         <ChipRow
           role="group"

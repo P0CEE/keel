@@ -1,0 +1,90 @@
+/* The category picker: a search, then the leaves under their category. */
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  padding-bottom: var(--space-s1);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-50);
+}
+
+.groupName {
+  margin: 0;
+  font-size: var(--text-xsmall);
+  line-height: var(--leading-xsmall);
+  font-weight: var(--weight-bold);
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.leaves {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A leaf is a row of the list: the list's hover tint, 8px past the content. */
+.leaf {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+  width: calc(100% + 2 * var(--space-s1));
+  min-height: 44px;
+  margin-inline: calc(-1 * var(--space-s1));
+  padding: var(--space-s0-50) var(--space-s1);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  text-align: start;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .leaf:hover {
+    background: var(--hover);
+  }
+}
+
+.leaf:active {
+  background: var(--pill);
+}
+
+.leaf:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.leafName {
+  flex: 1;
+  min-width: 0;
+}
+
+.check {
+  color: var(--ink);
+}
+
+.glyph {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  color: var(--ink-2);
+}
+
+.empty {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}

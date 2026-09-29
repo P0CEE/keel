@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { useHousehold, useSettings } from "./queries";
 import { useAccountsOverview } from "@/components/accounts/queries";
+import { useReviewCount, useTaxonomy } from "@/components/categories/queries";
 import { useChangeLocale, useCurrentLocale } from "@/locales/client";
 
 /**
@@ -16,6 +17,8 @@ import { useChangeLocale, useCurrentLocale } from "@/locales/client";
 export function MemberData() {
   useHousehold();
   useAccountsOverview();
+  useTaxonomy();
+  useReviewCount();
   const { data } = useSettings();
   const current = useCurrentLocale();
   const changeLocale = useChangeLocale();
