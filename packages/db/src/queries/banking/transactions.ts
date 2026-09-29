@@ -13,7 +13,13 @@ import {
   sql,
 } from "drizzle-orm";
 
-import { bankAccounts, bankConnections, transactions } from "../../schema";
+import {
+  bankAccounts,
+  bankConnections,
+  categories,
+  merchants,
+  transactions,
+} from "../../schema";
 import type { Scope, Transaction } from "../../scope";
 
 export type TransactionRow = typeof transactions.$inferSelect;
@@ -170,6 +176,10 @@ export type TransactionQuery = {
   readonly to: string | null;
   readonly q: string;
   readonly direction: "all" | "in" | "out";
+  /** Leaves or categories; a category covers its leaves. */
+  readonly categories: readonly string[];
+  /** Only rows waiting for the member. */
+  readonly review: boolean;
   readonly after: { readonly purchasedOn: string; readonly id: string } | null;
   readonly limit: number;
 };
@@ -180,6 +190,10 @@ export type ListedTransaction = TransactionRow & {
     readonly providerName: string | null;
     readonly kind: (typeof bankAccounts.$inferSelect)["kind"];
   };
+  readonly merchant: {
+    readonly name: string;
+    readonly domain: string | null;
+  } | null;
 };
 
 // A search typed by a member is matched literally: % and _ are not wildcards.
@@ -221,6 +235,13 @@ export async function listTransactions(
       : query.direction === "out"
         ? sql`${transactions.amountMinor} < 0`
         : undefined,
+    query.categories.length === 0
+      ? undefined
+      : or(
+          inArray(transactions.categoryId, [...query.categories]),
+          inArray(categories.parentId, [...query.categories]),
+        ),
+    query.review ? eq(transactions.needsReview, true) : undefined,
     query.after === null
       ? undefined
       : sql`(${transactions.purchasedOn}, ${transactions.id}) < (${query.after.purchasedOn}::date, ${query.after.id}::uuid)`,
@@ -233,9 +254,13 @@ export async function listTransactions(
         providerName: bankAccounts.providerName,
         kind: bankAccounts.kind,
       },
+      merchantName: merchants.name,
+      merchantDomain: merchants.domain,
     })
     .from(transactions)
     .innerJoin(bankAccounts, eq(bankAccounts.id, transactions.accountId))
+    .leftJoin(merchants, eq(merchants.id, transactions.merchantId))
+    .leftJoin(categories, eq(categories.id, transactions.categoryId))
     .leftJoin(
       bankConnections,
       eq(bankConnections.id, bankAccounts.connectionId),
@@ -243,7 +268,14 @@ export async function listTransactions(
     .where(and(...conditions))
     .orderBy(desc(transactions.purchasedOn), desc(transactions.id))
     .limit(query.limit);
-  return rows.map(({ row, account }) => ({ ...row, account }));
+  return rows.map(({ row, account, merchantName, merchantDomain }) => ({
+    ...row,
+    account,
+    merchant:
+      merchantName === null
+        ? null
+        : { name: merchantName, domain: merchantDomain },
+  }));
 }
 
 /**

@@ -5,3 +5,4 @@ export * from "./fx";
 export * from "./institutions";
 export * from "./scans";
 export * from "./transactions";
+export * from "./categories";

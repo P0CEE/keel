@@ -1,6 +1,7 @@
 import { type SQL, sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   char,
   check,
   date,
@@ -11,6 +12,7 @@ import {
   pgPolicy,
   pgTable,
   primaryKey,
+  real,
   smallint,
   text,
   timestamp,
@@ -21,6 +23,12 @@ import {
 import { uuidv7 } from "../uuid";
 import { user } from "./auth";
 import { bankAccounts } from "./banking";
+import {
+  categories,
+  categorySource,
+  merchantMappings,
+  merchants,
+} from "./categorization";
 import { households } from "./households";
 import { currentHousehold, currentMember, keelApp } from "./rls";
 
@@ -93,6 +101,26 @@ export const transactions = pgTable(
     merchantKey: text("merchant_key"),
     // The `LABELS_VERSION` that computed `merchant_key`.
     labelsVersion: smallint("labels_version").notNull(),
+    merchantId: uuid("merchant_id").references(() => merchants.id, {
+      onDelete: "set null",
+    }),
+    // A leaf only (a trigger checks it); one writer (ADR 0006).
+    categoryId: uuid("category_id").references(() => categories.id, {
+      onDelete: "restrict",
+    }),
+    categorySource: categorySource("category_source"),
+    // The mapping that decided, so moving it moves exactly its rows.
+    categoryMappingId: uuid("category_mapping_id").references(
+      () => merchantMappings.id,
+      { onDelete: "set null" },
+    ),
+    // The model's own figure, kept for the eval; never what decides a review.
+    categoryConfidence: real("category_confidence"),
+    // Null: the row waits for categorization (`bank.categorize`).
+    categorizedAt: timestamp("categorized_at", { withTimezone: true }),
+    // Set by the review rules (04-ai-study.md, section 4.2), cleared by the
+    // member.
+    needsReview: boolean("needs_review").notNull().default(false),
     displayName: text("display_name"),
     note: text("note"),
     // What the search reads (R2): accents and case dropped, one trigram index.
@@ -121,6 +149,22 @@ export const transactions = pgTable(
     index("transactions_household_purchased_idx")
       .on(table.householdId, table.purchasedOn.desc(), table.id.desc())
       .where(sql`${table.deletedAt} IS NULL`),
+    // R12: what waits for categorization; a merchant's history.
+    index("transactions_pending_idx")
+      .on(table.householdId)
+      .where(
+        sql`${table.categorizedAt} IS NULL AND ${table.deletedAt} IS NULL`,
+      ),
+    index("transactions_merchant_key_idx")
+      .on(table.householdId, table.merchantKey)
+      .where(sql`${table.deletedAt} IS NULL`),
+    // R3: the review queue.
+    index("transactions_review_idx")
+      .on(table.householdId)
+      .where(sql`${table.needsReview} AND ${table.deletedAt} IS NULL`),
+    index("transactions_mapping_idx")
+      .on(table.categoryMappingId)
+      .where(sql`${table.categoryMappingId} IS NOT NULL`),
     // R2: the search.
     index("transactions_search_trgm_idx").using(
       "gin",

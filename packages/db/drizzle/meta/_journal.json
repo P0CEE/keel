@@ -85,6 +85,13 @@
       "when": 1790631809400,
       "tag": "0011_sync_scans",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790634681233,
+      "tag": "0012_categorization",
+      "breakpoints": true
     }
   ]
 }
