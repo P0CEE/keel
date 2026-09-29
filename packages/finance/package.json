@@ -7,6 +7,7 @@
   "exports": {
     "./accounts": "./src/accounts.ts",
     "./balances": "./src/balances.ts",
+    "./business-days": "./src/business-days.ts",
     "./categorization": "./src/categorization.ts",
     "./currencies": "./src/currencies.ts",
     "./dates": "./src/dates.ts",
@@ -15,6 +16,7 @@
     "./fx": "./src/fx.ts",
     "./labels": "./src/labels.ts",
     "./money": "./src/money.ts",
+    "./recurring": "./src/recurring/index.ts",
     "./settlement": "./src/settlement.ts",
     "./taxonomy": "./src/taxonomy.ts",
     "./transaction-filter": "./src/transaction-filter.ts",
