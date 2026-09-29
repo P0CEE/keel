@@ -17,6 +17,10 @@ export type TransactionFilter = {
   /** Words to find in the label, name, counterparty or note; "" for none. */
   readonly q: string;
   readonly direction: TransactionDirection;
+  /** Category or leaf ids, sorted; a category covers its leaves. */
+  readonly categories: readonly string[];
+  /** Only what waits for the member (the "to review" queue). */
+  readonly review: boolean;
 };
 
 export type TransactionFilterInput = {
@@ -25,6 +29,8 @@ export type TransactionFilterInput = {
   readonly to?: string | null;
   readonly q?: string | null;
   readonly direction?: string | null;
+  readonly categories?: readonly string[] | null;
+  readonly review?: boolean | null;
 };
 
 export const MAX_FILTER_ACCOUNTS = 50;
@@ -36,6 +42,8 @@ export const EMPTY_TRANSACTION_FILTER: TransactionFilter = {
   to: null,
   q: "",
   direction: "all",
+  categories: [],
+  review: false,
 };
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -61,10 +69,12 @@ function isDirection(value: string): value is TransactionDirection {
 export function normalizeTransactionFilter(
   input: TransactionFilterInput,
 ): TransactionFilter {
-  const accounts = [...new Set(input.accounts ?? [])]
-    .filter((id) => id !== "")
-    .toSorted()
-    .slice(0, MAX_FILTER_ACCOUNTS);
+  const ids = (values: readonly string[] | null | undefined) =>
+    [...new Set(values ?? [])]
+      .filter((id) => id !== "")
+      .toSorted()
+      .slice(0, MAX_FILTER_ACCOUNTS);
+  const accounts = ids(input.accounts);
   const from = toDay(input.from);
   const to = toDay(input.to);
   const reversed = from !== null && to !== null && from > to;
@@ -80,6 +90,8 @@ export function normalizeTransactionFilter(
     to: reversed ? from : to,
     q,
     direction: isDirection(direction) ? direction : "all",
+    categories: ids(input.categories),
+    review: input.review === true,
   };
 }
 
@@ -90,12 +102,15 @@ export function isEmptyTransactionFilter(filter: TransactionFilter): boolean {
     filter.from === null &&
     filter.to === null &&
     filter.q === "" &&
-    filter.direction === "all"
+    filter.direction === "all" &&
+    filter.categories.length === 0 &&
+    !filter.review
   );
 }
 
 /**
- * The filter a URL's query says (`?accounts=…&from=…&to=…&q=…&dir=…`). The
+ * The filter a URL's query says (`?accounts=…&from=…&to=…&q=…&dir=…&cat=…
+ * &review=1`). The
  * account sheet of the accounts page owns `?account=`, hence the plural.
  */
 export function transactionFilterFromParams(
@@ -107,6 +122,8 @@ export function transactionFilterFromParams(
     to: params.get("to"),
     q: params.get("q"),
     direction: params.get("dir"),
+    categories: params.getAll("cat"),
+    review: params.get("review") === "1",
   });
 }
 
@@ -121,5 +138,7 @@ export function transactionFilterToParams(
   if (normalized.to !== null) params.set("to", normalized.to);
   if (normalized.q !== "") params.set("q", normalized.q);
   if (normalized.direction !== "all") params.set("dir", normalized.direction);
+  for (const category of normalized.categories) params.append("cat", category);
+  if (normalized.review) params.set("review", "1");
   return params;
 }

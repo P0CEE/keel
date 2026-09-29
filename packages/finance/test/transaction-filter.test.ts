@@ -64,10 +64,12 @@ describe("URL round trip", () => {
       from: "2026-09-01",
       q: "café",
       direction: "in",
+      categories: ["c2", "c1"],
+      review: true,
     });
     const params = transactionFilterToParams(filter);
     expect(params.toString()).toBe(
-      "accounts=a&accounts=b&from=2026-09-01&q=caf%C3%A9&dir=in",
+      "accounts=a&accounts=b&from=2026-09-01&q=caf%C3%A9&dir=in&cat=c1&cat=c2&review=1",
     );
     expect(transactionFilterFromParams(params)).toEqual(filter);
   });

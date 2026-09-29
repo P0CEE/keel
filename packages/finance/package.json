@@ -7,12 +7,15 @@
   "exports": {
     "./accounts": "./src/accounts.ts",
     "./balances": "./src/balances.ts",
+    "./categorization": "./src/categorization.ts",
     "./currencies": "./src/currencies.ts",
     "./dates": "./src/dates.ts",
+    "./dictionaries": "./src/dictionaries.ts",
     "./fx": "./src/fx.ts",
     "./labels": "./src/labels.ts",
     "./money": "./src/money.ts",
     "./settlement": "./src/settlement.ts",
+    "./taxonomy": "./src/taxonomy.ts",
     "./transaction-filter": "./src/transaction-filter.ts"
   },
   "scripts": {
