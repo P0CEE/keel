@@ -1,11 +1,2 @@
-@import "@keel/ui/styles.css";
 @import "@keel/ui/mint/tokens.css";
-
-/* The app font (loaded via next/font in layout.tsx as --font-app) is the one
-   every surface reads: the Mint tokens' --font-sans and Tailwind's font-sans
-   utility for the pages not yet ported. */
-@theme {
-  --font-sans:
-    var(--font-app), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    sans-serif;
-}
+@import "@keel/ui/mint/base.css";

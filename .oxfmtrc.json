@@ -26,7 +26,6 @@
     "newlinesBetween": true,
     "order": "asc"
   },
-  "experimentalTailwindcss": {},
   "ignorePatterns": [
     "node_modules",
     "dist",

@@ -22,8 +22,6 @@
     "@trpc/client": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
     "better-auth": "catalog:",
-    "clsx": "catalog:",
-    "lucide-react": "catalog:",
     "motion": "catalog:",
     "next": "catalog:",
     "next-international": "catalog:",
@@ -34,13 +32,11 @@
   },
   "devDependencies": {
     "@keel/tsconfig": "workspace:*",
-    "@tailwindcss/postcss": "catalog:",
     "@trpc/server": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
-    "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "zod": "catalog:"
   }

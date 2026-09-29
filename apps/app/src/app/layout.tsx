@@ -63,7 +63,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className={appFont.variable} suppressHydrationWarning>
-      <body className="bg-canvas text-foreground font-sans antialiased">
+      <body>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

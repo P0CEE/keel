@@ -1,0 +1,48 @@
+/* A page the app shows instead of a screen: not found, or failed. The mark,
+   one line, one sentence and the way out, centred on the page. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  max-width: 448px;
+  margin: 0 auto;
+  padding: 0 var(--space-s3);
+  text-align: center;
+}
+
+.mark {
+  width: 41px;
+  height: 32px;
+  color: var(--ink);
+}
+
+.title {
+  margin-top: var(--space-s4);
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.description {
+  margin-top: var(--space-s1-50);
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.action {
+  margin-top: var(--space-s4);
+}
+
+.link {
+  margin-top: var(--space-s4);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -7,8 +7,11 @@ import { join, relative } from "node:path";
 // roles only, never a raw colour of their own.
 
 const SRC = join(import.meta.dir, "../src");
-// The app's own stylesheets read the same roles.
-const APP = join(import.meta.dir, "../../../apps/app/src");
+// The app's and the site's own stylesheets read the same roles.
+const APPS = [
+  join(import.meta.dir, "../../../apps/app/src"),
+  join(import.meta.dir, "../../../apps/website/src"),
+];
 const TOKENS = join(SRC, "mint/tokens.css");
 
 // Provided from outside the stylesheet: next/font, Base UI's positioners
@@ -40,17 +43,10 @@ function files(dir: string): string[] {
   });
 }
 
-// Only the Mint port follows these rules; the legacy shadcn components have
-// their own theme until they are replaced.
 const mintFiles = [
-  ...files(SRC).filter(
-    (path) =>
-      (path.includes("/mint/") || path.includes("/finance/")) &&
-      /\.(css|tsx?)$/.test(path) &&
-      path !== TOKENS,
-  ),
-  ...files(APP).filter(
-    (path) => path.endsWith(".module.css") || path.endsWith(".tsx"),
+  ...files(SRC).filter((path) => /\.(css|tsx?)$/.test(path) && path !== TOKENS),
+  ...APPS.flatMap(files).filter(
+    (path) => path.endsWith(".css") || path.endsWith(".tsx"),
   ),
 ];
 

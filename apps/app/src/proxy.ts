@@ -13,7 +13,7 @@ const I18nMiddleware = createI18nMiddleware({
  * Build a strict, nonce-based Content-Security-Policy. Scripts are allowed
  * only with the per-request nonce plus 'strict-dynamic' (no 'unsafe-inline'),
  * which is what defeats reflected/stored XSS. 'unsafe-inline' is kept for
- * styles because Tailwind and React inject inline styles at runtime.
+ * styles because React and motion inject inline styles at runtime.
  */
 function buildCsp(nonce: string): string {
   const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";

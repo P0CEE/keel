@@ -7,7 +7,6 @@ import { I18nProviderClient } from "@/locales/client";
 import { TRPCReactProvider } from "@/trpc/client";
 import { HintProvider } from "@keel/ui/mint/hint";
 import { InputModality } from "@keel/ui/mint/input-modality";
-import { TooltipProvider } from "@keel/ui/tooltip";
 
 type ProvidersProps = {
   locale: string;
@@ -22,9 +21,7 @@ export function Providers({ locale, children }: ProvidersProps) {
             its reduced path; each component also keeps its own fade-only path */}
         <MotionConfig reducedMotion="user">
           <InputModality />
-          <HintProvider>
-            <TooltipProvider delayDuration={100}>{children}</TooltipProvider>
-          </HintProvider>
+          <HintProvider>{children}</HintProvider>
         </MotionConfig>
       </I18nProviderClient>
     </TRPCReactProvider>
