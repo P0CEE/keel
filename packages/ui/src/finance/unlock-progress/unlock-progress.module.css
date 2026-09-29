@@ -1,0 +1,105 @@
+/* mint-pocs' Unlock progress (src/demos/unlock-progress/UnlockProgress.tsx),
+   rule for rule: its inks read from the roles in tokens.css, the bronze and
+   the hatch from the material roles declared there (--bronze, --hatch). The
+   demo's Button is not here: keel's is mint/button. */
+
+.root {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- The headline: its two versions in one grid cell ---- */
+.head {
+  display: grid;
+}
+
+.head > *,
+.labelBox > * {
+  grid-area: 1 / 1;
+}
+
+.headline {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--text-xlarge);
+  line-height: var(--leading-xlarge);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.03em;
+  text-wrap: pretty;
+}
+
+.lead {
+  display: block;
+  color: var(--ink);
+}
+
+.highlight {
+  color: var(--bronze-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- The bar: 28px, radius 8, the fill and the hatched rest 2px apart ---- */
+.bar {
+  position: relative;
+  height: 28px;
+  margin-top: var(--space-s4);
+  border-radius: var(--radius-8);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* the gradient spans the fill, not the bar: its end is lit at any progress */
+.fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  background: var(--bronze);
+  box-shadow: inset -1px 0 0 var(--bronze-tip);
+}
+
+.rest {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      var(--hatch-stripe) 0 1.4px,
+      transparent 1.4px 4.25px
+    ),
+    var(--hatch);
+  box-shadow: inset 0 1px 0 var(--hatch-edge);
+}
+
+/* a skewed band of white crossing the fill once, when it unlocks */
+.sweep {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: 0;
+  width: 24%;
+  background: var(--shimmer);
+  pointer-events: none;
+}
+
+/* ---- The label, riding the fill's end: a box as wide as the fill, never
+   narrower than the label ---- */
+.labelBox {
+  display: grid;
+  justify-items: end;
+  min-width: max-content;
+  margin-top: var(--space-s0-50);
+}
+
+.label {
+  color: var(--bronze-label);
+  white-space: nowrap;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}

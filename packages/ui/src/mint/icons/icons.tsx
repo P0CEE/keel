@@ -144,6 +144,21 @@ export function CalendarIcon({
   );
 }
 
+/**
+ * Budgets: Mint's pie chart (mint-pocs' Icon set, its 24 master), for the
+ * budgets page. Mint draws no solid twin of it either.
+ */
+export function BudgetIcon({ filled: _filled = false, ...props }: FilledProps) {
+  return (
+    <Glyph {...props}>
+      <path
+        d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM11 4.06C7.05 4.56 4 7.92 4 12C4 16.42 7.58 20 12 20C14.07 20 15.95 19.21 17.38 17.92L11.35 12.76C11.13 12.57 11 12.29 11 12V4.06ZM13 11.54L18.68 16.41C19.51 15.14 20 13.63 20 12C20 7.92 16.95 4.56 13 4.06V11.54Z"
+        fillRule="evenodd"
+      />
+    </Glyph>
+  );
+}
+
 /** Search: a magnifier. */
 export function SearchIcon(props: IconProps) {
   return (
@@ -933,6 +948,47 @@ export function CloseLineIcon({ size = 14, className }: IconProps) {
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+// ---- The Amount stepper's (mint-pocs): its plus and minus, filled on the
+// 8 master, drawn at 8px in the stacked buttons. ----
+
+/** A small filled plus: the stepper's increase. */
+export function PlusSmallIcon({ size = 8, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 8 8"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M3.5498 6.5V4.4502H1.5C1.25147 4.4502 1.0498 4.24853 1.0498 4C1.0498 3.75147 1.25147 3.5498 1.5 3.5498H3.5498V1.5C3.5498 1.25147 3.75147 1.0498 4 1.0498C4.24853 1.0498 4.4502 1.25147 4.4502 1.5V3.5498H6.5C6.74853 3.5498 6.9502 3.75147 6.9502 4C6.9502 4.24853 6.74853 4.4502 6.5 4.4502H4.4502V6.5C4.4502 6.74853 4.24853 6.9502 4 6.9502C3.75147 6.9502 3.5498 6.74853 3.5498 6.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+/** A small filled minus: the stepper's decrease. */
+export function MinusSmallIcon({ size = 8, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 8 8"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M6.5 3.5498C6.74853 3.5498 6.9502 3.75147 6.9502 4C6.9502 4.24853 6.74853 4.4502 6.5 4.4502H1.5C1.25147 4.4502 1.0498 4.24853 1.0498 4C1.0498 3.75147 1.25147 3.5498 1.5 3.5498H6.5Z"
+        fill="currentColor"
       />
     </svg>
   );

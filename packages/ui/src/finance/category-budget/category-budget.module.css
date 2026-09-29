@@ -1,0 +1,132 @@
+/* mint-pocs' Category budget (src/demos/category-budget/CategoryBudget.tsx),
+   rule for rule: its palette read from the roles in tokens.css, the
+   category's colour set per row from the component (--budget-color). */
+
+.root,
+.root *,
+.root *::before,
+.root *::after {
+  box-sizing: border-box;
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  font-family: var(--font-sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Head: the category, then what was spent ---- */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1-50);
+}
+
+/* the icon (20px) on a 40px tile, a 16% wash of the category's colour */
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-12);
+  color: var(--budget-color);
+  background: color-mix(in srgb, var(--budget-color) 16%, transparent);
+}
+
+.text,
+.figures {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.text {
+  flex: 1;
+}
+
+.figures {
+  align-items: flex-end;
+}
+
+.name {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.amount {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.meta[data-over] {
+  color: var(--negative);
+}
+
+/* ---- The line: hatched to what is spent, the marker, the colour for what
+   is left. The colour is 3px, the hatch 4px (a band, so its stripes read),
+   the marker 3 x 12px, rounded, 2px clear of both. ---- */
+.track {
+  position: relative;
+  height: 12px;
+}
+
+.hatch,
+.left {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+}
+
+/* the Unlock progress's stripes (45deg, rising) in the muted ink, on no
+   fill: it reads on either page */
+.hatch {
+  height: 4px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--ink-muted) 0 1.4px,
+    transparent 1.4px 4.25px
+  );
+}
+
+.left {
+  height: 3px;
+  border-radius: 1.5px;
+  background: var(--budget-color);
+}
+
+.rail {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  left: -1.5px;
+  top: 0;
+  width: 3px;
+  height: 12px;
+  border-radius: 1.5px;
+  background: var(--budget-color);
+}

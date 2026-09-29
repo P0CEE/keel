@@ -64,7 +64,10 @@
     "./mint/timeframe-selector": "./src/mint/timeframe-selector/timeframe-selector.tsx",
     "./finance/balance-chart": "./src/finance/balance-chart/balance-chart.tsx",
     "./mint/cycle-input": "./src/mint/cycle-input/cycle-input.tsx",
-    "./finance/due-calendar": "./src/finance/due-calendar/due-calendar.tsx"
+    "./finance/due-calendar": "./src/finance/due-calendar/due-calendar.tsx",
+    "./finance/category-budget": "./src/finance/category-budget/category-budget.tsx",
+    "./mint/amount-stepper": "./src/mint/amount-stepper/amount-stepper.tsx",
+    "./finance/unlock-progress": "./src/finance/unlock-progress/unlock-progress.tsx"
   },
   "scripts": {
     "lint": "oxlint .",

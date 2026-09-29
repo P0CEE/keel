@@ -169,6 +169,9 @@
   --highlight: light-dark(#0000000d, #ffffff1a);
   --hover: light-dark(#0000000d, #ffffff14);
   --press: light-dark(#0000000a, #ffffff0a);
+  /* Mint's states.bg.hover, fainter than --hover in light: the tint over a
+     glass control under the pointer (the Amount stepper's buttons) */
+  --hover-faint: light-dark(#00000005, #ffffff14);
   /* the faint track a progress ring turns on (the Spinning checkmark's) */
   --track: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.08));
   --pill: light-dark(#00000014, #ffffff1a);
@@ -199,6 +202,10 @@
   /* the elevated segmented control's edge, where the gradient one cannot be
      masked */
   --capsule-edge: light-dark(#dee2e6, #3e3f40);
+  /* Mint's etched divider (component.divider.etched): a dark 1px line over
+     a light one, cut between two stacked controls (the Amount stepper's) */
+  --etch-shadow: light-dark(#00000014, #ffffff14);
+  --etch-highlight: light-dark(#ffffff, #000000);
 
   /* ---- Meaning ---- */
   /* accent.positive.strong is 3.3:1 on the page; this green is 4.6:1 */
@@ -280,6 +287,18 @@
      share): white in light, black in dark, dense enough that a figure reads
      over a coloured wedge, where --glass would let the colour through */
   --glass-badge: light-dark(rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.6));
+  /* a small glass control on a field (the Amount stepper's buttons, on
+     --glass): the rim white in light and a softer 25% white in dark, and a
+     deeper shadow than --shadow-glass, so it never reads as a grey block on
+     a dark page */
+  --rim-glass-control: linear-gradient(
+    270deg,
+    light-dark(#ffffff, rgba(255, 255, 255, 0.25)) 0%,
+    transparent 24.61%,
+    light-dark(#ffffff, rgba(255, 255, 255, 0.25)) 100%
+  );
+  --shadow-glass-control: 0px 7px 26px
+    light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.35));
 
   /* ---- The account card: a material, drawn the same in both appearances
      ---- */
@@ -292,6 +311,35 @@
   --shadow-object:
     0 116px 114px rgba(0, 0, 0, 0.12), 0 58.7px 49.7px rgba(0, 0, 0, 0.081),
     0 23.2px 18.5px rgba(0, 0, 0, 0.06), 0 5.1px 6.6px rgba(0, 0, 0, 0.039);
+
+  /* ---- The savings target's bronze (mint-pocs' Unlock progress): a
+     material, like the account card; no Mint token holds it, so its values
+     are the app's, read off the capture. In light, a deeper bronze (the
+     app's pale end fades into a light page) and a pale hatch. ---- */
+  /* the fill, across its own width: its end is always the lightest, a lit
+     tip, and a 1px highlight on that end */
+  --bronze: linear-gradient(
+    90deg,
+    light-dark(#b07a4c, #c1895b),
+    light-dark(#dcb597, #e0bda7)
+  );
+  --bronze-tip: light-dark(
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0.22)
+  );
+  /* bronze inks that keep AA on either page: the amount in the headline,
+     the label under the bar */
+  --bronze-ink: light-dark(#98663d, #d1ac92);
+  --bronze-label: light-dark(#86572f, #c9a98f);
+  /* what is left to go: a slate ground under 45deg stripes, lit along its
+     top edge */
+  --hatch: linear-gradient(
+    90deg,
+    light-dark(#dad6e0, #494557),
+    light-dark(#e3dfe6, #685f6f)
+  );
+  --hatch-stripe: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.12));
+  --hatch-edge: light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.06));
 
   /* ---- Edges: 1px gradient frames, masked down to a ring where used.
      light-dark() cannot pick a whole gradient, so each stop is a pair. ---- */

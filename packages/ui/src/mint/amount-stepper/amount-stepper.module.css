@@ -1,0 +1,191 @@
+/* mint-pocs' Amount stepper (src/demos/amount-stepper/AmountStepper.tsx),
+   rule for rule: Mint's 44px compact field, its palette read from the roles
+   in tokens.css. The hairline lifts on hover; keyboard focus and typing are
+   the 2px full-ink stroke (the border and an inset 1px). The buttons are the
+   glass material with a 1px gradient rim, their corners concentric with the
+   field's (12 - 3 - 1 = 8). */
+
+.field,
+.field *,
+.field *::before,
+.field *::after {
+  box-sizing: border-box;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s1);
+  height: 44px;
+  padding: 3px 3px 3px 14px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-12);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  outline: none;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+  cursor: text;
+}
+
+@media (hover: hover) {
+  .field:hover:not(:focus-visible, [data-editing]) {
+    border-color: var(--line-hover);
+  }
+}
+
+/* Focus and typing: the 2px full-ink stroke; the inset shadow doubles the
+   border without reflow. */
+.field:focus-visible,
+.field[data-editing] {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.amount {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 115px;
+}
+
+/* the currency: regular and tertiary, the digits medium */
+.currency {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-regular);
+  color: var(--ink-3);
+}
+
+.digits {
+  display: flex;
+  align-items: center;
+}
+
+.digit {
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* The leaving and the coming digit in one cell, clipped at one line. */
+.cell {
+  display: inline-grid;
+  overflow: clip;
+  height: var(--leading-default);
+}
+
+.cell > * {
+  grid-area: 1 / 1;
+}
+
+/* 60px at least; wider amounts widen it (its width is set in ch) */
+.input {
+  min-width: 60px;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  caret-color: var(--ink);
+}
+
+/* a 5px padded hit area round the buttons, which never opens the input */
+.hit {
+  padding: 5px;
+  margin: -5px;
+  cursor: default;
+}
+
+/* the stacked buttons: a raised, translucent box with a gradient hairline
+   border and an etched divider */
+.buttons {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 36px;
+  height: 36px;
+  border-radius: calc(var(--radius-12) - 3px - 1px);
+  background: var(--glass);
+  box-shadow: var(--shadow-glass-control);
+  overflow: hidden;
+}
+
+/* the 1px gradient border: an overlay masked to its edge (border-image
+   cannot follow a border-radius) */
+.edge {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--rim-glass-control);
+  mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.step {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  transition: background-color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .step:hover {
+    background: var(--hover-faint);
+  }
+}
+
+.step:active {
+  background: var(--press);
+}
+
+/* Mint's ring, inside the half: the stack clips its corners. */
+.step:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+/* etched: a dark 1px line over a light one */
+.divider {
+  position: relative;
+  width: 100%;
+  height: 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.divider::before {
+  top: 0;
+  background: var(--etch-shadow);
+}
+
+.divider::after {
+  top: 1px;
+  background: var(--etch-highlight);
+}
