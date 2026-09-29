@@ -67,13 +67,14 @@ attacks.
 
 ## Architecture
 
-- `apps/website` (Next.js) is the public landing site (port 3000, prerendered,
-  locale-prefixed URLs).
+- `apps/website` (Next.js) is the public site (port 3000, prerendered,
+  locale-prefixed URLs), a placeholder page until the real landing.
 - `apps/app` (Next.js) is the authenticated product (port 3173, App Router,
   i18n via `rewrite`, ships `@sentry/nextjs` gated to production).
 - `apps/api` (Hono + tRPC + Zod-OpenAPI, port 3001) exports the `AppRouter`
   type that `apps/app` imports, hosts Better Auth (Postgres-backed) at
-  `/api/auth/*`, and exposes the tasks CRUD and AI (vision) procedures.
+  `/api/auth/*`, and exposes the household, banking and categorization
+  procedures, plus a small REST surface (`/v1`: bank callback, logos).
 - `apps/worker` (Bun + BullMQ, port 8080) consumes the queue and runs the job
   processors.
 - `packages/db` — Drizzle ORM: schema, client, `withScope` / `resolveScope`,
@@ -93,14 +94,14 @@ attacks.
 - `packages/ai` — the models by role on the Vercel AI Gateway
   (`models.ts`, overridable by env), the categorization model behind the
   `CategorizationModel` port of `@keel/finance/categorization`
-  (`categorize.ts`, run by the worker), and the starter's `describeImage` /
-  `generateReply`. Never from the browser.
+  (`categorize.ts`, run by the worker). Never from the browser.
 - `packages/cache` — Redis primitives: rate limiter, distributed lock,
   stampede-safe cache, health check.
 - `packages/ui` — shared React components. `src/mint` and `src/finance` are
   the app's design system, ported from mint-pocs (Base UI + motion + CSS
-  Modules, tokens in `src/mint/tokens.css`); `src/components` are the older
-  shadcn components (Radix + Tailwind v4), kept until replaced.
+  Modules, tokens in `src/mint/tokens.css`, reset in `src/mint/base.css`).
+  There is no Tailwind and no shadcn: every app imports the tokens and the
+  reset, and paints with CSS Modules.
 - `packages/finance` — pure domain logic with no I/O: money in integer minor
   units (`money.ts`), household calendar days (`dates.ts`).
 - `packages/tsconfig` — shared TS presets (`base`, `nextjs`, `bun-app`,

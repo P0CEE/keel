@@ -269,8 +269,9 @@ de l'application, absente des environnements de dev.
   raisonnement coupé, pas d'entraînement, conservation zéro réglable
   (`AI_ZERO_DATA_RETENTION`). **Écart** : la conservation zéro exige le plan
   Pro de la Gateway ; la clé de dev (Hobby) la refuse, elle est coupée en
-  dev et devra être active en production. `describeImage` et `generateReply`
-  restent : le routeur `ai` du starter les appelle encore.
+  dev et devra être active en production. `describeImage`, `generateReply` et le
+  routeur `ai` du starter ont été supprimés le 2026-09-29, avec le reste du
+  starter (webhook d'exemple, shadcn, Tailwind, landing).
 - **Job** `bank.categorize` (file `bank-pipeline`, dédoublonné par foyer,
   une passe par membre pour les comptes privés) : lots de 200, l'échelle en
   transaction, le modèle hors transaction par lots de 50, écriture gardée

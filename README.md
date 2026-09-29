@@ -1,23 +1,24 @@
 # keel
 
-A monorepo skeleton: Next.js front ends, a Hono + tRPC API, a BullMQ worker, and
-Postgres + Better Auth in the background. Typed end to end.
+The monorepo behind Ramnn, personal and household finance: Next.js front ends,
+a Hono + tRPC API, a BullMQ worker, and Postgres + Better Auth in the
+background. Typed end to end.
 
 ## Stack
 
-| Layer         | Choice                                                                                   |
-| ------------- | ---------------------------------------------------------------------------------------- |
-| Monorepo      | [Turborepo](https://turbo.build) + [Bun](https://bun.sh) workspaces (catalog)            |
-| Landing       | [Next.js 16](https://nextjs.org) — prerendered marketing site, i18n with locale prefixes |
-| App           | [Next.js 16](https://nextjs.org) (React 19, App Router) — the product, i18n, Sentry      |
-| API           | [Hono](https://hono.dev) + [tRPC v11](https://trpc.io) — typed end to end                |
-| Auth          | [Better Auth](https://better-auth.com) (Postgres, Drizzle adapter)                       |
-| Database      | [Postgres](https://www.postgresql.org) + [Drizzle ORM](https://orm.drizzle.team)         |
-| i18n          | [next-international](https://github.com/QuiiBz/next-international) — en / fr             |
-| Jobs          | [BullMQ](https://bullmq.io) worker — typed job registry, graceful shutdown               |
-| Styling       | [Tailwind CSS v4](https://tailwindcss.com) — tokens in `@keel/ui`                        |
-| Lint / Format | [oxlint](https://oxc.rs) + oxfmt (type-aware)                                            |
-| CI            | GitHub Actions — lint, typecheck, test, build                                            |
+| Layer         | Choice                                                                                |
+| ------------- | ------------------------------------------------------------------------------------- |
+| Monorepo      | [Turborepo](https://turbo.build) + [Bun](https://bun.sh) workspaces (catalog)         |
+| Landing       | [Next.js 16](https://nextjs.org) — prerendered public site, i18n with locale prefixes |
+| App           | [Next.js 16](https://nextjs.org) (React 19, App Router) — the product, i18n, Sentry   |
+| API           | [Hono](https://hono.dev) + [tRPC v11](https://trpc.io) — typed end to end             |
+| Auth          | [Better Auth](https://better-auth.com) (Postgres, Drizzle adapter)                    |
+| Database      | [Postgres](https://www.postgresql.org) + [Drizzle ORM](https://orm.drizzle.team)      |
+| i18n          | [next-international](https://github.com/QuiiBz/next-international) — en / fr          |
+| Jobs          | [BullMQ](https://bullmq.io) worker — typed job registry, graceful shutdown            |
+| Styling       | CSS Modules on the Mint tokens and reset of `@keel/ui` (ported from mint-pocs)        |
+| Lint / Format | [oxlint](https://oxc.rs) + oxfmt (type-aware)                                         |
+| CI            | GitHub Actions — lint, typecheck, test, build                                         |
 
 ## Layout
 
@@ -34,10 +35,10 @@ keel/
 │   ├── banking/        @keel/banking        — banking application modules
 │   ├── bank-providers/ @keel/bank-providers — aggregator port and adapters
 │   ├── realtime/       @keel/realtime       — event registry, streams, SSE hub
-│   ├── ai/             @keel/ai             — AI SDK + GPT-4.1 vision
+│   ├── ai/             @keel/ai             — models by role, categorization on the AI Gateway
 │   ├── jobs/           @keel/jobs           — job registry, queues, Dispatch port
 │   ├── cache/          @keel/cache          — Redis: rate limiting, locks, caching
-│   ├── ui/         @keel/ui         — shared React components + Tailwind v4 tokens
+│   ├── ui/         @keel/ui         — Mint design system: components, tokens, reset
 │   └── tsconfig/   @keel/tsconfig   — shared TypeScript presets
 ├── scripts/               repo maintenance (clean)
 ├── .github/               CI workflows, issue / PR templates
@@ -72,15 +73,15 @@ Docker exposes Postgres on `127.0.0.1:5432` and Redis on `127.0.0.1:6379`.
 
 ## How the pieces connect
 
-- **Two front ends** — `apps/website` is the public landing page (prerendered, no
-  auth). `apps/app` is the authenticated product (App Router).
+- **Two front ends** — `apps/website` is the public site (prerendered, no auth;
+  a placeholder page until the real landing). `apps/app` is the authenticated product (App Router).
 - **i18n** — `next-international` in both apps. The landing uses
   locale-prefixed URLs (`/`, `/fr`); the app uses the `rewrite` strategy so
   the locale never appears in the URL.
 - **API — tRPC + REST** — `apps/api` serves both. tRPC (`/trpc`) is the
   internal typed API: `apps/api` exports `AppRouter`, `apps/app` imports the
   type. REST (`/v1`, OpenAPI at `/openapi.json`, docs at `/reference`) covers
-  webhooks and third-party consumers. Both surfaces are rate-limited.
+  the bank's redirect back, merchant logos and probes. Both surfaces are rate-limited.
 - **Redis utilities** — `@keel/cache` provides a shared client, an atomic
   fixed-window rate limiter, distributed locks, and a stampede-safe cache.
 - **Auth** — Better Auth runs in `apps/api` on Postgres (Drizzle adapter),
@@ -98,8 +99,9 @@ Docker exposes Postgres on `127.0.0.1:5432` and Redis on `127.0.0.1:6379`.
 - **Realtime** — events are declared in `@keel/realtime`, published after
   commit to a Redis Stream per household, and delivered to `apps/app` by a
   tRPC subscription over SSE with replay (ADR 0016).
-- **Design tokens** — `@keel/ui` owns the Tailwind v4 theme. Every app's
-  stylesheet is one line: `@import "@keel/ui/styles.css"`.
+- **Design tokens** — `@keel/ui` owns the Mint tokens (`mint/tokens.css`) and
+  the reset (`mint/base.css`), which every app's `globals.css` imports;
+  components paint with the tokens' roles in co-located CSS Modules.
 - **Observability** — `apps/app` ships `@sentry/nextjs`, gated to production.
 
 ## Adding a background job
@@ -122,8 +124,3 @@ Docker exposes Postgres on `127.0.0.1:5432` and Redis on `127.0.0.1:6379`.
 | `bun run clean`     | Remove build output and caches      |
 
 The Next apps do not need `bun run build` for `bun dev`.
-
-## Renaming the project
-
-Replace `@keel/` and `keel` throughout (`package.json` files, imports,
-`QUEUE_NAME` in `packages/jobs`), then update `.github/CODEOWNERS`.

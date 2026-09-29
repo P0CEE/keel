@@ -36,8 +36,7 @@ Out of scope:
 
 ## Supported versions
 
-This is a starter repository — there is no long-term support branch. Security
-fixes land on `main`.
+There is no long-term support branch. Security fixes land on `main`.
 
 ## Hardening defaults
 
@@ -50,8 +49,8 @@ For reference, `keel` ships with:
 - Better Auth runs in `apps/api` on Postgres; trusted origins are scoped via
   `CORS_ORIGIN` / `BETTER_AUTH_URL`.
 - Docker Compose binds local services to `127.0.0.1` only.
-- All inbound HTTP boundaries (tRPC, REST, webhooks) validate payloads with
-  Zod.
+- All inbound HTTP boundaries (tRPC, REST, queue payloads) validate payloads
+  with Zod.
 
 If you find any of these missing or misconfigured in a fork, that itself is
 worth reporting.
