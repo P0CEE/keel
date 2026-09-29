@@ -16,7 +16,8 @@ import {
   reviewCount,
 } from "@keel/db/banking";
 import { getHousehold } from "@keel/db/members";
-import { addDays, type Day, todayIn } from "@keel/finance/dates";
+import { type BalanceRange, rangeStart } from "@keel/finance/balances";
+import { type Day, todayIn } from "@keel/finance/dates";
 import {
   normalizeTransactionFilter,
   type TransactionFilterInput,
@@ -132,17 +133,7 @@ export function transactionDetail(
   );
 }
 
-export const BALANCE_RANGES = ["1M", "3M", "6M", "1Y", "2Y"] as const;
-
-export type BalanceRange = (typeof BALANCE_RANGES)[number];
-
-const RANGE_DAYS: Readonly<Record<BalanceRange, number>> = {
-  "1M": 30,
-  "3M": 91,
-  "6M": 182,
-  "1Y": 365,
-  "2Y": 730,
-};
+export { BALANCE_RANGES, type BalanceRange } from "@keel/finance/balances";
 
 export type BalanceHistory = {
   readonly currency: string;
@@ -165,7 +156,7 @@ export function balanceHistory(
       const { timezone } = await getHousehold(tx, scope);
       const today = todayIn(timezone, deps.now());
       const rows = await readBalanceHistory(tx, scope, account.id, {
-        from: addDays(today, -RANGE_DAYS[input.range]),
+        from: rangeStart(input.range, today),
         to: today,
       });
       return {

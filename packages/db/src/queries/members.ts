@@ -130,6 +130,8 @@ export async function updateHousehold(
 export type SettingsView = {
   readonly locale: Locale;
   readonly displayCurrency: string | null;
+  /** As stored: the reader checks it against the widget registry. */
+  readonly homeLayout: unknown;
   readonly onboardedAt: Date | null;
 };
 
@@ -141,6 +143,7 @@ export async function getSettings(
     .select({
       locale: memberSettings.locale,
       displayCurrency: memberSettings.displayCurrency,
+      homeLayout: memberSettings.homeLayout,
       onboardedAt: memberSettings.onboardedAt,
     })
     .from(memberSettings)
@@ -160,6 +163,8 @@ export async function getSettings(
 export type SettingsPatch = {
   readonly locale?: Locale;
   readonly displayCurrency?: string | null;
+  /** Null goes back to the adaptive default. */
+  readonly homeLayout?: { readonly widgets: readonly string[] } | null;
 };
 
 export async function updateSettings(

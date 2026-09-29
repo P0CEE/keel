@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, isNotNull, lte, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNotNull, lte, sql } from "drizzle-orm";
 
 import { accountBalances, bankAccounts } from "../../schema";
 import type { Scope, Transaction } from "../../scope";
@@ -71,6 +71,41 @@ export function readBalanceHistory(
       ),
     )
     .orderBy(asc(accountBalances.day));
+}
+
+export type AccountBalanceRow = {
+  readonly accountId: string;
+  readonly day: string;
+  readonly balanceMinor: number;
+};
+
+/**
+ * Several accounts' balances between two days, by account then oldest
+ * first (R10): the net worth curve.
+ */
+export function readBalanceHistories(
+  tx: Transaction,
+  scope: Scope,
+  accountIds: readonly string[],
+  range: { readonly from: string; readonly to: string },
+): Promise<AccountBalanceRow[]> {
+  if (accountIds.length === 0) return Promise.resolve([]);
+  return tx
+    .select({
+      accountId: accountBalances.accountId,
+      day: accountBalances.day,
+      balanceMinor: accountBalances.balanceMinor,
+    })
+    .from(accountBalances)
+    .where(
+      and(
+        eq(accountBalances.householdId, scope.householdId),
+        inArray(accountBalances.accountId, [...accountIds]),
+        gte(accountBalances.day, range.from),
+        lte(accountBalances.day, range.to),
+      ),
+    )
+    .orderBy(asc(accountBalances.accountId), asc(accountBalances.day));
 }
 
 /**

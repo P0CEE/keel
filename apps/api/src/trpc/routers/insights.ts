@@ -2,11 +2,17 @@ import { z } from "zod";
 
 import { bankingDeps } from "../../lib/banking";
 import { bankingProcedure, router } from "../trpc";
-import { cashflow, CASHFLOW_MONTHS_MAX, spending } from "@keel/banking";
+import {
+  BALANCE_RANGES,
+  cashflow,
+  CASHFLOW_MONTHS_MAX,
+  netWorthHistory,
+  spending,
+} from "@keel/banking";
 
 /**
  * The figures of the home and the analysis, by block: the cash flow over
- * months, a month's spending. Read-only, converted to the member's display
+ * months, a month's spending, the net worth curve. Read-only, converted to the member's display
  * currency, from the stored flow (ADR 0010).
  */
 export const insightsRouter = router({
@@ -29,4 +35,15 @@ export const insightsRouter = router({
       }),
     )
     .query(({ ctx, input }) => spending(bankingDeps(), ctx.scope, input)),
+
+  netWorthHistory: bankingProcedure
+    .input(
+      z.object({
+        range: z.enum(BALANCE_RANGES),
+        accounts: z.enum(["all", "everyday"]).default("all"),
+      }),
+    )
+    .query(({ ctx, input }) =>
+      netWorthHistory(bankingDeps(), ctx.scope, input),
+    ),
 });

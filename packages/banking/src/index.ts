@@ -133,6 +133,11 @@ export {
   EXPIRY_WARNING_DAYS,
 } from "./overview";
 export {
+  type CurveAccounts,
+  type NetWorthHistory,
+  netWorthHistory,
+} from "./net-worth-history";
+export {
   AVERAGE_MONTHS,
   cashflow,
   type CashflowMonth,

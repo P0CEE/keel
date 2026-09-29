@@ -409,6 +409,8 @@ describe("reads", () => {
       late: false,
     });
     expect(outlook.month.fixedPaidMinor).toBe(0); // unclassified, not yet an expense
+    // no income series here: no pay to count down to
+    expect(outlook.payday).toBeNull();
 
     const calendar = await recurringCalendar(h.deps, alice, {
       month: "2026-11-01",

@@ -31,6 +31,8 @@ import {
   duesOf,
   type EndedReason,
   monthlyEquivalent,
+  type Payday,
+  payday,
   projectBalance,
   type Review,
   type SeriesOrigin,
@@ -248,6 +250,11 @@ export type RecurringOutlook = {
     /** The lowest day, the first one when several tie. */
     readonly lowest: { readonly day: Day; readonly balanceMinor: number };
   } | null;
+  /**
+   * The pay the home counts down to: the largest income that counts, the
+   * days until it is due, or that it just landed (early or not).
+   */
+  readonly payday: Payday | null;
   /** The running month's fixed charges and recurring income. */
   readonly month: {
     readonly month: Day;
@@ -382,6 +389,7 @@ export function recurringOutlook(
         today,
         dues: ahead,
         projection,
+        payday: payday(rows.map(toSeries), today),
         month: {
           month,
           fixedPaidMinor: paid("expense"),

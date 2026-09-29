@@ -63,6 +63,7 @@ describe("provisionMember", () => {
     expect(seen.settings).toEqual({
       locale: "fr",
       displayCurrency: null,
+      homeLayout: null,
       onboardedAt: null,
     });
   });
@@ -127,6 +128,31 @@ describe("settings and household", () => {
       testDb.db,
     );
     expect(aliceHousehold).toMatchObject({ name: "Maison", timezone: "UTC" });
+  });
+
+  test("stores the home layout, and null goes back to the default", async () => {
+    const alice = await provisionMember(member("alice"), testDb.db);
+    const read = () =>
+      withScope(alice, ({ tx }) => getSettings(tx, alice), testDb.db);
+
+    await withScope(
+      alice,
+      ({ tx }) =>
+        updateSettings(tx, alice, {
+          homeLayout: { widgets: ["budget", "transactions"] },
+        }),
+      testDb.db,
+    );
+    expect((await read()).homeLayout).toEqual({
+      widgets: ["budget", "transactions"],
+    });
+
+    await withScope(
+      alice,
+      ({ tx }) => updateSettings(tx, alice, { homeLayout: null }),
+      testDb.db,
+    );
+    expect((await read()).homeLayout).toBeNull();
   });
 
   test("another member's settings are invisible even in the same household", async () => {

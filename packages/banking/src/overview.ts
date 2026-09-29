@@ -152,9 +152,10 @@ export function accountsOverview(
           !view.archived &&
           (view.connectionId === null || !removed.has(view.connectionId)),
       );
-      const counted = live.filter(
-        (view) => !view.hidden && view.balance !== null,
+      const countedIds = new Set(
+        accounts.filter((row) => inNetWorth(row, removed)).map((row) => row.id),
       );
+      const counted = live.filter((view) => countedIds.has(view.id));
       const netWorth = toDisplay(
         counted.flatMap((view) =>
           view.balance === null ? [] : [view.balance],
@@ -185,6 +186,23 @@ export function accountsOverview(
       };
     },
     deps.database,
+  );
+}
+
+/**
+ * Whether an account adds to the net worth: neither archived nor of a
+ * removed connection, not hidden, with a known balance. The net worth
+ * curve counts the same accounts, so its last day is the figure above it.
+ */
+export function inNetWorth(
+  row: Pick<Account, "archivedAt" | "connectionId" | "hidden" | "balanceMinor">,
+  removedConnections: ReadonlySet<string>,
+): boolean {
+  return (
+    row.archivedAt === null &&
+    (row.connectionId === null || !removedConnections.has(row.connectionId)) &&
+    !row.hidden &&
+    row.balanceMinor !== null
   );
 }
 
