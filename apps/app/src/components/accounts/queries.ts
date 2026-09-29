@@ -21,17 +21,39 @@ export function useAccountsOverview() {
   return useQuery(trpc.accounts.overview.queryOptions());
 }
 
+/**
+ * An account write moves the net worth, so the home's curve refetches with
+ * the overview. The realtime event does it for the member's other tabs, but
+ * never for the tab that wrote: this one has to.
+ */
+function useCurveRefresh() {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  return () =>
+    queryClient.invalidateQueries({
+      queryKey: trpc.insights.netWorthHistory.pathKey(),
+    });
+}
+
 function useOverviewPatch<TVars extends { readonly accountId: string }>(
   toPatch: (vars: TVars) => AccountPatch,
 ) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  return optimisticValueMutation<AccountsOverview, TVars>(
+  const refreshCurve = useCurveRefresh();
+  const handlers = optimisticValueMutation<AccountsOverview, TVars>(
     queryClient,
     trpc.accounts.overview.queryKey(),
     (current, vars) =>
       applyAccountPatch(current, vars.accountId, toPatch(vars)),
   );
+  return {
+    ...handlers,
+    onSettled: () => {
+      handlers.onSettled();
+      void refreshCurve();
+    },
+  };
 }
 
 /** Rename, change the kind, hide from totals: applied at once, rolled back on error. */
@@ -76,15 +98,19 @@ export function useArchiveAccount() {
   return useMutation(trpc.accounts.archive.mutationOptions(handlers));
 }
 
-/** Server-shaped writes: the overview refetches once they land. */
+/** Server-shaped writes: the overview and the curve refetch once they land. */
 function useRefetchingMutation() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const refreshCurve = useCurveRefresh();
   return {
     onSettled: () =>
-      queryClient.invalidateQueries({
-        queryKey: trpc.accounts.overview.queryKey(),
-      }),
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: trpc.accounts.overview.queryKey(),
+        }),
+        refreshCurve(),
+      ]),
   };
 }
 

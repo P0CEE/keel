@@ -7,31 +7,36 @@ const LABELS = {
   homeHint: "",
   accounts: "Comptes",
   accountsHint: "",
-  transactions: "Transactions",
-  transactionsHint: "",
-  recurring: "Récurrents",
-  recurringHint: "",
-  budgets: "Budgets",
-  budgetsHint: "",
+  analysis: "Analyse",
+  analysisHint: "",
+  activity: "Activité",
+  activityHint: "",
 };
 
-describe("phonePageOrder", () => {
-  test("puts Home in the middle, a page either side", () => {
-    const ids = phonePageOrder(navigation(LABELS)).map((item) => item.id);
-    expect(ids).toEqual([
-      "accounts",
-      "home",
-      "transactions",
-      "recurring",
-      "budgets",
+describe("navigation", () => {
+  test("is Wealthsimple's four pages, each with its key", () => {
+    expect(
+      navigation(LABELS).map((item) => [item.id, item.href, item.shortcut]),
+    ).toEqual([
+      ["home", "/", "h"],
+      ["accounts", "/accounts", "c"],
+      ["analysis", "/analysis", "y"],
+      ["activity", "/activity", "a"],
     ]);
+  });
+});
+
+describe("phonePageOrder", () => {
+  test("puts Accounts left of Home and Analysis right of it, then Activity", () => {
+    const ids = phonePageOrder(navigation(LABELS)).map((item) => item.id);
+    expect(ids).toEqual(["accounts", "home", "analysis", "activity"]);
   });
 
   test("keeps the rail's order for pages it does not name", () => {
     const extra = {
       ...navigation(LABELS)[0],
-      id: "analysis",
-      href: "/analysis",
+      id: "documents",
+      href: "/documents",
     };
     const ids = phonePageOrder([...navigation(LABELS), extra]).map(
       (item) => item.id,
@@ -39,10 +44,9 @@ describe("phonePageOrder", () => {
     expect(ids).toEqual([
       "accounts",
       "home",
-      "transactions",
-      "recurring",
-      "budgets",
       "analysis",
+      "activity",
+      "documents",
     ]);
   });
 
@@ -52,9 +56,8 @@ describe("phonePageOrder", () => {
     expect(items.map((item) => item.id)).toEqual([
       "home",
       "accounts",
-      "transactions",
-      "recurring",
-      "budgets",
+      "analysis",
+      "activity",
     ]);
   });
 });

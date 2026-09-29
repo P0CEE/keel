@@ -6,20 +6,22 @@ import { useState } from "react";
 import styles from "./accounts.module.css";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/client";
+import { BALANCE_RANGES, type BalanceRange } from "@keel/finance/balances";
 import { BalanceChart } from "@keel/ui/finance/balance-chart";
 import { TimeframeSelector } from "@keel/ui/mint/timeframe-selector";
 
-const RANGES = ["1M", "3M", "6M", "1Y", "2Y"] as const;
+export type Range = BalanceRange;
 
-type Range = (typeof RANGES)[number];
-
-// French and English write the ranges the same way.
-const RANGE_LABELS: Readonly<Record<Range, { fr: string; en: string }>> = {
+// What each range's pill reads, as Wealthsimple writes them.
+export const RANGE_LABELS: Readonly<
+  Record<Range, { readonly fr: string; readonly en: string }>
+> = {
+  "1W": { fr: "1S", en: "1W" },
   "1M": { fr: "1M", en: "1M" },
   "3M": { fr: "3M", en: "3M" },
-  "6M": { fr: "6M", en: "6M" },
+  YTD: { fr: "CA", en: "YTD" },
   "1Y": { fr: "1A", en: "1Y" },
-  "2Y": { fr: "2A", en: "2Y" },
+  ALL: { fr: "Tout", en: "All" },
 };
 
 /**
@@ -55,7 +57,7 @@ export function BalanceHistory({ accountId }: { readonly accountId: string }) {
       <TimeframeSelector
         size="small"
         label={t("history_range")}
-        items={RANGES.map((value) => ({
+        items={BALANCE_RANGES.map((value) => ({
           value,
           label: RANGE_LABELS[value][appLocale],
         }))}

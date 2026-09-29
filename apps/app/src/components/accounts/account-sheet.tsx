@@ -141,7 +141,7 @@ function AccountDetails({
       label: t("transactions"),
       onSelect: () => {
         onClose();
-        router.push(`/transactions?accounts=${account.id}`);
+        router.push(`/activity?accounts=${account.id}`);
       },
     },
     { id: "rename", label: t("rename"), onSelect: () => onMode("rename") },

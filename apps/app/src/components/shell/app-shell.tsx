@@ -121,12 +121,10 @@ export function AppShell({
       homeHint: t("home_hint"),
       accounts: t("accounts"),
       accountsHint: t("accounts_hint"),
-      transactions: t("transactions"),
-      transactionsHint: t("transactions_hint"),
-      recurring: t("recurring"),
-      recurringHint: t("recurring_hint"),
-      budgets: t("budgets"),
-      budgetsHint: t("budgets_hint"),
+      analysis: t("analysis"),
+      analysisHint: t("analysis_hint"),
+      activity: t("activity"),
+      activityHint: t("activity_hint"),
     };
     return [navigation(labels), navigation(labels, 24)];
   }, [t]);
@@ -556,13 +554,13 @@ export function AppShell({
               id: "add-transaction",
               label: t("add_transaction"),
               icon: <ActivityIcon size={24} />,
-              href: "/transactions?new=1",
+              href: "/activity?new=1",
             },
             {
               id: "add-import",
               label: t("add_import"),
               icon: <DocumentsIcon size={24} />,
-              href: "/transactions",
+              href: "/activity",
             },
             {
               id: "add-bank",

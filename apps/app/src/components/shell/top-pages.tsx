@@ -1,9 +1,8 @@
 "use client";
 
 import { AccountsView } from "@/components/accounts/accounts-view";
-import { BudgetsView } from "@/components/budgets/budgets-view";
+import { AnalysisView } from "@/components/analysis/analysis-view";
 import { HomeView } from "@/components/home/home-view";
-import { RecurringView } from "@/components/recurring/recurring-view";
 import { TransactionsView } from "@/components/transactions/transactions-view";
 import { Upcoming } from "@/components/upcoming/upcoming";
 
@@ -21,8 +20,7 @@ export function TopPage({
 }) {
   if (id === "home") return <HomeView />;
   if (id === "accounts") return <AccountsView />;
-  if (id === "transactions") return <TransactionsView />;
-  if (id === "recurring") return <RecurringView />;
-  if (id === "budgets") return <BudgetsView />;
+  if (id === "analysis") return <AnalysisView />;
+  if (id === "activity") return <TransactionsView />;
   return <Upcoming title={title} />;
 }

@@ -10,7 +10,7 @@ import {
   transactionFilterToParams,
 } from "@keel/finance/transaction-filter";
 
-const ROUTE = "/transactions";
+const ROUTE = "/activity";
 
 /**
  * What the transactions page's URL says: the filter, the open transaction

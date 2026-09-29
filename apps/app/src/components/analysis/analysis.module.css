@@ -1,0 +1,63 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s4);
+}
+
+/* the tabs are the page's title: Wealthsimple's "Holdings  Watchlist",
+   large bold words, the current one in ink, the others in the quiet ink */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s3);
+}
+
+.tab {
+  font-size: var(--text-large);
+  line-height: var(--leading-large);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  color: var(--ink-3);
+  border-radius: var(--radius-4);
+  transition: color var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--ink);
+  }
+}
+
+.tab[aria-current="page"] {
+  color: var(--ink);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.spending {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s5);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s1-50);
+  min-width: 0;
+}
+
+.pair {
+  display: grid;
+  gap: var(--space-s5);
+}
+
+@media (min-width: 1100px) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 64px;
+  }
+}

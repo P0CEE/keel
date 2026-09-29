@@ -10,6 +10,25 @@ const config: NextConfig = {
   // Note: the Content-Security-Policy header is set per-request in
   // `src/proxy.ts` so it can carry a fresh script nonce. Only static,
   // nonce-independent security headers belong here.
+  // The pages Wealthsimple's navigation folded (lot 8): Transactions is
+  // Activity, Budgets and Recurring are tabs of Analysis. Old links and
+  // bookmarks land on their new place, their query kept.
+  async redirects() {
+    return [
+      { source: "/transactions", destination: "/activity", permanent: false },
+      {
+        source: "/budgets",
+        destination: "/analysis/budgets",
+        permanent: false,
+      },
+      {
+        source: "/recurring",
+        destination: "/analysis/recurring",
+        permanent: false,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

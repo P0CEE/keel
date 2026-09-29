@@ -1,0 +1,193 @@
+/* The home's activity card: the white card of the side column, its title
+   and "see all", and its rows (a mark, two lines, a figure at the end). */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s2);
+  padding: var(--space-s3);
+  border-radius: var(--radius-24);
+  background: var(--panel);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s2);
+}
+
+.seeAll {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .seeAll:hover {
+    color: var(--ink);
+  }
+}
+
+.empty {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+}
+
+.item + .item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+}
+
+.row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-s1-50);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-s1) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(-1 * var(--space-s1));
+  z-index: -1;
+  border-radius: var(--radius-12);
+  background: var(--hover);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .row:hover::before {
+    opacity: 1;
+  }
+}
+
+.row:active::before {
+  opacity: 1;
+  background: var(--pill);
+}
+
+.row:focus-visible {
+  outline: none;
+}
+
+.row:focus-visible::before {
+  opacity: 1;
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.who,
+.end {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s0-50);
+  min-width: 0;
+}
+
+.end {
+  align-items: flex-end;
+}
+
+.name,
+.meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: var(--weight-medium);
+}
+
+.meta {
+  color: var(--ink-3);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.meta[data-tone="negative"] {
+  color: var(--negative);
+}
+
+.meta[data-tone="positive"] {
+  color: var(--positive);
+}
+
+.amount {
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* the card's title as two words that switch its list, as Wealthsimple's
+   "Holdings  Watchlist": the chosen one in ink, the other quiet */
+.tabs {
+  display: flex;
+  gap: var(--space-s2);
+}
+
+.tab {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: var(--text-default);
+  line-height: var(--leading-default);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--ink);
+  }
+}
+
+.tab[aria-selected="true"] {
+  color: var(--ink);
+}
+
+.tab:focus-visible,
+.seeAll:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}

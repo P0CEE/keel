@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 
 import { treemapEntries } from "./figures";
-import { useSpending } from "./queries";
 import { useCategoryDisplay } from "@/components/categories/queries";
+import { useSpending } from "@/components/insights/queries";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { formatMonth } from "@keel/finance/dates";
 import type { CategoryColor } from "@keel/finance/taxonomy";
@@ -29,7 +29,7 @@ function useChartCategory(): (id: string | null) => {
   readonly color: CategoryColor;
   readonly icon: ReactNode;
 } {
-  const t = useScopedI18n("home");
+  const t = useScopedI18n("analysis");
   const display = useCategoryDisplay();
   return (id) => {
     const category = display(id);
@@ -47,7 +47,7 @@ function useLocale() {
 }
 
 export function SpendLineBlock() {
-  const t = useScopedI18n("home");
+  const t = useScopedI18n("analysis");
   const { locale } = useLocale();
   const { data } = useSpending();
   if (data === undefined || data.daily.current.length === 0) return null;
@@ -85,7 +85,7 @@ export function SpendLineBlock() {
 }
 
 export function BreakdownBlock() {
-  const t = useScopedI18n("home");
+  const t = useScopedI18n("analysis");
   const { locale } = useLocale();
   const { data } = useSpending();
   const naming = useChartCategory();
@@ -135,7 +135,7 @@ export function BreakdownBlock() {
 }
 
 export function TreemapBlock() {
-  const t = useScopedI18n("home");
+  const t = useScopedI18n("analysis");
   const { locale } = useLocale();
   const { data } = useSpending();
   const naming = useChartCategory();

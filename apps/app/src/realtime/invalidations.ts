@@ -30,9 +30,12 @@ export const invalidations = {
     trpc.accounts.overview.queryKey(),
     trpc.connections.offer.queryKey({ connectionId }),
   ],
+  // An account added, hidden, archived or declared: its place in the net
+  // worth and its curve.
   "accounts.changed": (_payload, trpc) => [
     trpc.accounts.overview.queryKey(),
     trpc.recurring.outlook.queryKey(),
+    trpc.insights.netWorthHistory.pathKey(),
   ],
   // The run's own state is kept by `sync-status`; its end moves the
   // connection's last sync.

@@ -45,7 +45,7 @@ export function useReviewItems(): readonly DockAction[] {
               count === 1 ? t("review_item") : t("review_items", { count }),
             detail: t("review_detail"),
             icon: <CategoryGlyph name="uncategorized" />,
-            href: "/transactions?review=1",
+            href: "/activity?review=1",
           },
         ]),
     ...(suggested[0] === undefined
@@ -59,7 +59,7 @@ export function useReviewItems(): readonly DockAction[] {
                 : t("series_items", { count: suggested.length }),
             detail: t("series_detail"),
             icon: <CalendarIcon size={20} />,
-            href: `/recurring?series=${suggested[0].id}`,
+            href: `/analysis/recurring?series=${suggested[0].id}`,
           },
         ]),
     ...banks,

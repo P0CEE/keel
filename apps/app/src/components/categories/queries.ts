@@ -50,10 +50,15 @@ export function useCategoryDisplay(): (
   return useCallback((id) => displayOf(byId, id, locale), [byId, locale]);
 }
 
+/** The review queue's size, as a query: the home waits for it. */
+export function useReviewSummary() {
+  const trpc = useTRPC();
+  return useQuery(trpc.transactions.review.queryOptions());
+}
+
 /** The review queue's size, for the dock. */
 export function useReviewCount() {
-  const trpc = useTRPC();
-  return useQuery(trpc.transactions.review.queryOptions()).data?.count ?? 0;
+  return useReviewSummary().data?.count ?? 0;
 }
 
 type Snapshot = readonly (readonly [QueryKey, TransactionPages | undefined])[];

@@ -268,8 +268,14 @@ the facts is dropped.
 ### Home
 
 **Widget**:
-A self-contained card on the home the member can add, remove and reorder.
-Everything on the home is a widget.
+A self-contained card on the home the member can add, remove and reorder:
+a tile (one figure), a chart or a list. Everything on the home is a widget
+but the net worth curve pinned at its head.
+
+**Everyday balance**:
+What the current accounts and cards hold together: the balance the
+projection starts from.
+_Avoid_: available balance, cash
 
 **Layout**:
 One member's arrangement of widgets. While they never customized it, the

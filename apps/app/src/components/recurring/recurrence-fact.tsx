@@ -74,7 +74,9 @@ export function RecurrenceFact({
               <Button
                 variant="transparent"
                 size="small"
-                onClick={() => router.push(`/recurring?series=${series.id}`)}
+                onClick={() =>
+                  router.push(`/analysis/recurring?series=${series.id}`)
+                }
               >
                 {t("open")}
               </Button>
