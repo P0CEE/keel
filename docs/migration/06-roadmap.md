@@ -3,7 +3,7 @@
 - Date : 2026-09-28
 - Entrées : `01-audit.md` à `05-ui-porting.md` et leurs décisions validées,
   ADR 0001 à 0017, `CONTEXT.md`, catalogue des démos mint-pocs.
-- Statut : validée le 2026-09-28 ; lots 0 à 3 livrés.
+- Statut : validée le 2026-09-28 ; lots 0 à 4 livrés.
 
 ## 1. Principes de découpage
 
@@ -244,34 +244,67 @@ de l'application, absente des environnements de dev.
 
 ### Lot 4 · Catégorisation
 
-- **Taxonomie système globale** (ADR 0012) : seed versionné avec clés
-  stables, noms traduits, couleurs de la palette catégorielle, glyphes de
-  `@keel/ui/finance/category-glyphs` ; table de correspondance `slug ramnn →
-key keel` écrite en même temps (pour l'ETL). Sous-catégories du foyer.
-- **Marchands** : table globale, route `/logos/<domaine>.svg` immuable
-  (`MerchantLogo` cesse de montrer l'initiale quand un domaine est connu).
-- **Merchant mappings** et **rule prompt** après chaque correction.
-- **Échelle** (ADR 0007) : mappings, dictionnaires (marques, MCC, virements,
-  noms des membres), historique (qui ignore les décisions du modèle non
-  revues), puis modèle ; dédoublonnage par `merchant_key` dans un lot.
-- **`packages/ai`** : modèles par rôle (`categorize` = `openai/gpt-6-luna`,
-  `categorizeFallback` = `google/gemini-3.1-flash-lite`), Gateway avec
-  conservation zéro, surcharge par variable d'environnement. Les helpers
-  `describeImage` et `generateReply` du starter disparaissent s'ils n'ont
-  plus d'appelant.
-- **Recatégorisation** (ADR 0006) : le seul écrivain de la colonne, undo côté
-  serveur, catégorisation en masse.
-- **À revoir** : règles de `04-ai-study.md` (section 4.2), jamais la confiance
-  déclarée. Le dock « À traiter » de la coque lit la vraie file.
-- **Boucle d'eval** : chaque correction garde la proposition qu'elle remplace ;
-  le banc de test du scratchpad entre dans le dépôt (sans clé), rejouable sur
-  le golden set et sur les corrections accumulées.
-- Démos : `tag` (déjà porté), `menu`, `icon-picker` (icône d'une
-  sous-catégorie), `callout` (rule prompt).
+- **Taxonomie système globale** (ADR 0012) : `@keel/finance/taxonomy`,
+  générée depuis celle de ramnn (14 catégories, 75 feuilles, noms fr et en,
+  descriptions pour le modèle, couleur de la palette catégorielle, glyphe),
+  avec la table `slug ramnn → clé keel` pour l'ETL. Seed dans la migration
+  0012, ids en UUID v8 du md5 de la clé (les mêmes partout). Triggers :
+  une transaction ou un mapping pointe une feuille ; deux niveaux au plus,
+  une sous-catégorie du foyer sous une catégorie système seulement.
+- **Marchands** : table globale (clé = `merchant_key`), identité donnée par
+  un dictionnaire ou le modèle. Logos : `/v1/logos/<domaine>.png`, logo.dev
+  interrogé une fois par domaine, octets gardés en base (`merchant_logos`),
+  `Cache-Control: immutable` ; sans logo, 404 et l'initiale.
+- **Échelle** (ADR 0007, `@keel/finance/categorization`) : mapping du
+  marchand, puis mot-clé le plus long ; dictionnaires (marques et MCC portés
+  de ramnn, mots de virement et d'épargne, nom complet d'un membre) ;
+  historique du marchand à majorité des deux tiers (décisions automatiques
+  hors revue) ; puis le modèle, une question par marchand et par sens dans
+  un lot. Garde de signe partout : un débit n'est jamais un revenu.
+- **À revoir** (`04-ai-study.md`, section 4.2) : abstention, réponse
+  contraire à l'historique, marchand inconnu au-delà du quart d'un mois de
+  revenus (500 par défaut). Jamais la confiance déclarée, gardée pour l'eval.
+- **`packages/ai`** : modèles par rôle surchargeables (`AI_MODEL_*`),
+  `gpt-6-luna` avec `gemini-3.1-flash-lite` en repli déclaré à la Gateway,
+  raisonnement coupé, pas d'entraînement, conservation zéro réglable
+  (`AI_ZERO_DATA_RETENTION`). **Écart** : la conservation zéro exige le plan
+  Pro de la Gateway ; la clé de dev (Hobby) la refuse, elle est coupée en
+  dev et devra être active en production. `describeImage` et `generateReply`
+  restent : le routeur `ai` du starter les appelle encore.
+- **Job** `bank.categorize` (file `bank-pipeline`, dédoublonné par foyer,
+  une passe par membre pour les comptes privés) : lots de 200, l'échelle en
+  transaction, le modèle hors transaction par lots de 50, écriture gardée
+  par le rang des sources ; un long arriéré continue dans un nouveau run.
+  Arrivées et saisies planifient la catégorisation avant la réconciliation.
+  Événements `transactions.categorized` et `categories.changed`.
+- **Recatégorisation** (ADR 0006) : `recategorize` écrit la parole du
+  membre sur une ligne ou une sélection (500 au plus), garde chaque décision
+  automatique remplacée (`category_corrections`), rend un jeton d'undo gardé
+  côté serveur un jour (`category_undos`), et propose la règle quand toutes
+  les lignes sont d'un même marchand. `saveMapping` crée ou déplace une
+  règle et l'applique (jamais sur un choix du membre) ; `deleteMapping`
+  renvoie ses lignes à l'échelle. `confirmCategories` vide la file.
+- **Boucle d'eval** : golden set de ramnn en clés keel
+  (`packages/banking/eval/golden-set.json`) et banc rejouable
+  (`bun run eval:categorization`, `--corrections <email>`). Mesuré le
+  2026-09-29 : 98,1 % de bonnes feuilles (155/158), 99,4 % de bonnes
+  catégories, 7 abstentions justes sur 8, en 37 s, comme dans l'étude.
+- **Écrans** : catégorie sur chaque ligne (glyphe et nom), fiche avec la
+  ligne de catégorie et qui l'a décidée, sélecteur groupé et cherchable
+  (sans les revenus pour un débit), encart « À vérifier » avec « C'est bon »,
+  encart de règle, toast « Annuler » ; chip « À revoir » et filtre par
+  catégorie ; sélection multiple et « Catégoriser » ; saisie avec catégorie
+  optionnelle ; dock « À traiter » sur la vraie file et les banques à
+  reconnecter ; page Foyer : sous-catégories (nom, icône, archivage) et
+  règles. Démos : `icon-picker` (porté, sans rangée de couleurs pour une
+  sous-catégorie), 28 glyphes ajoutés, sélection dans `transaction-list`.
 
 Fini quand : une transaction arrivée par la sync est catégorisée et visible
 en quelques secondes sans recharger ; une correction proposée en mapping
-recatégorise les lignes du marchand.
+recatégorise les lignes du marchand. Vérifié le 2026-09-29 sur PGlite
+(tests), puis en local avec le modèle réel : 464 lignes catégorisées en
+8 s environ, une correction de Dizima proposée en règle a déplacé ses
+9 autres lignes du foyer.
 
 ### Lot 5 · Réconciliation et flux
 

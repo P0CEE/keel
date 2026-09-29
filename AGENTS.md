@@ -19,8 +19,11 @@ Guidance for AI coding agents working in this monorepo.
 - Build: `bun run build`
 - Clean caches/builds: `bun run clean`
 - Demo banking data for a local member: `bun run db:seed-demo <email>`
-  (fake bank, two years of history synced in process, idempotent, refused
-  in production)
+  (fake bank, two years of history synced and categorized in process,
+  idempotent, refused in production)
+- Categorization eval: `cd packages/banking && bun run eval:categorization`
+  (golden set; `--corrections <email>` replays a household's corrections;
+  needs `AI_GATEWAY_API_KEY`). Run it before changing a model or the prompt.
 
 **Definition of done** for any change:
 
@@ -87,8 +90,11 @@ attacks.
 - `packages/bank-providers` — the `BankingProvider` port, the Enable Banking
   adapter and the scenario-driven fake (ADR 0005). `BANKING_PROVIDER=fake`
   (the default outside production) runs the app without a bank.
-- `packages/ai` — AI SDK helpers over GPT-4.1: `describeImage` (structured
-  vision) and `generateReply` (text). Call from `apps/api`, never the browser.
+- `packages/ai` — the models by role on the Vercel AI Gateway
+  (`models.ts`, overridable by env), the categorization model behind the
+  `CategorizationModel` port of `@keel/finance/categorization`
+  (`categorize.ts`, run by the worker), and the starter's `describeImage` /
+  `generateReply`. Never from the browser.
 - `packages/cache` — Redis primitives: rate limiter, distributed lock,
   stampede-safe cache, health check.
 - `packages/ui` — shared React components. `src/mint` and `src/finance` are

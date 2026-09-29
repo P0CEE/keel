@@ -138,6 +138,8 @@ Valeurs de Mint gardées telles quelles : `ink-3` reste `fg.secondary` en clair
 | `privacy`, `privacy-balance`        | Privacy, Privacy mode                 | État global par appareil (localStorage) ; masqué, le chiffre quitte le DOM ; branché sur tous les montants (lot 2)                     |
 | `net-worth-breakdown`               | Net worth breakdown                   | `BreakdownCard` seule pour un foyer d'un membre, onglets par membre prêts pour le lot 12 (lot 2)                                       |
 | `account-drawer`                    | Account details drawer (reconverti)   | Carte dessinée aux couleurs de la nature, IBAN masqué qui roule, « masquer des totaux » à la place du gel, actions en props (lot 2)    |
+| `icon-picker`, `category-glyphs`    | Icon picker                           | Les 28 icônes de la démo dans la même source que les glyphes des catégories ; rangée de couleurs optionnelle (lot 4)                   |
+| `transaction-list` (sélection)      | Transactions, Checkbox                | Case à cocher à côté du bouton de la ligne, pour la catégorisation en masse (lot 4)                                                    |
 | `balance-chart`                     | Price chart (reconverti)              | Solde contre son niveau d'ouverture, tracé rééchantillonné à 240 points pour morpher entre périodes, scrub sur les vrais jours (lot 3) |
 
 ### Dans l'app
