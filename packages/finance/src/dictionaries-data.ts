@@ -155,7 +155,8 @@ export const MCC_EXACT: Readonly<Record<string, string>> = {
   "5462": "food.groceries", // Bakeries
   "5499": "food.groceries", // Misc food stores / convenience
   "4111": "transport.transit", // Local/suburban commuter transport
-  "4112": "transport.transit", // Passenger railways
+  // 4112 (passenger railways) is left to the model: a TER is transit, a
+  // TGV a trip, and the code cannot tell the two categories apart.
   "4121": "transport.taxi", // Taxicabs & rideshare
   "4131": "transport.transit", // Bus lines
   "4784": "transport.parking", // Tolls & bridge fees
@@ -226,6 +227,20 @@ export const MCC_EXACT: Readonly<Record<string, string>> = {
   "5970": "leisure.hobbies", // Artist supply & craft shops
   "5992": "shopping.gifts", // Florists
   "5999": "shopping.other", // Misc retail stores
+  "5812": "food.restaurants", // Eating places & restaurants
+  "5814": "food.restaurants", // Fast food restaurants
+  "0742": "shopping.pets", // Veterinary services
+  "5995": "shopping.pets", // Pet shops, pet food & supplies
+  "5552": "transport.fuel", // Electric vehicle charging
+  "5942": "leisure.hobbies", // Book stores
+  "7512": "travel.rental", // Car rental agencies
+  "5712": "housing.furniture", // Furniture & home furnishings stores
+  "5977": "shopping.beauty", // Cosmetic stores
+  "5993": "shopping.tobacco", // Cigar stores & stands
+  "8398": "other.donations", // Charitable & social service organizations
+  "9311": "taxes.other", // Tax payments
+  "6010": "other.cash", // Manual cash disbursements (counter)
+  "6011": "other.cash", // Automated cash disbursements (ATM)
 };
 
 export const MCC_RANGES: readonly {

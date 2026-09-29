@@ -5,6 +5,7 @@ import {
   isCategoryColor,
   SYSTEM_LEAF_KEYS,
   SYSTEM_TAXONOMY,
+  systemDescription,
   systemLabel,
 } from "../src/taxonomy";
 
@@ -30,15 +31,30 @@ describe("the system taxonomy", () => {
         expect(node.label.fr).not.toBe("");
         expect(node.label.en).not.toBe("");
         expect(node.label.description).not.toBe("");
+        expect(node.label.descriptionFr).not.toBe("");
       }
     }
   });
 
-  test("ramnn's slugs all map to a key, once", () => {
-    const slugs = SYSTEM_TAXONOMY.flatMap((group) =>
-      group.leaves.map((leaf) => leaf.ramnn),
+  test("ramnn's slugs all map to a key, once; only keel's own leaves have none", () => {
+    const leaves = SYSTEM_TAXONOMY.flatMap((group) => group.leaves);
+    const slugs = leaves.flatMap((leaf) =>
+      leaf.ramnn === null ? [] : [leaf.ramnn],
     );
-    expect(new Set(slugs).size).toBe(SYSTEM_LEAF_KEYS.length);
+    expect(new Set(slugs).size).toBe(slugs.length);
+    expect(
+      leaves.filter((leaf) => leaf.ramnn === null).map((leaf) => leaf.key),
+    ).toEqual(["other.cash"]);
+    expect(slugs.length + 1).toBe(SYSTEM_LEAF_KEYS.length);
+  });
+
+  test("what a node covers reads in the member's language", () => {
+    expect(systemDescription("other.cash", "fr")).toStartWith(
+      "Retraits d’espèces",
+    );
+    expect(systemDescription("other.cash", "en")).toStartWith("Cash withdrawn");
+    expect(systemDescription("food", "fr")).not.toBeNull();
+    expect(systemDescription("nope", "fr")).toBeNull();
   });
 
   test("labels read in the member's language", () => {

@@ -26,14 +26,16 @@ export type CategoryColor = (typeof CATEGORY_COLORS)[number];
 export type TaxonomyLabel = {
   readonly fr: string;
   readonly en: string;
-  /** What belongs here, in English: what the model reads. */
+  /** What belongs here, in English: what the model reads, and English members. */
   readonly description: string;
+  /** The same, for French-speaking members (ramnn showed it; the model never reads it). */
+  readonly descriptionFr: string;
 };
 
 export type TaxonomyLeaf = {
   readonly key: string;
-  /** ramnn's slug, for the migration of its data. */
-  readonly ramnn: string;
+  /** ramnn's slug, for the migration of its data; null for a leaf keel added. */
+  readonly ramnn: string | null;
   /** "Other: Housing": where a certain category with no fitting leaf goes. */
   readonly catchAll: boolean;
   readonly label: TaxonomyLabel;
@@ -76,6 +78,13 @@ export function systemGroup(key: string): TaxonomyGroup | null {
 
 export function systemLeaf(key: string): TaxonomyLeaf | null {
   return LEAVES.get(key)?.leaf ?? null;
+}
+
+/** What a system node covers, in the member's language; null for an unknown key. */
+export function systemDescription(key: string, locale: Locale): string | null {
+  const node = LEAVES.get(key)?.leaf ?? GROUPS.get(key) ?? null;
+  if (node === null) return null;
+  return locale === "fr" ? node.label.descriptionFr : node.label.description;
 }
 
 /** A system node's name in a language; null for a key that is not one. */

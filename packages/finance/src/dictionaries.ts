@@ -51,8 +51,12 @@ export function matchMcc(mcc: string | null): string | null {
 const SAVINGS = /\b(livrets?|epargnes?)\b/;
 const TRANSFER = /\b(livrets?|epargnes?|transferts?|transfers?)\b/;
 
+// A bank named after savings says nothing about the movement: a withdrawal
+// or a loan installment at the Caisse d'Épargne is not money set aside.
+const SAVINGS_BANK = /\bcaisses? (d )?epargne\b/g;
+
 function words(text: string): string {
-  return labelTokens(text).join(" ");
+  return labelTokens(text).join(" ").replace(SAVINGS_BANK, "caisse");
 }
 
 /** Money moving between the household's own pockets, by its words. */

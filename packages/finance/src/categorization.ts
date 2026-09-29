@@ -9,7 +9,7 @@ import {
   matchBrand,
   matchMcc,
 } from "./dictionaries";
-import { labelTokens } from "./labels";
+import { labelTokens, type TransactionMethod } from "./labels";
 import type { CategoryNature } from "./taxonomy";
 import { signFits } from "./taxonomy";
 
@@ -61,6 +61,8 @@ export type LadderRow = {
   readonly counterpartyName: string | null;
   readonly amountMinor: number;
   readonly mcc: string | null;
+  /** How the money moved, read from the bank's codes and label. */
+  readonly method?: TransactionMethod;
 };
 
 /** What the household's automatic decisions gave a merchant so far. */
@@ -181,8 +183,13 @@ function step(row: LadderRow, context: LadderContext): Decision | null {
     });
   }
 
-  // 2. Dictionaries: a known brand, then money between own pockets, then
-  //    the bank's merchant category code.
+  // 2. Dictionaries: cash, a known brand, then money between own pockets,
+  //    then the bank's merchant category code. Cash comes first: the ATM's
+  //    bank name is neither a brand bought from nor a savings move.
+  if (row.method === "cash_withdrawal") {
+    const cash = context.resolveKey("other.cash");
+    if (cash !== null) return decided(row, cash.id, "dictionary");
+  }
   const text = `${row.counterpartyName ?? ""} ${row.label}`;
   const brand = matchBrand(text);
   if (brand !== null) {

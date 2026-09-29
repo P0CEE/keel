@@ -1357,6 +1357,106 @@
       "amountMinor": -1500,
       "currency": "EUR",
       "expected": "leisure.betting"
+    },
+    {
+      "id": "gs-221",
+      "label": "RETRAIT DAB 2409 PARIS BNP PARIBAS",
+      "method": "cash_withdrawal",
+      "amountMinor": -6000,
+      "currency": "EUR",
+      "expected": "other.cash"
+    },
+    {
+      "id": "gs-222",
+      "label": "RETRAIT DAB 1509 LYON CAISSE D EPARGNE",
+      "method": "cash_withdrawal",
+      "amountMinor": -4000,
+      "currency": "EUR",
+      "expected": "other.cash"
+    },
+    {
+      "id": "gs-223",
+      "label": "PRLV SEPA CAISSE D EPARGNE ECHEANCE PRET 0045",
+      "method": "direct_debit",
+      "amountMinor": -38450,
+      "currency": "EUR",
+      "expected": "bank.loan"
+    },
+    {
+      "id": "gs-224",
+      "label": "FACTURE CARTE DU 300926 CB VISA PREMIER",
+      "method": "other",
+      "amountMinor": -124530,
+      "currency": "EUR",
+      "expected": "movements.transfers"
+    },
+    {
+      "id": "gs-225",
+      "label": "VIR SEPA ACME SAS NOTE DE FRAIS SEPTEMBRE",
+      "method": "transfer",
+      "amountMinor": 18740,
+      "currency": "EUR",
+      "expected": "other.professional"
+    },
+    {
+      "id": "gs-226",
+      "label": "PRLV SEPA URSSAF CESU 092026",
+      "counterpartyName": "URSSAF CESU",
+      "method": "direct_debit",
+      "amountMinor": -28000,
+      "currency": "EUR",
+      "expected": "housing.charges"
+    },
+    {
+      "id": "gs-227",
+      "label": "PRLV SEPA PAJEMPLOI URSSAF",
+      "counterpartyName": "PAJEMPLOI",
+      "method": "direct_debit",
+      "amountMinor": -61200,
+      "currency": "EUR",
+      "expected": "family.childcare"
+    },
+    {
+      "id": "gs-228",
+      "label": "VIR SEPA VINTED PAYOUT",
+      "counterpartyName": "VINTED",
+      "method": "transfer",
+      "amountMinor": 3450,
+      "currency": "EUR",
+      "expected": "income.other"
+    },
+    {
+      "id": "gs-229",
+      "label": "VIR SEPA CAF ARIPA PENSION ALIMENTAIRE",
+      "counterpartyName": "CAF",
+      "method": "transfer",
+      "amountMinor": 25000,
+      "currency": "EUR",
+      "expected": "income.benefits"
+    },
+    {
+      "id": "gs-230",
+      "label": "PAIEMENT CB 1209 SANEF PEAGE A4",
+      "method": "card",
+      "amountMinor": -1270,
+      "currency": "EUR",
+      "expected": "transport.parking"
+    },
+    {
+      "id": "gs-231",
+      "label": "PAIEMENT CB 0309 VELIB METROPOLE PARIS",
+      "method": "card",
+      "amountMinor": -310,
+      "currency": "EUR",
+      "expected": "transport.transit"
+    },
+    {
+      "id": "gs-232",
+      "label": "VIR SEPA VERS ASSURANCE VIE",
+      "method": "transfer",
+      "amountMinor": -110000,
+      "currency": "EUR",
+      "expected": "movements.savings"
     }
   ]
 }

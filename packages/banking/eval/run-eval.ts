@@ -25,7 +25,7 @@ import {
   type ModelAnswer,
   type ModelGroup,
 } from "@keel/finance/categorization";
-import { merchantKey } from "@keel/finance/labels";
+import { merchantKey, TRANSACTION_METHODS } from "@keel/finance/labels";
 import { toDecimalString } from "@keel/finance/money";
 import { SYSTEM_LEAF_KEYS, systemGroup } from "@keel/finance/taxonomy";
 
@@ -36,7 +36,7 @@ const entrySchema = z.object({
   label: z.string(),
   counterpartyName: z.string().optional(),
   mcc: z.string().optional(),
-  method: z.string(),
+  method: z.enum(TRANSACTION_METHODS),
   amountMinor: z.number().int(),
   currency: z.string(),
   expected: z.string().nullable(),
@@ -75,7 +75,7 @@ async function corrections(email: string): Promise<Entry[]> {
     return rows.map((row) => ({
       id: row.id,
       label: row.label,
-      method: "other",
+      method: "other" as const,
       amountMinor: row.amountMinor,
       currency: row.currency,
       // A household's own subcategory has no key: the model cannot reach it.
@@ -109,6 +109,7 @@ async function main(): Promise<void> {
     counterpartyName: entry.counterpartyName ?? null,
     amountMinor: entry.amountMinor,
     mcc: entry.mcc ?? null,
+    method: entry.method,
   }));
   const { decided, forModel } = ladder(rows, {
     mappings: [],

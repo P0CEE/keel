@@ -8,7 +8,13 @@ import {
   mayOverwrite,
   type ModelGroup,
 } from "../src/categorization";
-import { isSelfTransfer, matchBrand, matchMcc } from "../src/dictionaries";
+import {
+  isSavingsText,
+  isSelfTransfer,
+  isTransferText,
+  matchBrand,
+  matchMcc,
+} from "../src/dictionaries";
 import { SYSTEM_LEAF_KEYS, systemGroup } from "../src/taxonomy";
 
 // System leaves resolve to their key, so decisions read as keys.
@@ -251,7 +257,50 @@ describe("finalize", () => {
   });
 });
 
+describe("cash", () => {
+  const keyOf = (overrides: Partial<LadderRow>) =>
+    ladder([row(overrides)], context()).decided[0]?.categoryId ?? null;
+
+  test("a withdrawal is cash, whatever bank runs the machine", () => {
+    expect(
+      keyOf({
+        label: "RETRAIT DAB 2409 PARIS BNP PARIBAS",
+        merchantKey: "bnp paribas",
+        method: "cash_withdrawal",
+      }),
+    ).toBe("other.cash");
+    expect(
+      keyOf({
+        label: "RETRAIT DAB 1509 LYON CAISSE D EPARGNE",
+        merchantKey: "caisse d epargne",
+        method: "cash_withdrawal",
+      }),
+    ).toBe("other.cash");
+  });
+
+  test("the bank's ATM code says cash too", () => {
+    expect(matchMcc("6011")).toBe("other.cash");
+    expect(matchMcc("6010")).toBe("other.cash");
+  });
+});
+
 describe("dictionaries", () => {
+  test("a bank named after savings is not a savings move", () => {
+    expect(isSavingsText("PRLV SEPA CAISSE D EPARGNE ECHEANCE PRET")).toBe(
+      false,
+    );
+    expect(isTransferText("PRLV SEPA CAISSE D'ÉPARGNE ECHEANCE PRET")).toBe(
+      false,
+    );
+    expect(isSavingsText("VIR SEPA VERS LIVRET A")).toBe(true);
+    expect(isSavingsText("VIREMENT EPARGNE MENSUELLE")).toBe(true);
+  });
+
+  test("a railway code is left to the model: a TER is transit, a TGV a trip", () => {
+    expect(matchMcc("4112")).toBeNull();
+    expect(matchMcc("5812")).toBe("food.restaurants");
+  });
+
   test("a short brand pattern never matches inside a word", () => {
     expect(matchBrand("VERCEL INC")?.name).toBe("Vercel");
     expect(matchBrand("MONOPRIX")).toBeNull();
