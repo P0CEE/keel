@@ -310,23 +310,89 @@ recatégorise les lignes du marchand. Vérifié le 2026-09-29 sur PGlite
 
 ### Lot 5 · Réconciliation et flux
 
-- **`@keel/finance`** : `transfers` (compte propre reconnu par IBAN, libellé
-  et nom de compte, ADR 0009), `flow` (`flowOf`, `decompose`).
-- **`bank.reconcile`** : recalcul complet du foyer, écriture du seul diff,
-  dédoublonné par foyer ; `bank.daily-advance`. Solde des comptes manuels
-  recalculé à chaque changement.
-- **Lectures** : `cashflow(period)` (une lecture pour Disponible, Dépenses,
-  Épargne, Top catégories), `accountsOverview`, `balanceHistory`.
-- **Écrans** : premiers widgets de la home sur données réelles, qui
-  remplacent les données d'exemple. Démos : `cash-flow` (déjà porté),
-  `spend-save`, `spending-breakdown`, `market-heatmap` (la treemap des
-  dépenses), `monthly-spend`, `animated-number` (déjà porté).
-- **Cas nommés** : aucun virement interne compté en dépense ; une dépense
-  remboursée nette dans sa sous-catégorie ; l'écart nommé entre « dépensé »
-  budget et cashflow.
+- **`@keel/finance`** : `transfers` (ADR 0009) : l'IBAN du foyer fait foi ;
+  à défaut, un libellé catégorisé en mouvement qui nomme un compte (tous
+  les mots d'un de ses noms, le plus précis gagne, une égalité ne nomme
+  personne) ; jumelles au centime près, même devise, comptes différents,
+  4 jours au plus, avec au moins un signal de virement (un achat et un
+  remboursement du même montant ne s'apparient pas), la sortie la plus
+  ancienne prend l'entrée la plus proche. `flow` (ADR 0010) : une ligne de
+  livret ou de prêt est `outside` ; un virement vers un livret est de
+  l'épargne, jumelle ou pas ; entre compte courant et carte, `internal` ; le
+  remboursement d'un prêt suivi garde le flux de sa catégorie (le membre l'a
+  payé ce mois-ci) ; une feuille d'épargne ou de titres sans compte reconnu
+  est de l'épargne, un autre mouvement un virement sortant ou entrant ; sans
+  catégorie, `unclassified`, compté par son signe. `decompose` :
+  Disponible est toujours la somme brute des lignes du périmètre, et
+  `entrées - sorties` le redonne au centime. `balances.manualMoves`,
+  `dates.addMonths` et `endOfMonth`.
+- **Schéma** (migration 0013) : `counterpart_account_id`,
+  `transfer_peer_id`, `transfer_dismissed`, `flow`, `excluded_from_budget`,
+  `excluded_from_analysis` ; fonction `keel_households_starting_day`.
+- **`bank.reconcile`** : liens et flux recalculés sur tout le foyer, seul le
+  diff écrit (une deuxième passe n'écrit rien) ; une tombstone lâche sa
+  jumelle ; solde et historique des comptes manuels (ancre déclarée, plus
+  ses propres lignes et les jambes reconnues vers lui) ; historiques
+  prolongés au jour courant. La passe d'un membre ne touche pas un lien vers
+  un compte privé qu'il ne voit pas. Renommer un compte ou changer son type
+  replanifie la réconciliation. **`bank.daily-advance`**, chaque heure : les
+  foyers dont la journée commence dans leur fuseau.
+- **Lectures, par bloc et non par page** (les pages seront redisposées) :
+  `insights.cashflow({ months })` (revenus, dépenses, épargne, virements
+  sortants, à catégoriser, entrées, sorties, Disponible, par mois) et
+  `insights.spending({ month })` (par catégorie avec ses sous-catégories et
+  sa moyenne sur trois mois, par marchand, cumul jour par jour contre le mois
+  d'avant), converties à la devise d'affichage au taux de fin de mois.
+- **Geste** : « Ce n'est pas un virement interne », et son retour, depuis la
+  fiche transaction, qui dit vers quel compte part le virement.
+- **Écrans** : la home sur données réelles, en blocs indépendants
+  (patrimoine et Disponible du mois, `cash-flow`, `spend-save`,
+  `spending-breakdown`, la treemap de `market-heatmap` limitée à cinq
+  catégories plus « Autres », `monthly-spend`, dernières transactions). La
+  disposition est provisoire, les composants sont portés à l'identique.
+- **Cas nommés** (tests) : virement sans IBAN (CIC) apparié par le libellé ;
+  jambe vers un compte manuel sans jumelle ; carte remboursée par le compte
+  courant, interne des deux côtés ; aucun virement interne compté en
+  dépense ; remboursement net dans sa sous-catégorie ; ligne exclue de
+  l'analyse comptée nulle part ; lien vers un compte privé jamais défait par
+  un autre membre ; identité au centime ; Disponible égal à la somme brute.
+- **Écarts** : un virement comptabilisé le jour même d'une déclaration de
+  solde manuel n'est pas compté (la déclaration vaut fin de journée, comme
+  dans ramnn) ; les montants sont convertis au taux de fin de mois, pas de
+  chaque jour d'achat ; un virement entre deux devises n'est pas apparié.
+  L'écart nommé entre « dépensé » budget et cashflow vient avec les budgets
+  (lot 7).
 
 Fini quand : sur les données du fake et de la sandbox, `revenus = dépenses +
 épargne + virements sortants + Disponible` au centime, pour chaque mois.
+Vérifié le 2026-09-29 sur PGlite (tests) ; le parcours en local sur le seed
+et la sandbox Enable Banking restent à faire.
+
+**Revue des catégories (2026-09-29, pendant le lot 5).**
+
+- **Un seul écrivain, pour de vrai** (ADR 0006) : `category-writer`
+  (`assignCategories`, `releaseCategories`) applique la règle de rang,
+  écrit en quelques requêtes (plus une par ligne) et annonce la suite ; la
+  catégorisation, les règles, la recatégorisation et l'annulation ne font
+  plus que décider. Une recatégorisation ne reconstruit plus l'historique de
+  solde (seules les causes qui déplacent de l'argent le font).
+- **Sans modèle configuré**, ce que l'échelle ne décide pas reste en attente
+  (plus d'abstention définitive) ; la file se lit par curseur. Une réponse
+  du modèle hors format est redemandée une fois, puis au modèle de repli.
+- **Côté app**, un seul `displayOf` / `useCategoryDisplay` (nom, couleur,
+  glyphe, catégorie, description) pour la liste, la fiche, le sélecteur,
+  les réglages et les graphiques ; requêtes des catégories découpées par
+  sujet.
+- **Taxonomie** : feuille `other.cash` « Retraits d'espèces » (migration
+  0014, les retraits décidés automatiquement y passent) avec l'échelon
+  « méthode retrait » et les MCC 6010/6011 ; « Caisse d'Épargne » ne vaut
+  plus épargne ; MCC 4112 laissé au modèle (TER ou TGV), douze codes MCC
+  ajoutés ; vingt descriptions précisées (assurance vie, CESU, Pajemploi,
+  péages, débit différé, note de frais, pension reçue, ventes d'occasion...)
+  et règles du prompt correspondantes ; descriptions françaises pour les
+  membres, reprises de ramnn. Eval : 97,6 % de bonnes feuilles (166/170),
+  98,8 % de bonnes catégories, 8 abstentions justes sur 8, avec douze cas
+  ajoutés au golden set (97,5 % avant, sur 158).
 
 ### Lot 6 · Séries récurrentes
 
