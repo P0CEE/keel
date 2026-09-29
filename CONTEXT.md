@@ -229,6 +229,17 @@ subcategory. Applies from a month until a later one replaces it, so past
 months keep the limit they were measured against. Totals never count a
 subcategory budget twice when its category also has one.
 
+**Budget spending**:
+What the budgets measure: the expense flow, refunds netted, minus the rows
+the member took out of the budget. It differs on purpose from the cash
+flow's expense by those rows only: a gift kept out of the budget is still
+money spent. A row taken out of the analysis counts in neither.
+
+**Budget alert**:
+A budget, or a subcategory budget nested under one, reaching 80 % or 100 %
+of its month, for one member's view. Decided whenever the figures move,
+once per threshold and month, and told only in the household's daytime.
+
 **Savings target**:
 The amount a household intends to set aside each month, versioned by month
 like a budget. Budgets are the constraint, the target is the goal.

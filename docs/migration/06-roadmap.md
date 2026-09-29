@@ -3,7 +3,7 @@
 - Date : 2026-09-28
 - Entrées : `01-audit.md` à `05-ui-porting.md` et leurs décisions validées,
   ADR 0001 à 0017, `CONTEXT.md`, catalogue des démos mint-pocs.
-- Statut : validée le 2026-09-28 ; lots 0 à 6 livrés.
+- Statut : validée le 2026-09-28 ; lots 0 à 7 livrés.
 
 ## 1. Principes de découpage
 
@@ -493,6 +493,55 @@ septembre.
 Fini quand : budgets, alertes et revue lisent le même arbre, et les bugs de
 l'audit (transferts « hors budget », remboursements, mois UTC, alertes de
 nuit) sont des tests qui passent.
+
+**Livré le 2026-09-29.**
+
+- **`@keel/finance`** : `budgets` (`inForce` pour toute valeur versionnée par
+  mois, `budgetOverview` : un budget de catégorie couvre son sous-arbre, un
+  sous-budget sous une catégorie budgétée reste une ligne imbriquée suivie
+  mais jamais additionnée, un sous-budget sans budget de catégorie est sa
+  propre ligne, le reste est « hors budget » remonté à sa catégorie ; seul
+  l'`expense` se budgète ; `trackedBudgets`, `alertsDue` (seul le seuil le
+  plus haut part, jamais deux fois, jamais après un remboursement),
+  `suggestBudgets`, `savingsShare`) ; `dates.nextDaytime` et
+  `zonedInstant` (fenêtre 8 h - 21 h du foyer, changements d'heure compris).
+- **Schéma** (migration 0016) : `budgets` (version par mois, montant nul =
+  fin), `savings_targets`, `budget_alerts` (unique par membre, catégorie,
+  mois et seuil ; `notify_at` ; `notified_at` pour le lot 9), RLS du foyer,
+  et du membre pour les alertes.
+- **`@keel/banking`** : `budgetsOverview` (l'arbre du mois et l'objectif
+  contre le « mis de côté » du cash-flow, par la même fonction
+  `monthCashflow`), `budgetsHistory` (six mois, chaque point est l'arbre de
+  la page), `budgetSuggestions` (trois mois complets avant le mois courant,
+  arrondi à la dizaine supérieure, dix unités au moins), `setBudget` et
+  `setSavingsTarget` (du mois courant, jamais un mois reçu du client),
+  `decideBudgetAlerts` en fin de chaque passe de réconciliation par membre et
+  après un budget écrit. Geste `setExclusions` (hors budget, hors analyse,
+  cause `excluded` qui replanifie la réconciliation sans reconstruire
+  l'historique de solde). Événement `budgets.changed`.
+- **Écrans** (provisoires, refaits au lot 8) : page Budgets (mois navigable
+  préchargé au survol, reste à dépenser, lignes `category-budget` avec leurs
+  sous-catégories, hors budget, six mois en `monthly-spend`, objectif en
+  `unlock-progress` et suggestions en cards-inset), fiche budget
+  (`amount-stepper` par pas de 10), fiche objectif (`amount-input` et trois
+  montants rapides), lignes « Budget » et « Analyse » dans la fiche
+  transaction. Démos portées : `category-budget`, `amount-stepper`,
+  `unlock-progress` (rôles bronze et hachures ajoutés à `tokens.css`) ;
+  icône Mint `pie-chart` pour l'entrée Budgets.
+- **Cas nommés** (tests) : virements jamais « hors budget », remboursement
+  déduit de sa sous-catégorie, ligne hors budget toujours comptée en
+  dépense (l'écart nommé, glossaire « Budget spending »), ligne hors analyse
+  comptée nulle part, dépenses d'un compte privé dans l'arbre de son seul
+  membre, sous-budget dépassé qui alerte sous une catégorie qui ne l'est
+  pas, dépassement vu par une sync à 4 h décidé une fois avec `notify_at` à
+  8 h, mois du budget lu dans le fuseau du foyer (23 h 30 UTC le 30 est
+  octobre à Paris), historique qui recoupe la page.
+- **Écarts** : l'email et la cloche des alertes viennent avec les
+  notifications (lot 9), qui liront `budget_alerts` à partir de
+  `notify_at` ; les alertes ne portent que sur le mois courant. L'étape
+  d'onboarding de l'objectif d'épargne est reportée (à ta demande) ;
+  l'objectif se fixe depuis la page Budgets. Le verdict de revue sur un
+  sous-budget viendra du même `trackedBudgets` (lot 9).
 
 ### Lot 8 · Home à widgets
 

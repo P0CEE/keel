@@ -538,7 +538,14 @@ lecture « dernier budget en vigueur » (R20). ramnn avait en plus deux index
 redondants avec cette contrainte.
 
 **`savings_targets`** : PK (`household_id`, `effective_month`) ;
-`amount_minor null` ; `currency` ; `created_at`.
+`amount_minor null` ; `currency` ; `created_by` ; `created_at`.
+
+**`budget_alerts`** (lot 7) : id ; `household_id` ; `member_id` ;
+`category_id` ; `month` (premier du mois) ; `level` (80 ou 100) ;
+`decided_at` ; `notify_at` (le premier instant de jour du foyer) ;
+`notified_at` (posé par la livraison, lot 9). **U** (`member_id`,
+`category_id`, `month`, `level`) : la déduplication. Remplace les
+`domain_events` que ramnn détournait pour dédoublonner.
 
 #### Revue, alertes, notifications
 
