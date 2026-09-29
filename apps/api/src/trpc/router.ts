@@ -1,4 +1,3 @@
-import { aiRouter } from "./routers/ai";
 import { authRouter } from "./routers/auth";
 import {
   accountsRouter,
@@ -17,7 +16,6 @@ import { router } from "./trpc";
 export const appRouter = router({
   health: healthRouter,
   auth: authRouter,
-  ai: aiRouter,
   realtime: realtimeRouter,
   household: householdRouter,
   settings: settingsRouter,

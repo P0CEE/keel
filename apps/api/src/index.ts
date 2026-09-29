@@ -50,7 +50,7 @@ app.use(
   }),
 );
 
-// REST — webhooks, public/versioned/third-party consumers.
+// REST: the bank's redirect back, merchant logos, public probes.
 app.route("/", restApp);
 
 // Machine-readable OpenAPI document + Scalar reference UI.
@@ -60,7 +60,7 @@ app.doc("/openapi.json", {
     version: "1.0.0",
     title: "@keel/api REST",
     description:
-      "Public REST surface (/v1) for webhooks and third-party consumers.",
+      "Public REST surface (/v1): the bank callback, logos and probes.",
   },
 });
 app.get("/reference", Scalar({ url: "/openapi.json" }));

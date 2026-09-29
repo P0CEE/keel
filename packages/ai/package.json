@@ -4,9 +4,6 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./vision": "./src/vision.ts",
-    "./chat": "./src/chat.ts",
     "./categorize": "./src/categorize.ts",
     "./models": "./src/models.ts"
   },
@@ -16,7 +13,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/openai": "catalog:",
     "@keel/finance": "workspace:*",
     "ai": "catalog:",
     "zod": "catalog:"

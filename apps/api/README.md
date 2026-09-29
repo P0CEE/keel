@@ -20,8 +20,6 @@ an SSE subscription with replay).
 | `CORS_ORIGIN`        | no       | `http://localhost:3000` | Allowed CORS origin (credentialed).        |
 | `BETTER_AUTH_SECRET` | yes      | -                       | Better Auth signing secret (min 32 chars). |
 | `BETTER_AUTH_URL`    | yes      | -                       | Base URL Better Auth runs on.              |
-| `WEBHOOK_SECRET`     | no       | `dev-webhook-secret`    | HMAC secret for inbound webhooks.          |
-| `OPENAI_API_KEY`     | no       | -                       | OpenAI key for the AI endpoints.           |
 | `NODE_ENV`           | no       | `development`           | `development` / `production` / `test`.     |
 
 ## Development
@@ -38,8 +36,8 @@ This service exposes two complementary APIs:
 
 - **tRPC (`/trpc`)** — the typed internal API consumed by `@keel/app`. End-to-end
   type safety, no hand-written schemas. Use this for first-party clients.
-- **REST (`/v1`)** — for what tRPC is not suited to: inbound webhooks,
-  public/third-party/versioned consumers, and machine-readable docs. Built with
+- **REST (`/v1`)** — for what tRPC is not suited to: the bank's redirect
+  back, merchant logos served as images, and machine-readable docs. Built with
   `@hono/zod-openapi` (typed routes that auto-generate OpenAPI). The OpenAPI
   document is served at `/openapi.json` and an interactive reference UI
   (`@scalar/hono-api-reference`) at `/reference`.
@@ -50,9 +48,10 @@ Rate limiting is Redis-backed via `@keel/cache`: a coarse per-IP
 ## Endpoints
 
 - `GET /health` - plain liveness probe returning `{ status: "ok" }`.
-- `/trpc/*` - the tRPC v11 API (routers: `health`, `auth`, `jobs`, `tasks`, `ai`).
+- `/trpc/*` - the tRPC v11 API (`src/trpc/router.ts` lists the routers).
 - `GET /v1/health` - public REST health probe (API + Redis status).
-- `POST /v1/webhooks/example` - HMAC-SHA256 signed inbound webhook.
+- `GET /v1/bank/callback` - where the bank sends the member back after consent.
+- `GET /v1/logos/<domain>.png` - a merchant's logo, served from the database.
 - `GET /openapi.json` - OpenAPI 3.0 document for the REST surface.
 - `GET /reference` - Scalar API reference UI.
 

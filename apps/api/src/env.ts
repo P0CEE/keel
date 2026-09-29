@@ -16,12 +16,6 @@ const envSchema = z.object({
   // migrated members keep their account).
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
-  // Optional: only required to call the AI endpoints. The OpenAI provider
-  // reads it directly; the AI router fails with a clear error when it's unset.
-  OPENAI_API_KEY: z.string().min(1).optional(),
-  // No default: the process must fail to start without an explicit secret.
-  // A shared default would let anyone forge webhook signatures.
-  WEBHOOK_SECRET: z.string().min(16),
   // The aggregator new connections go through (ADR 0005): the scenario
   // fake by default, so the app runs without a bank. Enable Banking needs
   // the application id and its private key (PEM, or its base64).
