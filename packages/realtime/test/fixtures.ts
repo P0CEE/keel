@@ -50,16 +50,21 @@ export async function take<T>(
   count: number,
   timeoutMs = 1_000,
 ): Promise<readonly T[]> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const deadline = new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error("timed out")), timeoutMs);
+    timer = setTimeout(() => reject(new Error("timed out")), timeoutMs);
   });
   let taken: readonly T[] = [];
-  while (taken.length < count) {
-    const next = await Promise.race([iterator.next(), deadline]);
-    if (next.done === true) {
-      break;
+  try {
+    while (taken.length < count) {
+      const next = await Promise.race([iterator.next(), deadline]);
+      if (next.done === true) {
+        break;
+      }
+      taken = [...taken, next.value];
     }
-    taken = [...taken, next.value];
+  } finally {
+    clearTimeout(timer);
   }
   return taken;
 }

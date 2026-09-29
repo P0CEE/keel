@@ -36,47 +36,57 @@ test("a committed write reaches the member, a rolled-back one never", async () =
   const hub = createHub({ store, schemas: testEvents, onError, blockMs: 50 });
   const emit = createEmitter({ store, schemas: testEvents, onError });
   const abort = new AbortController();
-  const received = take(
-    hub.subscribe({
-      householdId: household,
-      memberId: scope.memberId,
-      lastEventId: null,
-      signal: abort.signal,
-    }),
-    1,
-  );
-  await Bun.sleep(10);
+  // Closed whatever happens: a failed expectation must not leave the
+  // hub's loop running, which would keep the test process alive.
+  try {
+    const received = take(
+      hub.subscribe({
+        householdId: household,
+        memberId: scope.memberId,
+        lastEventId: null,
+        signal: abort.signal,
+      }),
+      1,
+      // PGlite writes below: slow while the whole suite runs in parallel.
+      10_000,
+    );
+    await Bun.sleep(10);
 
-  const rolledBack = withScope(
-    scope,
-    async (unit) => {
-      await unit.tx.update(households).set({ name: "Renamed" });
-      emit(unit, "household.reconciled", { months: ["2026-08"] });
-      throw new Error("rolled back");
-    },
-    testDb.db,
-  );
-  const error = await rolledBack.then(
-    () => null,
-    (reason: unknown) => reason,
-  );
-  expect(error).toBeInstanceOf(Error);
+    const rolledBack = withScope(
+      scope,
+      async (unit) => {
+        await unit.tx.update(households).set({ name: "Renamed" });
+        emit(unit, "household.reconciled", { months: ["2026-08"] });
+        throw new Error("rolled back");
+      },
+      testDb.db,
+    );
+    const error = await rolledBack.then(
+      () => null,
+      (reason: unknown) => reason,
+    );
+    expect(error).toBeInstanceOf(Error);
 
-  await withScope(
-    scope,
-    async (unit) => {
-      await unit.tx.update(households).set({ name: "Renamed" });
-      emit(unit, "household.reconciled", { months: ["2026-09"] });
-    },
-    testDb.db,
-  );
+    await withScope(
+      scope,
+      async (unit) => {
+        await unit.tx.update(households).set({ name: "Renamed" });
+        emit(unit, "household.reconciled", { months: ["2026-09"] });
+      },
+      testDb.db,
+    );
 
-  expect((await received).map(({ delivery }) => delivery)).toEqual([
-    {
-      kind: "event",
-      event: { name: "household.reconciled", payload: { months: ["2026-09"] } },
-    },
-  ]);
-  abort.abort();
-  await hub.close();
+    expect((await received).map(({ delivery }) => delivery)).toEqual([
+      {
+        kind: "event",
+        event: {
+          name: "household.reconciled",
+          payload: { months: ["2026-09"] },
+        },
+      },
+    ]);
+  } finally {
+    abort.abort();
+    await hub.close();
+  }
 });

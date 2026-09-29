@@ -62,14 +62,17 @@ export function createMemoryStreams(): MemoryStreams {
         return ready;
       }
       await new Promise<void>((resolve) => {
-        const timer = setTimeout(resolve, blockMs);
-        wakers = [
-          ...wakers,
-          () => {
-            clearTimeout(timer);
-            resolve();
-          },
-        ];
+        // A read that times out takes its waker back: a hub polling an idle
+        // stream every `blockMs` must not grow the list for ever.
+        const wake = () => {
+          clearTimeout(timer);
+          resolve();
+        };
+        const timer = setTimeout(() => {
+          wakers = wakers.filter((other) => other !== wake);
+          resolve();
+        }, blockMs);
+        wakers = [...wakers, wake];
       });
       return pending(cursors);
     },
