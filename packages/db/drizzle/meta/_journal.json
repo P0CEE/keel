@@ -113,6 +113,13 @@
       "when": 1790673019641,
       "tag": "0015_recurring_series",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790676848478,
+      "tag": "0016_budgets",
+      "breakpoints": true
     }
   ]
 }

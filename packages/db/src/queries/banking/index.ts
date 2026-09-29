@@ -13,3 +13,4 @@ export * from "./merchants";
 export * from "./reconcile";
 export * from "./insights";
 export * from "./recurring";
+export * from "./budgets";

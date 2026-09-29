@@ -54,6 +54,8 @@ export type TransactionPatch = Partial<
     | "transferDismissed"
     | "recurringSeriesId"
     | "recurringExcluded"
+    | "excludedFromBudget"
+    | "excludedFromAnalysis"
     | "deletedAt"
   >
 >;
